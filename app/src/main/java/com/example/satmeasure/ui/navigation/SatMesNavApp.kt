@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -33,6 +34,14 @@ val ANIM_EASING = FastOutSlowInEasing
 
 @Composable
 fun SatMesNavApp() {
+    // --- Bottom Sheet Configuration Variables ---
+    // Portrait bottom sheet peek height
+    val portraitPeekHeight = 120.dp
+    // Landscape bottom sheet peek height
+    val landscapePeekHeight = 100.dp
+    // Landscape bottom sheet expanded height ratio (percentage of screen height)
+    val landscapeExpandedHeightRatio = 0.93f
+
     val navController = rememberNavController()
     val context = LocalContext.current
     val activity = (context as? Activity)
@@ -99,7 +108,10 @@ fun SatMesNavApp() {
 
                 MapScreen(
                     currentRoute = currentRoute,
-                    onNavigate = navigateToDest
+                    onNavigate = navigateToDest,
+                    portraitPeekHeight = portraitPeekHeight,
+                    landscapePeekHeight = landscapePeekHeight,
+                    landscapeExpandedHeightRatio = landscapeExpandedHeightRatio
                 )
             }
 

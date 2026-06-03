@@ -24,7 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.material3.Surface
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,6 +42,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -50,22 +55,28 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalConfiguration
+import kotlinx.coroutines.launch
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.ui.unit.Dp
 
 
 @Composable
 fun SatMesTopControls(
     onMenuClick: () -> Unit,
     onStyleToggle: () -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
 
     // Smoothly rotates ExpandMore to point UP when opened
     val rotation by animateFloatAsState(
@@ -98,7 +109,7 @@ fun SatMesTopControls(
             horizontalAlignment = Alignment.End
         ) {
             FloatingActionButton(
-                onClick = { expanded = !expanded },
+                onClick = { onExpandedChange(!expanded) },
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface,
@@ -118,7 +129,7 @@ fun SatMesTopControls(
                 ) {
                     SmallFloatingActionButton(
                         onClick = {
-                            expanded = false
+                            onExpandedChange(false)
                             onSearchClick()
                         },
                         shape = RoundedCornerShape(10.dp),
@@ -132,7 +143,7 @@ fun SatMesTopControls(
 
                     SmallFloatingActionButton(
                         onClick = {
-                            expanded = false
+                            onExpandedChange(false)
                             onStyleToggle()
                         },
                         shape = RoundedCornerShape(10.dp),
@@ -150,7 +161,7 @@ fun SatMesTopControls(
 @Composable
 fun SatMesSidebar(
     currentRoute: String,
-    onMenuSelect: (String) -> Unit // Smooth animations
+    onMenuSelect: (String) -> Unit
 ) {
     var loginState by remember { mutableIntStateOf(0) }
     
@@ -163,7 +174,7 @@ fun SatMesSidebar(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val widthFraction = if (isLandscape) 0.4f else 0.6f
+    val widthFraction = if (isLandscape) 0.4f else 0.65f
 
     ModalDrawerSheet(
         modifier = Modifier.fillMaxWidth(widthFraction)
@@ -179,7 +190,6 @@ fun SatMesSidebar(
                 selectedContainerColor = MaterialTheme.colorScheme.primaryContainer
             )
 
-            // Everything scrollable except Settings
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -366,6 +376,113 @@ fun SatMesSidebar(
                     top = if (isLandscape) 0.dp else 4.dp
                 )
             )
+        }
+    }
+}
+
+@Composable
+fun SatMesBottomSheet(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 10.dp)
+        ) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(4.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                    .align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text(
+                text = "Map Details",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+
+            HorizontalDivider(
+                Modifier,
+                thickness = 1.5.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+            )
+        }
+    }
+}
+
+@Composable
+fun SatMesBottomSheetLandscape(
+    modifier: Modifier = Modifier,
+    peekHeight: Dp = 110.dp,
+    expandedHeightRatio: Float = 0.93f,
+    content: @Composable () -> Unit
+) {
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val expandedHeight = screenHeight * expandedHeightRatio
+    
+    val density = LocalDensity.current
+    val peekHeightPx = with(density) { peekHeight.toPx() }
+    val expandedHeightPx = with(density) { expandedHeight.toPx() }
+    
+    val heightAnimatable = remember { Animatable(peekHeightPx) }
+    val coroutineScope = rememberCoroutineScope()
+
+    val draggableState = rememberDraggableState { delta ->
+        coroutineScope.launch {
+            val newHeight = heightAnimatable.value - delta
+            heightAnimatable.snapTo(newHeight.coerceIn(peekHeightPx, expandedHeightPx))
+        }
+    }
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth(0.5f)
+            .height(with(density) { heightAnimatable.value.toDp() })
+            .draggable(
+                state = draggableState,
+                orientation = Orientation.Vertical,
+                onDragStopped = { velocity ->
+                    coroutineScope.launch {
+                        val targetHeight = if (velocity < -500f) {
+                            expandedHeightPx
+                        } else if (velocity > 500f) {
+                            peekHeightPx
+                        } else {
+                            val midPoint = (peekHeightPx + expandedHeightPx) / 2
+                            if (heightAnimatable.value > midPoint) expandedHeightPx else peekHeightPx
+                        }
+                        
+                        heightAnimatable.animateTo(
+                            targetValue = targetHeight,
+                            initialVelocity = -velocity,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        )
+                    }
+                }
+            ),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        shadowElevation = 8.dp
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Sheet Content
+            Box(modifier = Modifier.fillMaxSize()) {
+                content()
+            }
         }
     }
 }
