@@ -1,3 +1,4 @@
+
 package com.example.satmeasure.ui.navigation
 
 import android.app.Activity
@@ -21,7 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.satmeasure.ui.main.MapScreen
+import com.example.satmeasure.ui.main.MainScreen
 import com.example.satmeasure.ui.main.HistoryScreen
 import com.example.satmeasure.ui.otherScreens.AboutUsScreen
 import com.example.satmeasure.ui.otherScreens.HowToCoordinatesScreen
@@ -106,7 +107,7 @@ fun SatMesNavApp() {
                     }
                 }
 
-                MapScreen(
+                MainScreen(
                     currentRoute = currentRoute,
                     onNavigate = navigateToDest,
                     portraitPeekHeight = portraitPeekHeight,
