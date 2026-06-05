@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
@@ -29,21 +24,19 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
 import com.example.satmeasure.ui.map.SatMapComponent
 import com.example.satmeasure.ui.navigation.SatMesRoutes
-import com.example.satmeasure.ui.navigation.SatMesSidebar
-import com.example.satmeasure.ui.navigation.SatMesTopControls
-import com.example.satmeasure.ui.navigation.SatMesBottomSheetLandscape
+import com.example.satmeasure.ui.navigation.AppSidebar
+import com.example.satmeasure.ui.navigation.MainTopControls
+import com.example.satmeasure.ui.components.MainCustomBottomSheet
 import com.example.satmeasure.ui.navigation.MapStyleBottomSheet
-import com.example.satmeasure.ui.navigation.SatMesBottomSheet
+import com.example.satmeasure.ui.components.MainBottomSheet
 import com.example.satmeasure.ui.navigation.availableMapStyles
 import kotlinx.coroutines.launch
 
@@ -53,11 +46,15 @@ fun MainScreen(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     portraitPeekHeight: Dp = 120.dp,
+    portraitExpandedHeightRatio: Float = 0.5f,
     landscapePeekHeight: Dp = 100.dp,
     landscapeExpandedHeightRatio: Float = 0.93f
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    var currentArea by remember { mutableDoubleStateOf(0.0) }
+    var currentPerimeter by remember { mutableDoubleStateOf(0.0) }
 
     var currentMapStyleId by rememberSaveable { mutableStateOf("satellite_streets") }
     var showStyleSheet by remember { mutableStateOf(false) }
@@ -93,7 +90,7 @@ fun MainScreen(
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
-            SatMesSidebar(
+            AppSidebar(
                 currentRoute = currentRoute,
                 onMenuSelect = { route ->
                     scope.launch {
@@ -131,10 +128,14 @@ fun MainScreen(
                         SatMapComponent(
                             modifier = Modifier.fillMaxSize(),
                             currentMapStyle = currentStyleUri,
-                            onMapInteract = handleMapInteract
+                            onMapInteract = handleMapInteract,
+                            onMeasurementsUpdated = { area, perimeter ->
+                                currentArea = area
+                                currentPerimeter = perimeter
+                            }
                         )
 
-                        SatMesTopControls(
+                        MainTopControls(
                             onMenuClick = { scope.launch { drawerState.open() } },
                             onStyleToggle = { showStyleSheet = true },
                             onSearchClick = {
@@ -150,56 +151,56 @@ fun MainScreen(
                         )
 
                         // Custom Floating "Bottom Sheet" on the Left
-                        SatMesBottomSheetLandscape(
+                        MainCustomBottomSheet(
                             modifier = Modifier.align(Alignment.BottomStart),
                             peekHeight = landscapePeekHeight,
-                            expandedHeightRatio = landscapeExpandedHeightRatio
+                            expandedHeightRatio = landscapeExpandedHeightRatio,
+                            widthRatio = 0.5f
                         ) {
-                            SatMesBottomSheet(
-                                modifier = Modifier.fillMaxSize()
+                            MainBottomSheet(
+                                modifier = Modifier.fillMaxSize(),
+                                areaMeters = currentArea,
+                                perimeterMeters = currentPerimeter
                             )
                         }
                     }
                 } else {
-                    val sheetState = rememberStandardBottomSheetState(
-                        initialValue = SheetValue.PartiallyExpanded
-                    )
-                    val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
-
-                    BottomSheetScaffold(
-                        scaffoldState = scaffoldState,
-                        sheetPeekHeight = portraitPeekHeight,
-                        sheetShape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp),
-                        sheetContainerColor = MaterialTheme.colorScheme.surface,
-                        sheetDragHandle = null,
-                        sheetContent = {
-                            SatMesBottomSheet(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(0.5f)
-                            )
-                        }
-                    ) { _ ->
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            SatMapComponent(
-                                modifier = Modifier.fillMaxSize(),
-                                currentMapStyle = currentStyleUri,
-                                bottomPadding = portraitPeekHeight,
-                                onMapInteract = handleMapInteract
-                            )
-                            SatMesTopControls(
-                                onMenuClick = { scope.launch { drawerState.open() } },
-                                onStyleToggle = { showStyleSheet = true },
-                                onSearchClick = {
-                                    onNavigate(SatMesRoutes.SEARCH)
-                                },
-                                expanded = isTopMenuExpanded,
-                                onExpandedChange = { expanded ->
-                                    isTopMenuExpanded = expanded
-                                    if (!expanded) {
-                                        lastInteractionTime = System.currentTimeMillis()
-                                    }
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        SatMapComponent(
+                            modifier = Modifier.fillMaxSize(),
+                            currentMapStyle = currentStyleUri,
+                            bottomPadding = portraitPeekHeight,
+                            onMapInteract = handleMapInteract,
+                            onMeasurementsUpdated = { area, perimeter ->
+                                currentArea = area
+                                currentPerimeter = perimeter
+                            }
+                        )
+                        MainTopControls(
+                            onMenuClick = { scope.launch { drawerState.open() } },
+                            onStyleToggle = { showStyleSheet = true },
+                            onSearchClick = {
+                                onNavigate(SatMesRoutes.SEARCH)
+                            },
+                            expanded = isTopMenuExpanded,
+                            onExpandedChange = { expanded ->
+                                isTopMenuExpanded = expanded
+                                if (!expanded) {
+                                    lastInteractionTime = System.currentTimeMillis()
                                 }
+                            }
+                        )
+
+                        MainCustomBottomSheet(
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                            peekHeight = portraitPeekHeight,
+                            expandedHeightRatio = portraitExpandedHeightRatio,
+                            widthRatio = 1f
+                        ) {
+                            MainBottomSheet(
+                                modifier = Modifier.fillMaxSize(),
+                                areaMeters = currentArea,
+                                perimeterMeters = currentPerimeter
                             )
                         }
                     }

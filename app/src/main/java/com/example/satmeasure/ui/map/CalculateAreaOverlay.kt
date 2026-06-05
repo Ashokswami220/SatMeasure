@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,28 +21,30 @@ import androidx.compose.material.icons.filled.ChangeHistory
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Crop169
 import androidx.compose.material.icons.filled.CropSquare
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Hexagon
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.unit.dp
 import com.example.satmeasure.ui.map.models.CalcMode
 import com.example.satmeasure.ui.map.models.ShapeType
+import com.example.satmeasure.ui.components.WipeWarningDialog
 
 enum class OverlayState {
     COLLAPSED,
@@ -69,8 +72,19 @@ fun CalculateAreaOverlay(
     onUndoPin: () -> Unit,
     onRedoPin: () -> Unit,
     onDropPin: () -> Unit,
+    onClearPins: () -> Unit = {},
+    hasPins: Boolean = false,
+    onUndoShape: () -> Unit = {},
+    onRedoShape: () -> Unit = {},
+    canUndoShape: Boolean = false,
+    canRedoShape: Boolean = false,
+    onUndoDraw: () -> Unit = {},
+    onRedoDraw: () -> Unit = {},
+    canUndoDraw: Boolean = false,
+    canRedoDraw: Boolean = false,
     connectTargetIndex: Int?,
     onConnect: () -> Unit,
+    hasDrawing: Boolean = false,
     onBackRequest: () -> Unit
 ) {
     val currentState = when {
@@ -78,6 +92,19 @@ fun CalculateAreaOverlay(
         completedMode != null -> OverlayState.COMPLETED
         isExpanded -> OverlayState.EXPANDED
         else -> OverlayState.COLLAPSED
+    }
+
+    var showWipeDialog by remember { mutableStateOf(false) }
+    var wipeAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    
+    if (showWipeDialog) {
+        WipeWarningDialog(
+            onDismiss = { showWipeDialog = false },
+            onConfirm = { 
+                wipeAction?.invoke()
+                showWipeDialog = false 
+            }
+        )
     }
 
     AnimatedContent(
@@ -93,7 +120,8 @@ fun CalculateAreaOverlay(
                     text = { Text("Calculate Area", fontWeight = FontWeight.Bold) },
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.size(width = 170.dp, height = 56.dp)
                 )
             }
             OverlayState.COMPLETED -> {
@@ -101,14 +129,20 @@ fun CalculateAreaOverlay(
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface,
-                    shadowElevation = 6.dp
+                    shadowElevation = 6.dp,
+                    modifier = Modifier.size(width = 170.dp, height = 56.dp)
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
-                            modifier = Modifier.clickable { onActiveModeChange(completedMode) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clickable { onActiveModeChange(completedMode) },
+                            horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary)
@@ -116,12 +150,14 @@ fun CalculateAreaOverlay(
                             Text("Edit", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                         }
 
-                        Spacer(Modifier.width(16.dp))
                         VerticalDivider(Modifier.height(24.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.2f))
-                        Spacer(Modifier.width(16.dp))
 
                         Row(
-                            modifier = Modifier.clickable { onClearAll() },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clickable { onClearAll() },
+                            horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.error)
@@ -200,14 +236,16 @@ fun CalculateAreaOverlay(
                                                 Button(
                                                     onClick = { if (connectTargetIndex != null) onConnect() },
                                                     enabled = connectTargetIndex != null,
-                                                    modifier = Modifier.height(64.dp).widthIn(min = 64.dp),
+                                                    modifier = Modifier.height(64.dp).widthIn(min = 48.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                                         disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                                                     ),
-                                                    contentPadding = PaddingValues(horizontal = 4.dp)
-                                                ) {
+                                                    contentPadding = PaddingValues(horizontal = 4.dp),
+                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)),
+
+                                                    ) {
                                                     if (connectTargetIndex != null) {
                                                         Text(buildAnnotatedString {
                                                             append("Connect\n")
@@ -216,17 +254,16 @@ fun CalculateAreaOverlay(
                                                             }
                                                         }, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
                                                     } else {
-                                                        Column {
-                                                            Text("Go nearBy", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
-                                                            Text("of Pin to", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
-                                                            Text("Connect", style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
+                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                                            Text("Connect", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
+                                                            Text("Pins", style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
                                                         }
                                                     }
                                                 }
 
                                                 Button(
                                                     onClick = { onDropPin() },
-                                                    modifier = Modifier.height(64.dp).width(64.dp),
+                                                    modifier = Modifier.height(64.dp).width(54.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     contentPadding = PaddingValues(0.dp)
                                                 ) {
@@ -241,7 +278,7 @@ fun CalculateAreaOverlay(
                                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                                     OutlinedButton(
                                                         onClick = { onUndoPin() },
-                                                        modifier = Modifier.height(64.dp).width(52.dp),
+                                                        modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
@@ -253,7 +290,7 @@ fun CalculateAreaOverlay(
 
                                                     OutlinedButton(
                                                         onClick = { onRedoPin() },
-                                                        modifier = Modifier.height(64.dp).width(52.dp),
+                                                        modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
@@ -264,11 +301,25 @@ fun CalculateAreaOverlay(
                                                     }
                                                     
                                                     OutlinedButton(
+                                                        onClick = { wipeAction = onClearPins; showWipeDialog = true },
+                                                        enabled = hasPins,
+                                                        modifier = Modifier.height(64.dp).width(45.dp),
+                                                        shape = RoundedCornerShape(12.dp),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                                            Icon(Icons.Default.Delete, null, tint = if (hasPins) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f), modifier = Modifier.size(24.dp))
+                                                            Text("Clear", style = MaterialTheme.typography.labelSmall)
+                                                        }
+                                                    }
+
+                                                    OutlinedButton(
                                                         onClick = { 
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
                                                         },
-                                                        modifier = Modifier.height(64.dp).width(52.dp),
+                                                        enabled = hasPins,
+                                                        modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
@@ -287,7 +338,7 @@ fun CalculateAreaOverlay(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 if (!isShapeDropped) {
-                                                    ShapeIconButton(Icons.Default.Crop169, selectedShape == ShapeType.HEXAGON, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.HEXAGON) }
+                                                    ShapeIconButton(Icons.Default.Hexagon, selectedShape == ShapeType.HEXAGON, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.HEXAGON) }
                                                     ShapeIconButton(Icons.Default.CropSquare, selectedShape == ShapeType.SQUARE, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.SQUARE) }
                                                     ShapeIconButton(Icons.Default.Circle, selectedShape == ShapeType.CIRCLE, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.CIRCLE) }
                                                     ShapeIconButton(Icons.Default.ChangeHistory, selectedShape == ShapeType.TRIANGLE, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.TRIANGLE) }
@@ -308,13 +359,39 @@ fun CalculateAreaOverlay(
                                                 } else {
                                                     // Shape Dropped State
                                                     OutlinedButton(
-                                                        onClick = { onClearShape() },
-                                                        modifier = Modifier.height(64.dp).width(80.dp),
+                                                        onClick = { onUndoShape() },
+                                                        enabled = canUndoShape,
+                                                        modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
                                                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.Delete, null, modifier = Modifier.size(24.dp))
+                                                            Icon(Icons.AutoMirrored.Filled.Undo, null, modifier = Modifier.size(24.dp))
+                                                            Text("Undo", style = MaterialTheme.typography.labelSmall)
+                                                        }
+                                                    }
+
+                                                    OutlinedButton(
+                                                        onClick = { onRedoShape() },
+                                                        enabled = canRedoShape,
+                                                        modifier = Modifier.height(64.dp).width(45.dp),
+                                                        shape = RoundedCornerShape(12.dp),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                                            Icon(Icons.AutoMirrored.Filled.Redo, null, modifier = Modifier.size(24.dp))
+                                                            Text("Redo", style = MaterialTheme.typography.labelSmall)
+                                                        }
+                                                    }
+                                                    OutlinedButton(
+                                                        onClick = { wipeAction = onClearShape; showWipeDialog = true },
+                                                        enabled = isShapeDropped,
+                                                        modifier = Modifier.height(64.dp).width(52.dp),
+                                                        shape = RoundedCornerShape(12.dp),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                                            Icon(Icons.Default.Delete, null, tint = if (isShapeDropped) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f), modifier = Modifier.size(24.dp))
                                                             Text("Clear", style = MaterialTheme.typography.labelSmall)
                                                         }
                                                     }
@@ -324,7 +401,8 @@ fun CalculateAreaOverlay(
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
                                                         },
-                                                        modifier = Modifier.height(64.dp).width(80.dp),
+                                                        enabled = isShapeDropped,
+                                                        modifier = Modifier.height(64.dp).width(52.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
@@ -338,10 +416,10 @@ fun CalculateAreaOverlay(
                                         }
 
                                         CalcMode.DRAW -> {
-                                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                 Button(
                                                     onClick = { onToggleDrawing() },
-                                                    modifier = Modifier.height(64.dp).width(80.dp),
+                                                    modifier = Modifier.height(64.dp).width(75.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         containerColor = if (isDrawing) MaterialTheme.colorScheme.errorContainer else ButtonDefaults.buttonColors().containerColor,
@@ -350,19 +428,46 @@ fun CalculateAreaOverlay(
                                                     contentPadding = PaddingValues(0.dp)
                                                 ) {
                                                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(if (isDrawing) Icons.Default.Stop else Icons.Default.Draw, null, modifier = Modifier.size(24.dp))
-                                                        Text(if (isDrawing) "Stop" else "Start", style = MaterialTheme.typography.labelSmall)
+                                                        Icon(if (isDrawing) Icons.Default.Lock else Icons.Default.LockOpen, null, modifier = Modifier.size(24.dp))
+                                                        Text(if (isDrawing) "Locked" else "Lock to Draw", style = MaterialTheme.typography.labelSmall)
                                                     }
                                                 }
 
                                                 OutlinedButton(
-                                                    onClick = { onClearDrawing() },
-                                                    modifier = Modifier.height(64.dp).width(80.dp),
+                                                    onClick = { onUndoDraw() },
+                                                    enabled = canUndoDraw,
+                                                    modifier = Modifier.height(64.dp).width(45.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     contentPadding = PaddingValues(0.dp)
                                                 ) {
                                                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(Icons.Default.Delete, null, modifier = Modifier.size(24.dp))
+                                                        Icon(Icons.AutoMirrored.Filled.Undo, null, modifier = Modifier.size(24.dp))
+                                                        Text("Undo", style = MaterialTheme.typography.labelSmall)
+                                                    }
+                                                }
+
+                                                OutlinedButton(
+                                                    onClick = { onRedoDraw() },
+                                                    enabled = canRedoDraw,
+                                                    modifier = Modifier.height(64.dp).width(45.dp),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    contentPadding = PaddingValues(0.dp)
+                                                ) {
+                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                                        Icon(Icons.AutoMirrored.Filled.Redo, null, modifier = Modifier.size(24.dp))
+                                                        Text("Redo", style = MaterialTheme.typography.labelSmall)
+                                                    }
+                                                }
+
+                                                OutlinedButton(
+                                                    onClick = { wipeAction = onClearDrawing; showWipeDialog = true },
+                                                    enabled = hasDrawing,
+                                                    modifier = Modifier.height(64.dp).width(52.dp),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    contentPadding = PaddingValues(0.dp)
+                                                ) {
+                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                                        Icon(Icons.Default.Delete, null, tint = if (hasDrawing) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f), modifier = Modifier.size(24.dp))
                                                         Text("Clear", style = MaterialTheme.typography.labelSmall)
                                                     }
                                                 }
@@ -373,7 +478,8 @@ fun CalculateAreaOverlay(
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
                                                         },
-                                                    modifier = Modifier.height(64.dp).width(80.dp),
+                                                    enabled = hasDrawing,
+                                                    modifier = Modifier.height(64.dp).width(52.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     contentPadding = PaddingValues(0.dp)
                                                 ) {
@@ -386,9 +492,9 @@ fun CalculateAreaOverlay(
                                         }
                                     }
                                     
-                                    Spacer(modifier = Modifier.width(16.dp))
-                                    VerticalDivider(Modifier.height(48.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
                                     Spacer(modifier = Modifier.width(8.dp))
+                                    VerticalDivider(Modifier.height(48.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                                    Spacer(modifier = Modifier.width(4.dp))
                                     
                                     IconButton(
                                         onClick = onBackRequest,
@@ -403,8 +509,8 @@ fun CalculateAreaOverlay(
                 }
             }
         }
-        }
     }
+}
 }
 
 @Composable
@@ -427,3 +533,4 @@ fun ShapeIconButton(
         Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(32.dp))
     }
 }
+

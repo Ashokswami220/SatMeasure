@@ -37,9 +37,11 @@ val ANIM_EASING = FastOutSlowInEasing
 fun SatMesNavApp() {
     // --- Bottom Sheet Configuration Variables ---
     // Portrait bottom sheet peek height
-    val portraitPeekHeight = 120.dp
+    val portraitPeekHeight = 245.dp
+    // Portrait  bottom sheet expanded height ratio (percentage of screen height)
+    val portraitExpandedHeightRatio = 0.5f
     // Landscape bottom sheet peek height
-    val landscapePeekHeight = 100.dp
+    val landscapePeekHeight = 95.dp
     // Landscape bottom sheet expanded height ratio (percentage of screen height)
     val landscapeExpandedHeightRatio = 0.93f
 
@@ -111,6 +113,7 @@ fun SatMesNavApp() {
                     currentRoute = currentRoute,
                     onNavigate = navigateToDest,
                     portraitPeekHeight = portraitPeekHeight,
+                    portraitExpandedHeightRatio = portraitExpandedHeightRatio,
                     landscapePeekHeight = landscapePeekHeight,
                     landscapeExpandedHeightRatio = landscapeExpandedHeightRatio
                 )
