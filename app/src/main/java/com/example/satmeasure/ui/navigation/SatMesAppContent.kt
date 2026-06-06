@@ -1,5 +1,7 @@
 package com.example.satmeasure.ui.navigation
 
+import com.example.satmeasure.utils.HapticHelper
+
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -97,6 +100,7 @@ fun MainTopControls(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     // Smoothly rotates ExpandMore based on orientation and state
+    val context = LocalContext.current
     val targetRotation = if (isLandscape) {
         if (expanded) 270f else 90f
     } else {
@@ -116,7 +120,10 @@ fun MainTopControls(
     ) {
         // --- LEFT: Hamburger Menu ---
         FloatingActionButton(
-            onClick = onMenuClick,
+            onClick = {
+                HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                onMenuClick()
+            },
             shape = CircleShape,
             containerColor = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -140,6 +147,7 @@ fun MainTopControls(
                     ) {
                         SmallFloatingActionButton(
                             onClick = {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 onExpandedChange(false)
                                 onSearchClick()
                             },
@@ -154,6 +162,7 @@ fun MainTopControls(
 
                         SmallFloatingActionButton(
                             onClick = {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 onExpandedChange(false)
                                 onStyleToggle()
                             },
@@ -167,7 +176,10 @@ fun MainTopControls(
                 }
 
                 FloatingActionButton(
-                    onClick = { onExpandedChange(!expanded) },
+                    onClick = { 
+                        HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                        onExpandedChange(!expanded) 
+                    },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -186,7 +198,10 @@ fun MainTopControls(
                 horizontalAlignment = Alignment.End
             ) {
                 FloatingActionButton(
-                    onClick = { onExpandedChange(!expanded) },
+                    onClick = { 
+                        HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                        onExpandedChange(!expanded) 
+                    },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -206,6 +221,7 @@ fun MainTopControls(
                     ) {
                         SmallFloatingActionButton(
                             onClick = {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 onExpandedChange(false)
                                 onSearchClick()
                             },
@@ -220,6 +236,7 @@ fun MainTopControls(
 
                         SmallFloatingActionButton(
                             onClick = {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 onExpandedChange(false)
                                 onStyleToggle()
                             },
@@ -241,6 +258,7 @@ fun AppSidebar(
     currentRoute: String,
     onMenuSelect: (String) -> Unit
 ) {
+    val context = LocalContext.current
     var loginState by remember { mutableIntStateOf(0) }
     
     LaunchedEffect(loginState) {
@@ -362,6 +380,7 @@ fun AppSidebar(
                         // Auth Button
                         OutlinedButton(
                             onClick = {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 if (loginState == 0) loginState = 1
                                 else if (loginState == 2) loginState = 0
                             },
@@ -445,7 +464,10 @@ fun AppSidebar(
                 label = { Text("Settings", modifier = Modifier.padding(start = 12.dp)) },
                 icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                 selected = currentRoute == SatMesRoutes.SETTINGS,
-                onClick = { onMenuSelect(SatMesRoutes.SETTINGS) }, // Smooth navigation applied
+                onClick = { 
+                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                    onMenuSelect(SatMesRoutes.SETTINGS) 
+                }, // Smooth navigation applied
                 colors = itemColors,
                 modifier = Modifier.padding(
                     start = 8.dp,

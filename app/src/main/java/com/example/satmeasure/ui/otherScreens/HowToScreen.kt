@@ -1,5 +1,7 @@
 package com.example.satmeasure.ui.otherScreens
 
+import com.example.satmeasure.utils.HapticHelper
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -25,12 +28,16 @@ import androidx.compose.ui.unit.dp
 fun HowToCoordinatesScreen(
     onBackClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Find Coordinates") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = {
+                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                        onBackClick()
+                    }) {
                         // iOS Style Back Arrow
                         Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Back")
                     }
@@ -84,7 +91,10 @@ fun HowToCoordinatesScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = onBackClick,
+                onClick = {
+                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                    onBackClick()
+                },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {

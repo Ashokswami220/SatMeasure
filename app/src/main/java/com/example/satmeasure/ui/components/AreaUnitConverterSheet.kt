@@ -1,5 +1,8 @@
 package com.example.satmeasure.ui.components
 
+import com.example.satmeasure.utils.HapticHelper
+import androidx.compose.ui.platform.LocalContext
+
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -57,6 +60,7 @@ fun AreaUnitSelectorSheet(
     
     val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     CustomAreaUnitSelectorSheet(onDismiss = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -68,11 +72,14 @@ fun AreaUnitSelectorSheet(
             Spacer(modifier = Modifier.height(8.dp))
             
             // Category Tabs
-            TabRow(selectedTabIndex = pagerState.currentPage, containerColor = Color.Transparent) {
+            PrimaryTabRow(selectedTabIndex = pagerState.currentPage, containerColor = Color.Transparent) {
                 categories.forEachIndexed { index, title ->
                     Tab(
                         selected = pagerState.currentPage == index,
-                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                        onClick = { 
+                            HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                            coroutineScope.launch { pagerState.animateScrollToPage(index) } 
+                        },
                         text = {
                             Text(
                                 text = title,
@@ -103,7 +110,10 @@ fun AreaUnitSelectorSheet(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onUnitSelected(unit) }
+                                .clickable { 
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                    onUnitSelected(unit) 
+                                }
                                 .padding(horizontal = 8.dp, vertical = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -165,7 +175,7 @@ fun CustomAreaUnitSelectorSheet(
                 widthRatio = if (isLandscape) 0.5f else 1f,
                 initialExpanded = true,
                 onDismissed = onDismiss
-            ) {
+            ) { _ ->
                 Box(modifier = Modifier.navigationBarsPadding()) {
                     content()
                 }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material3.*
 import kotlin.math.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,10 +25,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
 import com.example.satmeasure.ui.components.DiscardWarningDialog
 import com.example.satmeasure.ui.components.ClearWarningDialog
+import com.example.satmeasure.utils.HapticHelper
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -52,13 +54,10 @@ import com.mapbox.maps.Style
 import com.mapbox.bindgen.Value
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.unit.sp
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
-import com.mapbox.maps.plugin.viewport.viewport
 import com.example.satmeasure.ui.map.models.CalcMode
 import com.example.satmeasure.ui.map.models.ShapeType
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotationGroup
@@ -68,14 +67,15 @@ import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.core.graphics.ColorUtils.setAlphaComponent
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.createBitmap
+import com.example.satmeasure.ui.viewmodel.MapAction
+import com.example.satmeasure.ui.viewmodel.MapViewModel
 
 fun createNumberedPinBitmap(context: Context, number: Int): Bitmap {
     val drawable = ContextCompat.getDrawable(context, R.drawable.ic_push_pin) ?: return createBitmap(1, 1)
-    val scale = 1.5f
+    val scale = 0.75f
     val width = (drawable.intrinsicWidth * scale).toInt()
     val height = (drawable.intrinsicHeight * scale).toInt()
     val bitmap = createBitmap(width, height)
@@ -138,26 +138,55 @@ fun createCenterNodeBitmap(): Bitmap {
     return bitmap
 }
 
-fun createRotateNodeBitmap(): Bitmap {
+fun createRotateNodeBitmap(context: Context): Bitmap {
     val size = 56
     val bitmap = createBitmap(size, size)
     val canvas = Canvas(bitmap)
     val paint = Paint().apply {
-        color = WHITE
+        color = setAlphaComponent("#2196F3".toColorInt(), 255)
         isAntiAlias = true
     }
     val shadowPaint = Paint().apply {
         color = BLACK
         isAntiAlias = true
-        alpha = 100
-    }
-    val corePaint = Paint().apply {
-        color = setAlphaComponent("#2196F3".toColorInt(), 255)
-        isAntiAlias = true
+        alpha = 80
     }
     canvas.drawCircle(size / 2f, size / 2f, size / 2f - 2f, shadowPaint)
     canvas.drawCircle(size / 2f, size / 2f, size / 2f - 4f, paint)
-    canvas.drawCircle(size / 2f, size / 2f, size / 2f - 12f, corePaint)
+
+    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_rotate)
+    if (drawable != null) {
+        val iconSize = 32
+        val offset = (size - iconSize) / 2
+        drawable.setBounds(offset, offset, offset + iconSize, offset + iconSize)
+        drawable.draw(canvas)
+    }
+    return bitmap
+}
+
+fun createResizeNodeBitmap(context: Context): Bitmap {
+    val size = 56
+    val bitmap = createBitmap(size, size)
+    val canvas = Canvas(bitmap)
+    val paint = Paint().apply {
+        color = setAlphaComponent("#4CAF50".toColorInt(), 255) // green for resize
+        isAntiAlias = true
+    }
+    val shadowPaint = Paint().apply {
+        color = BLACK
+        isAntiAlias = true
+        alpha = 80
+    }
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f - 2f, shadowPaint)
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f - 4f, paint)
+
+    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_resize)
+    if (drawable != null) {
+        val iconSize = 32
+        val offset = (size - iconSize) / 2
+        drawable.setBounds(offset, offset, offset + iconSize, offset + iconSize)
+        drawable.draw(canvas)
+    }
     return bitmap
 }
 
@@ -170,12 +199,39 @@ fun SatMapComponent(
     onMapInteract: () -> Unit = {},
     onMeasurementsUpdated: (area: Double, perimeter: Double) -> Unit = { _, _ -> }
 ) {
+    val density = LocalDensity.current
+    val bottomPaddingPx = with(density) { bottomPadding.toPx() }.toDouble()
+
     val viewportState = rememberMapViewportState {
         setCameraOptions {
             center(Point.fromLngLat(77.3910, 28.5355))
             zoom(14.0)
             pitch(0.0)
             bearing(0.0)
+            padding(com.mapbox.maps.EdgeInsets(0.0, 0.0, bottomPaddingPx, 0.0))
+        }
+    }
+    
+    LaunchedEffect(bottomPaddingPx) {
+        viewportState.flyTo(
+            CameraOptions.Builder()
+                .padding(com.mapbox.maps.EdgeInsets(0.0, 0.0, bottomPaddingPx, 0.0))
+                .build()
+        )
+    }
+
+    val uiState by viewModel.uiState.collectAsState()
+    val cameraTarget = uiState.cameraTarget
+    LaunchedEffect(cameraTarget) {
+        if (cameraTarget != null) {
+            kotlinx.coroutines.delay(450) // Wait for screen transition to complete
+            viewportState.flyTo(
+                CameraOptions.Builder()
+                    .center(cameraTarget)
+                    .zoom(16.0)
+                    .build()
+            )
+            viewModel.onAction(MapAction.SetCameraTarget(null))
         }
     }
 
@@ -212,23 +268,24 @@ fun SatMapComponent(
     }
 
     // Map viewmodel states via value properties
-    var isTrackingUser by viewModel.isTrackingUser
-    var isCalcExpanded by viewModel.isCalcExpanded
-    var activeMode by viewModel.activeMode
-    var completedMode by viewModel.completedMode
-    var isDrawing by viewModel.isDrawing
-    var isShapeDropped by viewModel.isShapeDropped
-    var showDiscardDialog by viewModel.showDiscardDialog
-    var showClearDialog by viewModel.showClearDialog
+    val isCalcExpanded = uiState.isCalcExpanded
+    val activeMode = uiState.activeMode
+    val completedMode = uiState.completedMode
+    val isDrawing = uiState.isDrawing
+    val isShapeDropped = uiState.isShapeDropped
+    val showDiscardDialog = uiState.showDiscardDialog
+    val showClearDialog = uiState.showClearDialog
 
-    val pinPoints = viewModel.pinPoints
-    val redoPinPoints = viewModel.redoPinPoints
-    val drawPoints = viewModel.drawPoints
-    val drawPointsHistory = viewModel.drawPointsHistory
-    val redoDrawPointsHistory = viewModel.redoDrawPointsHistory
-    val shapePoints = viewModel.shapePoints
-    val shapePointsHistory = viewModel.shapePointsHistory
-    val redoShapePointsHistory = viewModel.redoShapePointsHistory
+    val pinPoints = uiState.pinPoints
+    val drawPoints = uiState.drawPoints
+    val drawPointsHistory = uiState.drawPointsHistory
+    val redoDrawPointsHistory = uiState.redoDrawPointsHistory
+    val shapePoints = uiState.shapePoints
+    val shapePointsHistory = uiState.shapePointsHistory
+    val redoShapePointsHistory = uiState.redoShapePointsHistory
+    val setShowDiscardDialog: (Boolean) -> Unit = { viewModel.onAction(
+        MapAction.SetShowDiscardDialog(it)) }
+    val setShowClearDialog: (Boolean) -> Unit = { viewModel.onAction(MapAction.SetShowClearDialog(it)) }
 
     // Local component states
     var is3DMode by rememberSaveable { mutableStateOf(false) }
@@ -256,9 +313,9 @@ fun SatMapComponent(
 
     val handleBackRequest = {
         if (hasActiveCalculationData) {
-            showDiscardDialog = true
+            setShowDiscardDialog(true)
         } else {
-            activeMode = null
+            viewModel.onAction(MapAction.SetActiveMode(null))
         }
     }
 
@@ -268,45 +325,43 @@ fun SatMapComponent(
 
     if (showDiscardDialog) {
         DiscardWarningDialog(
-            onDismiss = { showDiscardDialog = false },
+            onDismiss = { setShowDiscardDialog(false) },
             onConfirm = {
-                showDiscardDialog = false
-                isShapeDropped = false
-                shapePoints.clear()
-                pinPoints.clear()
-                redoPinPoints.clear()
-                drawPoints.clear()
-                isDrawing = false
-                activeMode = null
+                setShowDiscardDialog(false)
+                viewModel.onAction(MapAction.SetShapeDropped(false))
+                viewModel.onAction(MapAction.SetShapePoints(emptyList()))
+                viewModel.onAction(MapAction.ClearPins)
+                viewModel.onAction(MapAction.SetDrawPoints(emptyList()))
+                viewModel.onAction(MapAction.SetIsDrawing(false))
+                viewModel.onAction(MapAction.SetActiveMode(null))
             }
         )
     }
 
     if (showClearDialog) {
         ClearWarningDialog(
-            onDismiss = { showClearDialog = false },
+            onDismiss = { setShowClearDialog(false) },
             onConfirm = {
-                showClearDialog = false
-                isShapeDropped = false
-                shapePoints.clear()
-                pinPoints.clear()
-                redoPinPoints.clear()
-                drawPoints.clear()
-                isDrawing = false
-                activeMode = null
-                completedMode = null
-                isCalcExpanded = false
+                setShowClearDialog(false)
+                viewModel.onAction(MapAction.SetShapeDropped(false))
+                viewModel.onAction(MapAction.SetShapePoints(emptyList()))
+                viewModel.onAction(MapAction.ClearPins)
+                viewModel.onAction(MapAction.SetDrawPoints(emptyList()))
+                viewModel.onAction(MapAction.SetIsDrawing(false))
+                viewModel.onAction(MapAction.SetActiveMode(null))
+                viewModel.onAction(MapAction.SetCompletedMode(null))
+                viewModel.onAction(MapAction.SetCalcExpanded(false))
             }
         )
     }
 
     val handleClearAll: () -> Unit = {
         if (hasActiveCalculationData) {
-            showClearDialog = true
+            setShowClearDialog(true)
         } else {
-            completedMode = null
-            isCalcExpanded = false
-            activeMode = null
+            viewModel.onAction(MapAction.SetCompletedMode(null))
+            viewModel.onAction(MapAction.SetCalcExpanded(false))
+            viewModel.onAction(MapAction.SetActiveMode(null))
         }
     }
 
@@ -314,53 +369,55 @@ fun SatMapComponent(
     var mapboxMap by remember { mutableStateOf<com.mapbox.maps.MapboxMap?>(null) }
 
     val handleDropShape: () -> Unit = {
-        isShapeDropped = true
+        viewModel.onAction(MapAction.SetShapeDropped(true))
         val sw = windowInfo.containerSize.width.toDouble()
-        val sh = windowInfo.containerSize.height.toDouble()
+        val sh = windowInfo.containerSize.height.toDouble() - bottomPaddingPx
         if (mapboxMap != null) {
-            val nwCoordinates = mapboxMap!!.coordinateForPixel(com.mapbox.maps.ScreenCoordinate(sw * 0.25, sh * 0.40))
-            val seCoordinates = mapboxMap!!.coordinateForPixel(com.mapbox.maps.ScreenCoordinate(sw * 0.75, sh * 0.60))
+            val nwCoordinates = mapboxMap!!.coordinateForPixel(com.mapbox.maps.ScreenCoordinate(sw * 0.25, sh * 0.45))
+            val seCoordinates = mapboxMap!!.coordinateForPixel(com.mapbox.maps.ScreenCoordinate(sw * 0.75, sh * 0.55))
             val c = Point.fromLngLat(
                 (nwCoordinates.longitude() + seCoordinates.longitude()) / 2.0,
                 (nwCoordinates.latitude() + seCoordinates.latitude()) / 2.0
             )
-            val offsetMeters = MathHelpers.distanceInMeters(c, Point.fromLngLat(seCoordinates.longitude(), c.latitude()))
+            val isLandscape = sw > sh
+            val multiplier = if (isLandscape) 0.55 else 1.25
+            val offsetMeters = MathHelpers.distanceInMeters(c, Point.fromLngLat(seCoordinates.longitude(), c.latitude())) * multiplier
             
-            shapePoints.clear()
+            val newShape = mutableListOf<Point>()
             when (selectedShape) {
                 ShapeType.TRIANGLE -> {
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 0.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 120.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 240.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 0.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 120.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 240.0))
                 }
                 ShapeType.SQUARE -> {
-                    val offsetLng = abs(seCoordinates.longitude() - nwCoordinates.longitude()) / 2.0
-                    val offsetLat = abs(nwCoordinates.latitude() - seCoordinates.latitude()) / 2.0
-                    shapePoints.add(Point.fromLngLat(c.longitude() - offsetLng, c.latitude() + offsetLat))
-                    shapePoints.add(Point.fromLngLat(c.longitude() + offsetLng, c.latitude() + offsetLat))
-                    shapePoints.add(Point.fromLngLat(c.longitude() + offsetLng, c.latitude() - offsetLat))
-                    shapePoints.add(Point.fromLngLat(c.longitude() - offsetLng, c.latitude() - offsetLat))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 315.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 45.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 135.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 225.0))
                 }
                 ShapeType.HEXAGON -> {
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 30.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 90.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 150.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 210.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 270.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 330.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 30.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 90.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 150.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 210.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 270.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 330.0))
                 }
                 ShapeType.CIRCLE -> {
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 0.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 90.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 180.0))
-                    shapePoints.add(MathHelpers.destinationPoint(c, offsetMeters, 270.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 0.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 90.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 180.0))
+                    newShape.add(MathHelpers.destinationPoint(c, offsetMeters, 270.0))
                 }
             }
+            viewModel.onAction(MapAction.SetShapePoints(newShape))
         }
     }
     var draggedShapeNodeIndex by remember { mutableStateOf<Int?>(null) }
     var isDraggingShape by remember { mutableStateOf(false) }
     var isRotatingShape by remember { mutableStateOf(false) }
+    var isResizingShape by remember { mutableStateOf(false) }
     var lastDragPoint by remember { mutableStateOf<Point?>(null) }
 
     LaunchedEffect(is3DMode) {
@@ -423,11 +480,11 @@ fun SatMapComponent(
                                 val mapPoint = mapboxMap!!.coordinateForPixel(screenCoordinates)
                                 if (change.pressed) {
                                     if (!change.previousPressed) {
-                                        drawPointsHistory.add(drawPoints.toList())
-                                        redoDrawPointsHistory.clear()
+                                        viewModel.onAction(MapAction.CommitDrawPath(drawPoints))
+                                        
                                     }
                                     if (drawPoints.isEmpty() || MathHelpers.distanceInMeters(drawPoints.last(), mapPoint) > 2.0) {
-                                        drawPoints.add(mapPoint)
+                                        viewModel.onAction(MapAction.AddDrawPoint(mapPoint))
                                     }
                                     change.consume()
                                 }
@@ -465,8 +522,12 @@ fun SatMapComponent(
                                             val dx2 = p2.x - change.position.x
                                             val dy2 = p2.y - change.position.y
 
-                                            if (dx1 * dx1 + dy1 * dy1 < 10000 || dx2 * dx2 + dy2 * dy2 < 10000) {
+                                            if (dx1 * dx1 + dy1 * dy1 < 10000) {
                                                 isRotatingShape = true
+                                                lastDragPoint = mapPoint
+                                                foundNode = true
+                                            } else if (dx2 * dx2 + dy2 * dy2 < 10000) {
+                                                isResizingShape = true
                                                 lastDragPoint = mapPoint
                                                 foundNode = true
                                             }
@@ -485,8 +546,8 @@ fun SatMapComponent(
                                         }
                                     }
                                     if (draggedShapeNodeIndex != null || isDraggingShape || isRotatingShape) {
-                                        shapePointsHistory.add(shapePoints.toList())
-                                        redoShapePointsHistory.clear()
+                                        viewModel.onAction(MapAction.CommitShapePath(shapePoints))
+                                        
                                         change.consume()
                                     }
                                 } else if (change.pressed) {
@@ -495,12 +556,17 @@ fun SatMapComponent(
                                         if (selectedShape == ShapeType.CIRCLE) {
                                             val center = MathHelpers.calculateCenter(shapePoints)
                                             val radius = MathHelpers.distanceInMeters(center, mapPoint)
-                                            shapePoints[0] = MathHelpers.destinationPoint(center, radius, 0.0) // N
-                                            shapePoints[1] = MathHelpers.destinationPoint(center, radius, 90.0) // E
-                                            shapePoints[2] = MathHelpers.destinationPoint(center, radius, 180.0) // S
-                                            shapePoints[3] = MathHelpers.destinationPoint(center, radius, 270.0) // W
+                                            viewModel.onAction(
+                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(0, MathHelpers.destinationPoint(center, radius, 0.0)) })) // N
+                                            viewModel.onAction(
+                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(1, MathHelpers.destinationPoint(center, radius, 90.0)) })) // E
+                                            viewModel.onAction(
+                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(2, MathHelpers.destinationPoint(center, radius, 180.0)) })) // S
+                                            viewModel.onAction(
+                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(3, MathHelpers.destinationPoint(center, radius, 270.0)) })) // W
                                         } else {
-                                            shapePoints[draggedShapeNodeIndex!!] = mapPoint
+                                            viewModel.onAction(
+                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(draggedShapeNodeIndex!!, mapPoint) }))
                                         }
                                         change.consume()
                                     } else if (isDraggingShape) {
@@ -508,10 +574,9 @@ fun SatMapComponent(
                                             val dLat = mapPoint.latitude() - lastDragPoint!!.latitude()
                                             val dLng = mapPoint.longitude() - lastDragPoint!!.longitude()
                                             for (i in shapePoints.indices) {
-                                                shapePoints[i] = Point.fromLngLat(
-                                                    shapePoints[i].longitude() + dLng,
-                                                    shapePoints[i].latitude() + dLat
-                                                )
+                                                val pt = Point.fromLngLat(shapePoints[i].longitude() + dLng, shapePoints[i].latitude() + dLat)
+                                                viewModel.onAction(
+                                                    MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(i, pt) }))
                                             }
                                             lastDragPoint = mapPoint
                                         }
@@ -524,7 +589,25 @@ fun SatMapComponent(
                                             val diff = newAngle - oldAngle
                                             
                                             for (i in shapePoints.indices) {
-                                                shapePoints[i] = MathHelpers.rotatePoint(center, shapePoints[i], diff)
+                                                viewModel.onAction(
+                                                    MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(i, MathHelpers.rotatePoint(center, shapePoints[i], diff)) }))
+                                            }
+                                            lastDragPoint = mapPoint
+                                        }
+                                        change.consume()
+                                    } else if (isResizingShape) {
+                                        if (lastDragPoint != null) {
+                                            val center = MathHelpers.calculateCenter(shapePoints)
+                                            val oldDist = MathHelpers.distanceInMeters(center, lastDragPoint!!)
+                                            val newDist = MathHelpers.distanceInMeters(center, mapPoint)
+                                            if (oldDist > 0) {
+                                                val scale = newDist / oldDist
+                                                for (i in shapePoints.indices) {
+                                                    val dist = MathHelpers.distanceInMeters(center, shapePoints[i])
+                                                    val bearing = MathHelpers.calculateBearing(center, shapePoints[i])
+                                                    viewModel.onAction(
+                                                        MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(i, MathHelpers.destinationPoint(center, dist * scale, bearing)) }))
+                                                }
                                             }
                                             lastDragPoint = mapPoint
                                         }
@@ -535,21 +618,22 @@ fun SatMapComponent(
                                     draggedShapeNodeIndex = null
                                     isDraggingShape = false
                                     isRotatingShape = false
+                                    isResizingShape = false
                                     lastDragPoint = null
                                 }
                             }
                             
                             if (event.changes.any { it.pressed && !it.isConsumed }) {
                                 if (activeMode == null && completedMode == null) {
-                                    isCalcExpanded = false
+                                    viewModel.onAction(MapAction.SetCalcExpanded(false))
                                 }
-                                isTrackingUser = false
+                                // Tracking disabled since we only fly once
                                 onMapInteract()
                             }
                         }
                     }
                 },
-            onMapClickListener = { point ->
+            onMapClickListener = {
                 when (activeMode) {
                     CalcMode.PINS -> {
                         // Disabled: use targeting button instead
@@ -584,7 +668,10 @@ fun SatMapComponent(
                         style.addImage("center_node_icon", createCenterNodeBitmap())
                     }
                     if (style.getStyleImage("rotate_node_icon") == null) {
-                        style.addImage("rotate_node_icon", createRotateNodeBitmap())
+                        style.addImage("rotate_node_icon", createRotateNodeBitmap(context))
+                    }
+                    if (style.getStyleImage("resize_node_icon") == null) {
+                        style.addImage("resize_node_icon", createResizeNodeBitmap(context))
                     }
                 }
             }
@@ -704,7 +791,7 @@ fun SatMapComponent(
                             .withIconAnchor(com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor.CENTER) +
                             PointAnnotationOptions()
                             .withPoint(handle2)
-                            .withIconImage("rotate_node_icon")
+                            .withIconImage("resize_node_icon")
                             .withIconAnchor(com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor.CENTER)
                     }
 
@@ -713,7 +800,7 @@ fun SatMapComponent(
             }
 
             MapEffect(currentMapStyle, isDarkTheme, is3DMode) { mapView ->
-                mapView.mapboxMap.setBounds(CameraBoundsOptions.Builder().maxZoom(18.0).build())
+                mapView.mapboxMap.setBounds(CameraBoundsOptions.Builder().maxZoom(20.0).build())
                 
                 mapView.mapboxMap.loadStyle(currentMapStyle) { style ->
                     // Fix blurry raster satellite tiles at extreme zoom limits by targeting all raster layers
@@ -747,20 +834,14 @@ fun SatMapComponent(
 
 
 
-            MapEffect(isTrackingUser, hasLocationPermission) { mapView ->
-                val viewportPlugin = mapView.viewport
-                if (isTrackingUser && hasLocationPermission) {
+            var listenerRegistered by remember { mutableStateOf(false) }
+            MapEffect(hasLocationPermission) { mapView ->
+                if (hasLocationPermission && !listenerRegistered) {
                     try {
-                        val followPuckOptions = FollowPuckViewportStateOptions.Builder()
-                            .zoom(16.5)
-                            .pitch(0.0)
-                            .build()
-                        val followPuckState = viewportPlugin.makeFollowPuckViewportState(followPuckOptions)
-                        viewportPlugin.transitionTo(followPuckState)
-                    } catch (_: Exception) {}
-                } else {
-                    try {
-                        viewportPlugin.idle()
+                        mapView.location.addOnIndicatorPositionChangedListener { point ->
+                            viewModel.onAction(MapAction.SetCurrentUserLocation(point))
+                        }
+                        listenerRegistered = true
                     } catch (_: Exception) {}
                 }
             }
@@ -771,7 +852,9 @@ fun SatMapComponent(
             visible = activeMode == CalcMode.PINS,
             enter = fadeIn(),
             exit = fadeOut(),
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(y = -(bottomPadding / 2))
         ) {
             Icon(
                 imageVector = Icons.Default.Place,
@@ -781,10 +864,10 @@ fun SatMapComponent(
             )
         }
 
-        // --- 2. RIGHT SIDE CONTROLS (Compass + MyLocation + Calculate Area) ---
+        val controlsBottomPadding = if (isLandscape) 16.dp else bottomPadding + 16.dp
         val controlModifier = Modifier
             .align(Alignment.BottomEnd)
-            .padding(bottom = bottomPadding + 16.dp, end = 16.dp)
+            .padding(bottom = controlsBottomPadding, end = 16.dp)
 
         // COMPASS BUTTON COMPOSABLE
         @Composable
@@ -816,7 +899,10 @@ fun SatMapComponent(
         @Composable
         fun Toggle3DButton() {
             FloatingActionButton(
-                onClick = { is3DMode = !is3DMode },
+                onClick = { 
+                    HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                    is3DMode = !is3DMode 
+                },
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = if (is3DMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                 shape = CircleShape,
@@ -833,27 +919,15 @@ fun SatMapComponent(
                 horizontalAlignment = Alignment.End
             ) {
                 CompassButton()
-                AnimatedVisibility(
-                    visible = !isCalcExpanded && activeMode == null && completedMode == null,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    if (hasLocationPermission) {
-                        FloatingActionButton(
-                            onClick = { isTrackingUser = !isTrackingUser },
-                            containerColor = if (isTrackingUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            contentColor = if (isTrackingUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                            shape = CircleShape,
-                            modifier = Modifier.size(52.dp)
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.DirectionsWalk, "Follow Me")
-                        }
-                    }
-                }
                 Toggle3DButton()
                 if (hasLocationPermission) {
                     FloatingActionButton(
-                        onClick = { isTrackingUser = true },
+                        onClick = { 
+                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                            (uiState.currentUserLocation)?.let { loc ->
+                                viewportState.flyTo(CameraOptions.Builder().center(loc).zoom(16.5).build())
+                            }
+                        },
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.primary,
                         shape = CircleShape,
@@ -864,94 +938,59 @@ fun SatMapComponent(
                 }
                 CalculateAreaOverlay(
                     isExpanded = isCalcExpanded,
-                    onExpandToggle = { isCalcExpanded = !isCalcExpanded },
+                    onExpandToggle = { viewModel.onAction(
+                        MapAction.SetCalcExpanded(!isCalcExpanded)) },
                     activeMode = activeMode,
-                    onActiveModeChange = { activeMode = it },
+                    onActiveModeChange = { viewModel.onAction(MapAction.SetActiveMode(it)) },
                     completedMode = completedMode,
-                    onCompletedModeChange = { completedMode = it },
+                    onCompletedModeChange = { viewModel.onAction(MapAction.SetCompletedMode(it)) },
                     onClearAll = handleClearAll,
                     selectedShape = selectedShape,
                     onSelectedShapeChange = { selectedShape = it },
                     isShapeDropped = isShapeDropped,
                     onDropShape = handleDropShape,
                     onClearShape = {
-                        isShapeDropped = false
-                        shapePoints.clear()
-                        shapePointsHistory.clear()
-                        redoShapePointsHistory.clear()
-                    },
-                    onUndoShape = {
-                        if (shapePointsHistory.isNotEmpty()) {
-                            val last = shapePointsHistory.removeAt(shapePointsHistory.lastIndex)
-                            redoShapePointsHistory.add(shapePoints.toList())
-                            shapePoints.clear()
-                            shapePoints.addAll(last)
-                        }
-                    },
-                    onRedoShape = {
-                        if (redoShapePointsHistory.isNotEmpty()) {
-                            val next = redoShapePointsHistory.removeAt(redoShapePointsHistory.lastIndex)
-                            shapePointsHistory.add(shapePoints.toList())
-                            shapePoints.clear()
-                            shapePoints.addAll(next)
-                        }
-                    },
+                        viewModel.onAction(MapAction.SetShapeDropped(false))
+                        viewModel.onAction(MapAction.SetShapePoints(emptyList()))
+                        viewModel.onAction(MapAction.ClearShape)
+},
+                    onUndoShape = { viewModel.onAction(MapAction.UndoShape) },
+                    onRedoShape = { viewModel.onAction(MapAction.RedoShape) },
                     canUndoShape = shapePointsHistory.isNotEmpty(),
                     canRedoShape = redoShapePointsHistory.isNotEmpty(),
                     isDrawing = isDrawing,
-                    onToggleDrawing = { isDrawing = !isDrawing },
+                    onToggleDrawing = { viewModel.onAction(MapAction.SetIsDrawing(!isDrawing)) },
                     onClearDrawing = { 
-                        drawPoints.clear()
-                        drawPointsHistory.clear()
-                        redoDrawPointsHistory.clear()
-                    },
+                        viewModel.onAction(MapAction.ClearDraw)
+},
                     onUndoDraw = {
-                        if (drawPointsHistory.isNotEmpty()) {
-                            val last = drawPointsHistory.removeAt(drawPointsHistory.lastIndex)
-                            redoDrawPointsHistory.add(drawPoints.toList())
-                            drawPoints.clear()
-                            drawPoints.addAll(last)
-                        }
+                        viewModel.onAction(MapAction.UndoDraw)
                     },
                     onRedoDraw = {
-                        if (redoDrawPointsHistory.isNotEmpty()) {
-                            val next = redoDrawPointsHistory.removeAt(redoDrawPointsHistory.lastIndex)
-                            drawPointsHistory.add(drawPoints.toList())
-                            drawPoints.clear()
-                            drawPoints.addAll(next)
-                        }
+                        viewModel.onAction(MapAction.RedoDraw)
                     },
                     canUndoDraw = drawPointsHistory.isNotEmpty(),
                     canRedoDraw = redoDrawPointsHistory.isNotEmpty(),
                     onClearPins = {
-                        pinPoints.clear()
-                        redoPinPoints.clear()
+                        viewModel.onAction(MapAction.ClearPins)
                     },
                     hasPins = pinPoints.isNotEmpty(),
-                    onUndoPin = {
-                        if (pinPoints.isNotEmpty()) {
-                            val last = pinPoints.removeAt(pinPoints.lastIndex)
-                            redoPinPoints.add(last)
-                        }
-                    },
+                    onUndoPin = { viewModel.onAction(MapAction.UndoPin) },
                     onRedoPin = {
-                        if (redoPinPoints.isNotEmpty()) {
-                            val last = redoPinPoints.removeAt(redoPinPoints.lastIndex)
-                            pinPoints.add(last)
-                        }
+                        viewModel.onAction(MapAction.RedoPin)
                     },
                     onDropPin = {
                         val c = viewportState.cameraState?.center
                         if (c != null) {
-                            pinPoints.add(c)
-                            redoPinPoints.clear()
+                            viewModel.onAction(MapAction.AddPinPoint(c))
+                            
                         }
                     },
                     connectTargetIndex = connectTargetIndex,
                     onConnect = {
                         if (connectTargetPoint != null) {
-                            pinPoints.add(connectTargetPoint!!)
-                            redoPinPoints.clear()
+                            viewModel.onAction(MapAction.AddPinPoint(connectTargetPoint!!))
+                            
                         }
                     },
                     onBackRequest = handleBackRequest,
@@ -965,27 +1004,15 @@ fun SatMapComponent(
                 horizontalAlignment = Alignment.End
             ) {
                 CompassButton()
-                AnimatedVisibility(
-                    visible = !isCalcExpanded && activeMode == null && completedMode == null,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    if (hasLocationPermission) {
-                        FloatingActionButton(
-                            onClick = { isTrackingUser = !isTrackingUser },
-                            containerColor = if (isTrackingUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            contentColor = if (isTrackingUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-                            shape = CircleShape,
-                            modifier = Modifier.size(52.dp)
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.DirectionsWalk, "Follow Me")
-                        }
-                    }
-                }
                 Toggle3DButton()
                 if (hasLocationPermission) {
                     FloatingActionButton(
-                        onClick = { isTrackingUser = true },
+                        onClick = { 
+                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                            (uiState.currentUserLocation)?.let { loc ->
+                                viewportState.flyTo(CameraOptions.Builder().center(loc).zoom(16.5).build())
+                            }
+                        },
                         containerColor = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.primary,
                         shape = CircleShape,
@@ -996,94 +1023,59 @@ fun SatMapComponent(
                 }
                 CalculateAreaOverlay(
                     isExpanded = isCalcExpanded,
-                    onExpandToggle = { isCalcExpanded = !isCalcExpanded },
+                    onExpandToggle = { viewModel.onAction(
+                        MapAction.SetCalcExpanded(!isCalcExpanded)) },
                     activeMode = activeMode,
-                    onActiveModeChange = { activeMode = it },
+                    onActiveModeChange = { viewModel.onAction(MapAction.SetActiveMode(it)) },
                     completedMode = completedMode,
-                    onCompletedModeChange = { completedMode = it },
+                    onCompletedModeChange = { viewModel.onAction(MapAction.SetCompletedMode(it)) },
                     onClearAll = handleClearAll,
                     selectedShape = selectedShape,
                     onSelectedShapeChange = { selectedShape = it },
                     isShapeDropped = isShapeDropped,
                     onDropShape = handleDropShape,
                     onClearShape = {
-                        isShapeDropped = false
-                        shapePoints.clear()
-                        shapePointsHistory.clear()
-                        redoShapePointsHistory.clear()
-                    },
-                    onUndoShape = {
-                        if (shapePointsHistory.isNotEmpty()) {
-                            val last = shapePointsHistory.removeAt(shapePointsHistory.lastIndex)
-                            redoShapePointsHistory.add(shapePoints.toList())
-                            shapePoints.clear()
-                            shapePoints.addAll(last)
-                        }
-                    },
-                    onRedoShape = {
-                        if (redoShapePointsHistory.isNotEmpty()) {
-                            val next = redoShapePointsHistory.removeAt(redoShapePointsHistory.lastIndex)
-                            shapePointsHistory.add(shapePoints.toList())
-                            shapePoints.clear()
-                            shapePoints.addAll(next)
-                        }
-                    },
+                        viewModel.onAction(MapAction.SetShapeDropped(false))
+                        viewModel.onAction(MapAction.SetShapePoints(emptyList()))
+                        viewModel.onAction(MapAction.ClearShape)
+},
+                    onUndoShape = { viewModel.onAction(MapAction.UndoShape) },
+                    onRedoShape = { viewModel.onAction(MapAction.RedoShape) },
                     canUndoShape = shapePointsHistory.isNotEmpty(),
                     canRedoShape = redoShapePointsHistory.isNotEmpty(),
                     isDrawing = isDrawing,
-                    onToggleDrawing = { isDrawing = !isDrawing },
+                    onToggleDrawing = { viewModel.onAction(MapAction.SetIsDrawing(!isDrawing)) },
                     onClearDrawing = { 
-                        drawPoints.clear()
-                        drawPointsHistory.clear()
-                        redoDrawPointsHistory.clear()
-                    },
+                        viewModel.onAction(MapAction.ClearDraw)
+},
                     onUndoDraw = {
-                        if (drawPointsHistory.isNotEmpty()) {
-                            val last = drawPointsHistory.removeAt(drawPointsHistory.lastIndex)
-                            redoDrawPointsHistory.add(drawPoints.toList())
-                            drawPoints.clear()
-                            drawPoints.addAll(last)
-                        }
+                        viewModel.onAction(MapAction.UndoDraw)
                     },
                     onRedoDraw = {
-                        if (redoDrawPointsHistory.isNotEmpty()) {
-                            val next = redoDrawPointsHistory.removeAt(redoDrawPointsHistory.lastIndex)
-                            drawPointsHistory.add(drawPoints.toList())
-                            drawPoints.clear()
-                            drawPoints.addAll(next)
-                        }
+                        viewModel.onAction(MapAction.RedoDraw)
                     },
                     canUndoDraw = drawPointsHistory.isNotEmpty(),
                     canRedoDraw = redoDrawPointsHistory.isNotEmpty(),
                     onClearPins = {
-                        pinPoints.clear()
-                        redoPinPoints.clear()
+                        viewModel.onAction(MapAction.ClearPins)
                     },
                     hasPins = pinPoints.isNotEmpty(),
-                    onUndoPin = {
-                        if (pinPoints.isNotEmpty()) {
-                            val last = pinPoints.removeAt(pinPoints.lastIndex)
-                            redoPinPoints.add(last)
-                        }
-                    },
+                    onUndoPin = { viewModel.onAction(MapAction.UndoPin) },
                     onRedoPin = {
-                        if (redoPinPoints.isNotEmpty()) {
-                            val last = redoPinPoints.removeAt(redoPinPoints.lastIndex)
-                            pinPoints.add(last)
-                        }
+                        viewModel.onAction(MapAction.RedoPin)
                     },
                     onDropPin = {
                         val c = viewportState.cameraState?.center
                         if (c != null) {
-                            pinPoints.add(c)
-                            redoPinPoints.clear()
+                            viewModel.onAction(MapAction.AddPinPoint(c))
+                            
                         }
                     },
                     connectTargetIndex = connectTargetIndex,
                     onConnect = {
                         if (connectTargetPoint != null) {
-                            pinPoints.add(connectTargetPoint!!)
-                            redoPinPoints.clear()
+                            viewModel.onAction(MapAction.AddPinPoint(connectTargetPoint!!))
+                            
                         }
                     },
                     onBackRequest = handleBackRequest,

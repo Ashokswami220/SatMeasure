@@ -1,5 +1,7 @@
 package com.example.satmeasure.ui.otherScreens
 
+import com.example.satmeasure.utils.HapticHelper
+
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -31,6 +33,50 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import com.example.satmeasure.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+
+data class PlaceSuggestion(val name: String, val lat: Double, val lng: Double)
+
+suspend fun searchPlaces(query: String, token: String, location: com.mapbox.geojson.Point?): List<PlaceSuggestion> = withContext(Dispatchers.IO) {
+    if (query.isBlank()) return@withContext emptyList()
+    var urlStr = "https://api.mapbox.com/geocoding/v5/mapbox.places/${URLEncoder.encode(query, "UTF-8")}.json?access_token=$token&types=place,address,poi,neighborhood,locality"
+    if (location != null) {
+        urlStr += "&proximity=${location.longitude()},${location.latitude()}"
+    }
+    try {
+        val url = URL(urlStr)
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.connectTimeout = 5000
+        conn.readTimeout = 5000
+        if (conn.responseCode == 200) {
+            val response = conn.inputStream.bufferedReader().use { it.readText() }
+            val json = JSONObject(response)
+            val features = json.optJSONArray("features") ?: return@withContext emptyList()
+            val results = mutableListOf<PlaceSuggestion>()
+            for (i in 0 until features.length()) {
+                val feature = features.getJSONObject(i)
+                val placeName = feature.optString("place_name", "")
+                val center = feature.optJSONArray("center")
+                if (center != null && center.length() >= 2) {
+                    val lng = center.getDouble(0)
+                    val lat = center.getDouble(1)
+                    results.add(PlaceSuggestion(placeName, lat, lng))
+                }
+            }
+            results
+        } else emptyList()
+    } catch (_: Exception) {
+        emptyList()
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,15 +84,22 @@ fun SearchScreen(
     onBackClick: () -> Unit,
     onHowToClick: () -> Unit,
     onCoordinateSearch: (Double, Double) -> Unit,
-    onTextSearch: (String) -> Unit
+    currentUserLocation: com.mapbox.geojson.Point? = null
 ) {
     val context = LocalContext.current
 
     var coordinateInput by remember { mutableStateOf("") }
     var searchQuery by remember { mutableStateOf("") }
+    var suggestions by remember { mutableStateOf(emptyList<PlaceSuggestion>()) }
 
-    val suggestions = listOf("Delhi", "Noida", "Mumbai", "Bangalore").filter {
-        it.contains(searchQuery, ignoreCase = true) && searchQuery.isNotEmpty()
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.trim().length > 2) {
+            delay(500) // debounce
+            val results = searchPlaces(searchQuery.trim(), BuildConfig.MAPBOX_ACCESS_TOKEN, currentUserLocation)
+            suggestions = results
+        } else {
+            suggestions = emptyList()
+        }
     }
 
     // THE FIX: We dynamically grab the EXACT color your phone uses for native SearchBars
@@ -68,6 +121,7 @@ fun SearchScreen(
                 placeholder = { Text("Search city or place name...") },
                 leadingIcon = {
                     IconButton(onClick = {
+                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                         if (searchQuery.isNotEmpty()) {
                             searchQuery = ""
                         } else {
@@ -119,12 +173,13 @@ fun SearchScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        searchQuery = suggestion
-                                        onTextSearch(suggestion)
+                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                        searchQuery = suggestion.name
+                                        onCoordinateSearch(suggestion.lat, suggestion.lng)
                                     }
                                     .padding(16.dp)
                             ) {
-                                Text(text = suggestion, style = MaterialTheme.typography.bodyLarge)
+                                Text(text = suggestion.name, style = MaterialTheme.typography.bodyLarge)
                             }
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
@@ -182,6 +237,7 @@ fun SearchScreen(
 
                         Button(
                             onClick = {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 val parts = coordinateInput.split(",")
                                 if (parts.size == 2) {
                                     val lat = parts[0].trim().toDoubleOrNull()
@@ -217,6 +273,7 @@ fun SearchScreen(
                         ) {
                             FilledTonalButton(
                                 onClick = {
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                     val gmmIntentUri = "https://maps.google.com/".toUri()
                                     val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                                     mapIntent.setPackage("com.google.android.apps.maps")
@@ -234,7 +291,10 @@ fun SearchScreen(
                             }
 
                             OutlinedButton(
-                                onClick = onHowToClick,
+                                onClick = {
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                    onHowToClick()
+                                },
                                 shape = CircleShape
                             ) {
                                 Icon(Icons.Default.TouchApp, contentDescription = null, modifier = Modifier.size(18.dp))

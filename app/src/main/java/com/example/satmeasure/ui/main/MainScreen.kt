@@ -38,6 +38,8 @@ import com.example.satmeasure.ui.components.MainCustomBottomSheet
 import com.example.satmeasure.ui.navigation.MapStyleBottomSheet
 import com.example.satmeasure.ui.components.MainBottomSheet
 import com.example.satmeasure.ui.navigation.availableMapStyles
+import com.example.satmeasure.ui.viewmodel.MapViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +47,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     currentRoute: String,
     onNavigate: (String) -> Unit,
+    mapViewModel: MapViewModel,
     portraitPeekHeight: Dp = 120.dp,
     portraitExpandedHeightRatio: Float = 0.5f,
     landscapePeekHeight: Dp = 100.dp,
@@ -74,15 +77,15 @@ fun MainScreen(
 
     // --- Expand More Timer Logic ---
     var isTopMenuExpanded by remember { mutableStateOf(true) }
-    var lastInteractionTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val (lastInteractionTime, setLastInteractionTime) = remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(lastInteractionTime) {
-        kotlinx.coroutines.delay(5000)
+        delay(5000)
         isTopMenuExpanded = true
     }
 
     val handleMapInteract = {
-        lastInteractionTime = System.currentTimeMillis()
+        setLastInteractionTime(System.currentTimeMillis())
         isTopMenuExpanded = false
     }
 
@@ -128,6 +131,8 @@ fun MainScreen(
                         SatMapComponent(
                             modifier = Modifier.fillMaxSize(),
                             currentMapStyle = currentStyleUri,
+                            bottomPadding = 50.dp,
+                            viewModel = mapViewModel,
                             onMapInteract = handleMapInteract,
                             onMeasurementsUpdated = { area, perimeter ->
                                 currentArea = area
@@ -145,7 +150,7 @@ fun MainScreen(
                             onExpandedChange = { expanded ->
                                 isTopMenuExpanded = expanded
                                 if (!expanded) {
-                                    lastInteractionTime = System.currentTimeMillis()
+                                    setLastInteractionTime(System.currentTimeMillis())
                                 }
                             }
                         )
@@ -156,11 +161,12 @@ fun MainScreen(
                             peekHeight = landscapePeekHeight,
                             expandedHeightRatio = landscapeExpandedHeightRatio,
                             widthRatio = 0.5f
-                        ) {
+                        ) { isAtPeekHeight ->
                             MainBottomSheet(
                                 modifier = Modifier.fillMaxSize(),
                                 areaMeters = currentArea,
-                                perimeterMeters = currentPerimeter
+                                perimeterMeters = currentPerimeter,
+                                isAtPeekHeight = isAtPeekHeight
                             )
                         }
                     }
@@ -170,6 +176,7 @@ fun MainScreen(
                             modifier = Modifier.fillMaxSize(),
                             currentMapStyle = currentStyleUri,
                             bottomPadding = portraitPeekHeight,
+                            viewModel = mapViewModel,
                             onMapInteract = handleMapInteract,
                             onMeasurementsUpdated = { area, perimeter ->
                                 currentArea = area
@@ -186,7 +193,7 @@ fun MainScreen(
                             onExpandedChange = { expanded ->
                                 isTopMenuExpanded = expanded
                                 if (!expanded) {
-                                    lastInteractionTime = System.currentTimeMillis()
+                                    setLastInteractionTime(System.currentTimeMillis())
                                 }
                             }
                         )
@@ -196,11 +203,12 @@ fun MainScreen(
                             peekHeight = portraitPeekHeight,
                             expandedHeightRatio = portraitExpandedHeightRatio,
                             widthRatio = 1f
-                        ) {
+                        ) { isAtPeekHeight ->
                             MainBottomSheet(
                                 modifier = Modifier.fillMaxSize(),
                                 areaMeters = currentArea,
-                                perimeterMeters = currentPerimeter
+                                perimeterMeters = currentPerimeter,
+                                isAtPeekHeight = isAtPeekHeight
                             )
                         }
                     }

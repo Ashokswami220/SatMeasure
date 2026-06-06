@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.satmeasure.ui.viewmodel.MapViewModel
+import com.mapbox.geojson.Point
 import com.example.satmeasure.ui.main.MainScreen
 import com.example.satmeasure.ui.main.HistoryScreen
 import com.example.satmeasure.ui.otherScreens.AboutUsScreen
@@ -29,6 +33,7 @@ import com.example.satmeasure.ui.otherScreens.HowToCoordinatesScreen
 import com.example.satmeasure.ui.otherScreens.SearchScreen
 import com.example.satmeasure.ui.otherScreens.SettingsScreen
 import com.example.satmeasure.ui.otherScreens.TutorialScreen
+import com.example.satmeasure.ui.viewmodel.MapAction
 
 const val ANIM_DURATION = 400
 val ANIM_EASING = FastOutSlowInEasing
@@ -48,6 +53,7 @@ fun SatMesNavApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val activity = (context as? Activity)
+    val mapViewModel: MapViewModel = viewModel(context as androidx.activity.ComponentActivity)
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: SatMesRoutes.MAP
@@ -112,6 +118,7 @@ fun SatMesNavApp() {
                 MainScreen(
                     currentRoute = currentRoute,
                     onNavigate = navigateToDest,
+                    mapViewModel = mapViewModel,
                     portraitPeekHeight = portraitPeekHeight,
                     portraitExpandedHeightRatio = portraitExpandedHeightRatio,
                     landscapePeekHeight = landscapePeekHeight,
@@ -141,14 +148,15 @@ fun SatMesNavApp() {
 
             // 7. SEARCH SCREEN
             composable(route = SatMesRoutes.SEARCH) {
+                val mapUiState by mapViewModel.uiState.collectAsState()
                 SearchScreen(
                     onBackClick = { navController.popBackStack() },
                     onHowToClick = { navController.navigate(SatMesRoutes.HOW_TO) },
                     onCoordinateSearch = { lat, lng ->
+                        mapViewModel.onAction(MapAction.SetCameraTarget(Point.fromLngLat(lng, lat)))
                         navController.popBackStack()
                     },
-                    onTextSearch = { query ->
-                    }
+                    currentUserLocation = mapUiState.currentUserLocation
                 )
             }
 

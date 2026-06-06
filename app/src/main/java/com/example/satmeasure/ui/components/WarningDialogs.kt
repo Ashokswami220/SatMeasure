@@ -17,18 +17,18 @@ fun DiscardWarningDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "Warning", fontWeight = FontWeight.Bold)
+            Text(text = "Are You Sure?", fontWeight = FontWeight.Bold)
         },
         text = {
-            Text("Are you sure you want to go back? Any active drawing or pins on the map will not be saved and will be deleted.")
+            Text("Going back will Wipe all the Data or Architecture")
         },
         confirmButton = {
             Button(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
-            ) { Text("Clear") }
+            ) { Text("Go, Back") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {

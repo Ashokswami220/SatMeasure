@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import com.example.satmeasure.ui.map.models.CalcMode
 import com.example.satmeasure.ui.map.models.ShapeType
 import com.example.satmeasure.ui.components.WipeWarningDialog
+import com.example.satmeasure.utils.HapticHelper
+import androidx.compose.ui.platform.LocalContext
 
 enum class OverlayState {
     COLLAPSED,
@@ -87,6 +89,7 @@ fun CalculateAreaOverlay(
     hasDrawing: Boolean = false,
     onBackRequest: () -> Unit
 ) {
+    val context = LocalContext.current
     val currentState = when {
         activeMode != null -> OverlayState.EXPANDED
         completedMode != null -> OverlayState.COMPLETED
@@ -94,15 +97,15 @@ fun CalculateAreaOverlay(
         else -> OverlayState.COLLAPSED
     }
 
-    var showWipeDialog by remember { mutableStateOf(false) }
-    var wipeAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val (showWipeDialog, setShowWipeDialog) = remember { mutableStateOf(false) }
+    val (wipeAction, setWipeAction) = remember { mutableStateOf<(() -> Unit)?>(null) }
     
     if (showWipeDialog) {
         WipeWarningDialog(
-            onDismiss = { showWipeDialog = false },
+            onDismiss = { setShowWipeDialog(false) },
             onConfirm = { 
                 wipeAction?.invoke()
-                showWipeDialog = false 
+                setShowWipeDialog(false) 
             }
         )
     }
@@ -115,7 +118,10 @@ fun CalculateAreaOverlay(
         when (state) {
             OverlayState.COLLAPSED -> {
                 ExtendedFloatingActionButton(
-                    onClick = onExpandToggle,
+                    onClick = {
+                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                        onExpandToggle()
+                    },
                     icon = { Icon(Icons.Default.Architecture, contentDescription = null) },
                     text = { Text("Calculate Area", fontWeight = FontWeight.Bold) },
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -141,7 +147,10 @@ fun CalculateAreaOverlay(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
-                                .clickable { onActiveModeChange(completedMode) },
+                                .clickable { 
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                    onActiveModeChange(completedMode) 
+                                },
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -156,7 +165,10 @@ fun CalculateAreaOverlay(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
-                                .clickable { onClearAll() },
+                                .clickable { 
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                    onClearAll() 
+                                },
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -199,7 +211,10 @@ fun CalculateAreaOverlay(
                                         )
                                         modes.forEach { (m, icon, label) ->
                                             Surface(
-                                                onClick = { onActiveModeChange(m) },
+                                                onClick = { 
+                                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                    onActiveModeChange(m) 
+                                                },
                                                 shape = RoundedCornerShape(12.dp),
                                                 color = MaterialTheme.colorScheme.surface,
                                                 modifier = Modifier.size(64.dp)
@@ -222,6 +237,7 @@ fun CalculateAreaOverlay(
 
                                     // CLOSE BUTTON AT RIGHT
                                     IconButton(onClick = {
+                                        HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
                                         onActiveModeChange(null)
                                         onExpandToggle()
                                     }, modifier = Modifier.size(48.dp)) {
@@ -234,7 +250,10 @@ fun CalculateAreaOverlay(
                                             CalcMode.PINS -> {
                                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                                 Button(
-                                                    onClick = { if (connectTargetIndex != null) onConnect() },
+                                                    onClick = { 
+                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                        if (connectTargetIndex != null) onConnect() 
+                                                    },
                                                     enabled = connectTargetIndex != null,
                                                     modifier = Modifier.height(64.dp).widthIn(min = 48.dp),
                                                     shape = RoundedCornerShape(12.dp),
@@ -262,7 +281,10 @@ fun CalculateAreaOverlay(
                                                 }
 
                                                 Button(
-                                                    onClick = { onDropPin() },
+                                                    onClick = { 
+                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                        onDropPin() 
+                                                    },
                                                     modifier = Modifier.height(64.dp).width(54.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     contentPadding = PaddingValues(0.dp)
@@ -277,7 +299,10 @@ fun CalculateAreaOverlay(
 
                                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                                     OutlinedButton(
-                                                        onClick = { onUndoPin() },
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            onUndoPin() 
+                                                        },
                                                         modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
@@ -289,7 +314,10 @@ fun CalculateAreaOverlay(
                                                     }
 
                                                     OutlinedButton(
-                                                        onClick = { onRedoPin() },
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            onRedoPin() 
+                                                        },
                                                         modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
@@ -301,7 +329,11 @@ fun CalculateAreaOverlay(
                                                     }
                                                     
                                                     OutlinedButton(
-                                                        onClick = { wipeAction = onClearPins; showWipeDialog = true },
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            setWipeAction(onClearPins)
+                                                            setShowWipeDialog(true) 
+                                                        },
                                                         enabled = hasPins,
                                                         modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
@@ -315,6 +347,7 @@ fun CalculateAreaOverlay(
 
                                                     OutlinedButton(
                                                         onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
                                                         },
@@ -338,15 +371,18 @@ fun CalculateAreaOverlay(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 if (!isShapeDropped) {
-                                                    ShapeIconButton(Icons.Default.Hexagon, selectedShape == ShapeType.HEXAGON, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.HEXAGON) }
-                                                    ShapeIconButton(Icons.Default.CropSquare, selectedShape == ShapeType.SQUARE, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.SQUARE) }
-                                                    ShapeIconButton(Icons.Default.Circle, selectedShape == ShapeType.CIRCLE, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.CIRCLE) }
-                                                    ShapeIconButton(Icons.Default.ChangeHistory, selectedShape == ShapeType.TRIANGLE, modifier = Modifier.height(64.dp).width(45.dp)) { onSelectedShapeChange(ShapeType.TRIANGLE) }
+                                                    ShapeIconButton(Icons.Default.Hexagon, selectedShape == ShapeType.HEXAGON, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.HEXAGON) }
+                                                    ShapeIconButton(Icons.Default.CropSquare, selectedShape == ShapeType.SQUARE, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.SQUARE) }
+                                                    ShapeIconButton(Icons.Default.Circle, selectedShape == ShapeType.CIRCLE, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.CIRCLE) }
+                                                    ShapeIconButton(Icons.Default.ChangeHistory, selectedShape == ShapeType.TRIANGLE, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.TRIANGLE) }
                                                     
                                                     VerticalDivider(Modifier.height(48.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
     
                                                     Button(
-                                                        onClick = { onDropShape() },
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            onDropShape() 
+                                                        },
                                                         modifier = Modifier.height(64.dp).width(56.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
@@ -359,7 +395,10 @@ fun CalculateAreaOverlay(
                                                 } else {
                                                     // Shape Dropped State
                                                     OutlinedButton(
-                                                        onClick = { onUndoShape() },
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            onUndoShape() 
+                                                        },
                                                         enabled = canUndoShape,
                                                         modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
@@ -372,7 +411,10 @@ fun CalculateAreaOverlay(
                                                     }
 
                                                     OutlinedButton(
-                                                        onClick = { onRedoShape() },
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            onRedoShape() 
+                                                        },
                                                         enabled = canRedoShape,
                                                         modifier = Modifier.height(64.dp).width(45.dp),
                                                         shape = RoundedCornerShape(12.dp),
@@ -384,24 +426,27 @@ fun CalculateAreaOverlay(
                                                         }
                                                     }
                                                     OutlinedButton(
-                                                        onClick = { wipeAction = onClearShape; showWipeDialog = true },
-                                                        enabled = isShapeDropped,
+                                                        onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                            setWipeAction(onClearShape)
+                                                            setShowWipeDialog(true) 
+                                                        },
                                                         modifier = Modifier.height(64.dp).width(52.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
                                                         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.Delete, null, tint = if (isShapeDropped) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f), modifier = Modifier.size(24.dp))
+                                                            Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(24.dp))
                                                             Text("Clear", style = MaterialTheme.typography.labelSmall)
                                                         }
                                                     }
                                                     
                                                     OutlinedButton(
                                                         onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
                                                         },
-                                                        enabled = isShapeDropped,
                                                         modifier = Modifier.height(64.dp).width(52.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
@@ -418,7 +463,10 @@ fun CalculateAreaOverlay(
                                         CalcMode.DRAW -> {
                                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                 Button(
-                                                    onClick = { onToggleDrawing() },
+                                                    onClick = { 
+                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                        onToggleDrawing() 
+                                                    },
                                                     modifier = Modifier.height(64.dp).width(75.dp),
                                                     shape = RoundedCornerShape(12.dp),
                                                     colors = ButtonDefaults.buttonColors(
@@ -434,7 +482,10 @@ fun CalculateAreaOverlay(
                                                 }
 
                                                 OutlinedButton(
-                                                    onClick = { onUndoDraw() },
+                                                    onClick = { 
+                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                        onUndoDraw() 
+                                                    },
                                                     enabled = canUndoDraw,
                                                     modifier = Modifier.height(64.dp).width(45.dp),
                                                     shape = RoundedCornerShape(12.dp),
@@ -447,7 +498,10 @@ fun CalculateAreaOverlay(
                                                 }
 
                                                 OutlinedButton(
-                                                    onClick = { onRedoDraw() },
+                                                    onClick = { 
+                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                        onRedoDraw() 
+                                                    },
                                                     enabled = canRedoDraw,
                                                     modifier = Modifier.height(64.dp).width(45.dp),
                                                     shape = RoundedCornerShape(12.dp),
@@ -460,7 +514,11 @@ fun CalculateAreaOverlay(
                                                 }
 
                                                 OutlinedButton(
-                                                    onClick = { wipeAction = onClearDrawing; showWipeDialog = true },
+                                                    onClick = { 
+                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                                        setWipeAction(onClearDrawing)
+                                                        setShowWipeDialog(true) 
+                                                    },
                                                     enabled = hasDrawing,
                                                     modifier = Modifier.height(64.dp).width(52.dp),
                                                     shape = RoundedCornerShape(12.dp),
@@ -474,6 +532,7 @@ fun CalculateAreaOverlay(
                                                 
                                                 OutlinedButton(
                                                         onClick = { 
+                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                                             if (isDrawing) onToggleDrawing()
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
