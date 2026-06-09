@@ -2,11 +2,16 @@ package com.example.satmeasure.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.satmeasure.ui.map.models.CalcMode
+import com.example.satmeasure.model.MeasurementRecord
+import com.example.satmeasure.model.PointData
+import com.example.satmeasure.repo.DatabaseRepository
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 data class MapUiState(
     val currentUserLocation: Point? = null,
     val cameraTarget: Point? = null,
@@ -29,7 +34,12 @@ data class MapUiState(
     val isShapeDropped: Boolean = false,
     
     val showDiscardDialog: Boolean = false,
-    val showClearDialog: Boolean = false
+    val showClearDialog: Boolean = false,
+    
+    val loadedMeasurementName: String? = null,
+    val loadedMeasurementId: String? = null,
+    val isReadOnly: Boolean = false,
+    val pdfExportOptions: com.example.satmeasure.ui.components.PdfExportOptions = com.example.satmeasure.ui.components.PdfExportOptions()
 )
 
 sealed class MapAction {
@@ -42,6 +52,7 @@ sealed class MapAction {
     data class SetShapeDropped(val isDropped: Boolean) : MapAction()
     data class SetShowDiscardDialog(val show: Boolean) : MapAction()
     data class SetShowClearDialog(val show: Boolean) : MapAction()
+    data class SetPdfExportOptions(val options: com.example.satmeasure.ui.components.PdfExportOptions) : MapAction()
 
     // Pin Actions
     data class AddPinPoint(val point: Point) : MapAction()
@@ -68,11 +79,121 @@ sealed class MapAction {
     
     // Global Actions
     object ClearAll : MapAction()
+    object ExitReadOnly : MapAction()
 }
 
 class MapViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(MapUiState())
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
+
+    private val dbRepo = DatabaseRepository()
+
+    private val _savedMeasurements = MutableStateFlow<List<MeasurementRecord>>(emptyList())
+    val savedMeasurements: StateFlow<List<MeasurementRecord>> = _savedMeasurements.asStateFlow()
+
+    fun loadMeasurements(userId: String) {
+        viewModelScope.launch {
+            val result = dbRepo.getMeasurements(userId)
+            if (result.isSuccess) {
+                _savedMeasurements.value = result.getOrNull() ?: emptyList()
+            }
+        }
+    }
+
+    fun loadRecordIntoMap(record: MeasurementRecord, isEditable: Boolean = false) {
+        // Convert stored points back to Mapbox Point objects
+        val points = record.points.map { Point.fromLngLat(it.lng, it.lat) }
+        
+        if (isEditable) {
+            _uiState.update { it.copy(
+                shapePoints = points,
+                activeMode = CalcMode.SHAPES,
+                completedMode = null,
+                isCalcExpanded = true,
+                isShapeDropped = true,
+                loadedMeasurementName = record.name,
+                loadedMeasurementId = record.id,
+                isReadOnly = false
+            )}
+        } else {
+            _uiState.update { it.copy(
+                shapePoints = points,
+                activeMode = null,
+                completedMode = CalcMode.SHAPES,
+                isCalcExpanded = false,
+                isShapeDropped = true,
+                loadedMeasurementName = record.name,
+                loadedMeasurementId = record.id,
+                isReadOnly = true
+            )}
+        }
+        
+        // Center camera if there are points
+        if (points.isNotEmpty()) {
+            val centerLat = points.map { it.latitude() }.average()
+            val centerLng = points.map { it.longitude() }.average()
+            onAction(MapAction.SetCameraTarget(Point.fromLngLat(centerLng, centerLat)))
+        }
+    }
+
+    fun deleteMeasurement(userId: String, recordId: String) {
+        viewModelScope.launch {
+            dbRepo.deleteMeasurement(userId, recordId)
+            loadMeasurements(userId) // reload
+        }
+    }
+
+    fun deleteAllMeasurements(userId: String) {
+        viewModelScope.launch {
+            dbRepo.deleteAllMeasurements(userId)
+            loadMeasurements(userId) // reload
+        }
+    }
+
+    fun saveMeasurement(
+        name: String, 
+        userId: String, 
+        areaSqMeters: Double, 
+        perimeterMeters: Double, 
+        onResult: (Boolean, String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val currentPoints = when (_uiState.value.completedMode ?: _uiState.value.activeMode) {
+                CalcMode.PINS -> _uiState.value.pinPoints
+                CalcMode.DRAW -> _uiState.value.drawPoints
+                CalcMode.SHAPES -> _uiState.value.shapePoints
+                else -> emptyList()
+            }
+            
+            if (currentPoints.isEmpty()) {
+                onResult(false, "No points to save")
+                return@launch
+            }
+            
+            val pointDataList = currentPoints.map { PointData(it.latitude(), it.longitude()) }
+            val center = pointDataList.firstOrNull()
+            
+            val record = MeasurementRecord(
+                name = name,
+                userId = userId,
+                timestamp = System.currentTimeMillis(),
+                areaSqMeters = areaSqMeters,
+                perimeterMeters = perimeterMeters,
+                centerPoint = center,
+                points = pointDataList,
+                id = _uiState.value.loadedMeasurementId ?: ""
+            )
+            
+            val result = dbRepo.saveMeasurement(userId, record)
+            if (result.isSuccess) {
+                // Clear the loaded name/id so next time it's empty
+                _uiState.update { it.copy(loadedMeasurementName = null, loadedMeasurementId = null, isReadOnly = false) }
+                onResult(true, "Saved successfully!")
+            } else {
+                onResult(false, result.exceptionOrNull()?.message ?: "Failed to save")
+            }
+        }
+    }
 
     fun onAction(action: MapAction) {
         when(action) {
@@ -85,6 +206,7 @@ class MapViewModel : ViewModel() {
             is MapAction.SetShapeDropped -> _uiState.update { it.copy(isShapeDropped = action.isDropped) }
             is MapAction.SetShowDiscardDialog -> _uiState.update { it.copy(showDiscardDialog = action.show) }
             is MapAction.SetShowClearDialog -> _uiState.update { it.copy(showClearDialog = action.show) }
+            is MapAction.SetPdfExportOptions -> _uiState.update { it.copy(pdfExportOptions = action.options) }
             
             // PIN LOGIC
             is MapAction.AddPinPoint -> _uiState.update { state ->
@@ -184,10 +306,35 @@ class MapViewModel : ViewModel() {
             
             is MapAction.ClearAll -> _uiState.update { state ->
                 state.copy(
-                    pinPoints = emptyList(), redoPinPoints = emptyList(),
-                    drawPoints = emptyList(), drawPointsHistory = emptyList(), redoDrawPointsHistory = emptyList(),
-                    shapePoints = emptyList(), shapePointsHistory = emptyList(), redoShapePointsHistory = emptyList(),
-                    isShapeDropped = false
+                    activeMode = null,
+                    completedMode = null,
+                    isCalcExpanded = false,
+                    isShapeDropped = false,
+                    isDrawing = false,
+                    pinPoints = emptyList(),
+                    redoPinPoints = emptyList(),
+                    drawPoints = emptyList(),
+                    drawPointsHistory = emptyList(),
+                    redoDrawPointsHistory = emptyList(),
+                    shapePoints = emptyList(),
+                    shapePointsHistory = emptyList(),
+                    redoShapePointsHistory = emptyList(),
+                    loadedMeasurementName = null,
+                    loadedMeasurementId = null,
+                    isReadOnly = false
+                )
+            }
+            is MapAction.ExitReadOnly -> _uiState.update { state ->
+                state.copy(
+                    activeMode = null,
+                    completedMode = null,
+                    isCalcExpanded = false,
+                    isShapeDropped = false,
+                    isDrawing = false,
+                    shapePoints = emptyList(),
+                    loadedMeasurementName = null,
+                    loadedMeasurementId = null,
+                    isReadOnly = false
                 )
             }
         }

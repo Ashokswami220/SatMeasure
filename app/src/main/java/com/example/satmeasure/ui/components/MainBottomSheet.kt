@@ -45,7 +45,9 @@ fun MainBottomSheet(
     modifier: Modifier = Modifier,
     areaMeters: Double = 0.0,
     perimeterMeters: Double = 0.0,
-    isAtPeekHeight: Boolean = false
+    isAtPeekHeight: Boolean = false,
+    onSaveClick: () -> Unit = {},
+    onExportClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val areaSqFt = areaMeters * 10.7639
@@ -80,12 +82,64 @@ fun MainBottomSheet(
             )
             Spacer(modifier = Modifier.height(16.dp))
             
-            Text(
-                text = "Calculation Details",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Calculation Details",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                
+                if (areaMeters > 0.0 || perimeterMeters > 0.0) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    ) {
+                        Row(
+                            modifier = Modifier.height(28.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextButton(
+                                onClick = { 
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                    onSaveClick()
+                                },
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                            ) {
+                                Text(
+                                    "Save", 
+                                    style = MaterialTheme.typography.labelMedium, 
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+                            VerticalDivider(
+                                modifier = Modifier.fillMaxHeight().padding(vertical = 6.dp),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                            )
+                            TextButton(
+                                onClick = { 
+                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                    onExportClick()
+                                },
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                            ) {
+                                Text(
+                                    "Export Pdf", 
+                                    style = MaterialTheme.typography.labelMedium, 
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+                        }
+                    }
+                }
+            }
             
             Spacer(modifier = Modifier.height(8.dp))
             HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))

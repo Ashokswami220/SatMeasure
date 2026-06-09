@@ -33,6 +33,7 @@ import com.example.satmeasure.ui.otherScreens.HowToCoordinatesScreen
 import com.example.satmeasure.ui.otherScreens.SearchScreen
 import com.example.satmeasure.ui.otherScreens.SettingsScreen
 import com.example.satmeasure.ui.otherScreens.TutorialScreen
+import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import com.example.satmeasure.ui.viewmodel.MapAction
 
 const val ANIM_DURATION = 400
@@ -54,6 +55,7 @@ fun SatMesNavApp() {
     val context = LocalContext.current
     val activity = (context as? Activity)
     val mapViewModel: MapViewModel = viewModel(context as androidx.activity.ComponentActivity)
+    val authViewModel: AuthViewModel = viewModel(context)
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: SatMesRoutes.MAP
@@ -119,6 +121,7 @@ fun SatMesNavApp() {
                     currentRoute = currentRoute,
                     onNavigate = navigateToDest,
                     mapViewModel = mapViewModel,
+                    authViewModel = authViewModel,
                     portraitPeekHeight = portraitPeekHeight,
                     portraitExpandedHeightRatio = portraitExpandedHeightRatio,
                     landscapePeekHeight = landscapePeekHeight,
@@ -128,7 +131,12 @@ fun SatMesNavApp() {
 
             // 2. HISTORY SCREEN
             composable(route = SatMesRoutes.HISTORY) {
-                HistoryScreen(onBackClick = { navController.popBackStack() })
+                HistoryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToMap = { navigateToDest(SatMesRoutes.MAP) },
+                    authViewModel = authViewModel,
+                    mapViewModel = mapViewModel
+                )
             }
 
             // 3. SETTINGS SCREEN

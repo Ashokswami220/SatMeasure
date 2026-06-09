@@ -3,6 +3,7 @@ package com.example.satmeasure.ui.navigation
 import com.example.satmeasure.utils.HapticHelper
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,6 +81,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.text.style.TextAlign
 import com.mapbox.maps.Style
 import com.example.satmeasure.ui.map.models.MapStyleOption
+import com.example.satmeasure.ui.viewmodel.AuthViewModel
+import coil.compose.AsyncImage
 
 val availableMapStyles = listOf(
     MapStyleOption("satellite_streets", "Satellite & Streets", Style.SATELLITE_STREETS, Style.SATELLITE_STREETS, R.drawable.satellite_map),
@@ -256,15 +260,16 @@ fun MainTopControls(
 @Composable
 fun AppSidebar(
     currentRoute: String,
+    authViewModel: AuthViewModel,
     onMenuSelect: (String) -> Unit
 ) {
     val context = LocalContext.current
-    var loginState by remember { mutableIntStateOf(0) }
-    
-    LaunchedEffect(loginState) {
-        if (loginState == 1) {
-            kotlinx.coroutines.delay(1500)
-            loginState = 2
+    val authState by authViewModel.uiState.collectAsState()
+
+    LaunchedEffect(authState.error) {
+        authState.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            authViewModel.clearError()
         }
     }
 
@@ -341,27 +346,46 @@ fun AppSidebar(
                                     .background(MaterialTheme.colorScheme.tertiary),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Profile Picture",
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colorScheme.onTertiary
-                                )
+                                if (authState.currentUser?.photoUrl != null) {
+                                    AsyncImage(
+                                        model = authState.currentUser?.photoUrl,
+                                        contentDescription = "Profile Picture",
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else if (authState.currentUser != null) {
+                                    val name = authState.currentUser?.displayName ?: authState.currentUser?.email ?: "U"
+                                    val initial = name.take(1).uppercase()
+                                    Text(
+                                        text = initial,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onTertiary
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Profile Picture",
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.onTertiary
+                                    )
+                                }
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                if (loginState == 2) {
+                                if (authState.currentUser != null) {
                                     Text(
-                                        text = "Ashok Swami",
+                                        text = authState.currentUser?.displayName ?: "User",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "developer@gmail.com",
+                                        text = authState.currentUser?.email ?: "",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.tertiary
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                        maxLines = 1
                                     )
                                 } else {
                                     Text(
@@ -381,8 +405,11 @@ fun AppSidebar(
                         OutlinedButton(
                             onClick = {
                                 HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                if (loginState == 0) loginState = 1
-                                else if (loginState == 2) loginState = 0
+                                if (authState.currentUser == null) {
+                                    authViewModel.signInWithGoogle(context)
+                                } else {
+                                    authViewModel.signOut()
+                                }
                             },
                             modifier = Modifier.fillMaxWidth().height(40.dp),
                             shape = RoundedCornerShape(12.dp),
@@ -392,29 +419,22 @@ fun AppSidebar(
                                 contentColor = MaterialTheme.colorScheme.tertiary
                             )
                         ) {
-                            when (loginState) {
-                                0 -> {
-                                    Text("G", fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 8.dp))
-                                    Text("Sign in with Google")
-                                }
-                                1 -> {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        color = MaterialTheme.colorScheme.tertiary,
-                                        strokeWidth = 2.dp
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Loading...")
-                                }
-                                else -> {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                        contentDescription = "Log Out",
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Log Out")
-                                }
+                            if (authState.isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    strokeWidth = 2.dp
+                                )
+                            } else if (authState.currentUser == null) {
+                                Text("G", fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 8.dp))
+                                Text("Sign in with Google")
+                            } else {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                                )
+                                Text("Logout")
                             }
                         }
                     }

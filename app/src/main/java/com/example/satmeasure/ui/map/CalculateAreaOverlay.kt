@@ -87,7 +87,8 @@ fun CalculateAreaOverlay(
     connectTargetIndex: Int?,
     onConnect: () -> Unit,
     hasDrawing: Boolean = false,
-    onBackRequest: () -> Unit
+    onBackRequest: () -> Unit,
+    isReadOnly: Boolean = false
 ) {
     val context = LocalContext.current
     val currentState = when {
@@ -131,50 +132,65 @@ fun CalculateAreaOverlay(
                 )
             }
             OverlayState.COMPLETED -> {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    shadowElevation = 6.dp,
-                    modifier = Modifier.size(width = 170.dp, height = 56.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
+                if (isReadOnly) {
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                            onClearAll()
+                        },
+                        icon = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) },
+                        text = { Text("Done", fontWeight = FontWeight.Bold) },
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.size(width = 170.dp, height = 56.dp)
+                    )
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        shadowElevation = 6.dp,
+                        modifier = Modifier.size(width = 170.dp, height = 56.dp)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable { 
-                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                    onActiveModeChange(completedMode) 
-                                },
-                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Edit", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                        }
-
-                        VerticalDivider(Modifier.height(24.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.2f))
-
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable { 
-                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                    onClearAll() 
-                                },
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.error)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Clear", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { 
+                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                        onActiveModeChange(completedMode) 
+                                    },
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary)
+                                Spacer(Modifier.width(8.dp))
+                                Text("Edit", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            }
+    
+                            VerticalDivider(Modifier.height(24.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.2f))
+    
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { 
+                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                        onClearAll() 
+                                    },
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.error)
+                                Spacer(Modifier.width(8.dp))
+                                Text("Clear", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.platform.LocalContext
 import com.example.satmeasure.ui.map.SatMapComponent
 import com.example.satmeasure.ui.navigation.SatMesRoutes
 import com.example.satmeasure.ui.navigation.AppSidebar
@@ -37,8 +38,24 @@ import com.example.satmeasure.ui.navigation.MainTopControls
 import com.example.satmeasure.ui.components.MainCustomBottomSheet
 import com.example.satmeasure.ui.navigation.MapStyleBottomSheet
 import com.example.satmeasure.ui.components.MainBottomSheet
+import com.example.satmeasure.ui.components.ExportPdfDialog
+import com.example.satmeasure.ui.components.PdfExportOptions
 import com.example.satmeasure.ui.navigation.availableMapStyles
+import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import com.example.satmeasure.ui.viewmodel.MapViewModel
+import com.example.satmeasure.ui.viewmodel.MapAction
+import com.example.satmeasure.ui.map.models.CalcMode
+import com.example.satmeasure.model.PointData
+import androidx.compose.runtime.collectAsState
+import com.example.satmeasure.ui.components.SaveMeasurementDialog
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.satmeasure.utils.PdfGenerator
+import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -48,6 +65,7 @@ fun MainScreen(
     currentRoute: String,
     onNavigate: (String) -> Unit,
     mapViewModel: MapViewModel,
+    authViewModel: AuthViewModel,
     portraitPeekHeight: Dp = 120.dp,
     portraitExpandedHeightRatio: Float = 0.5f,
     landscapePeekHeight: Dp = 100.dp,
@@ -55,9 +73,38 @@ fun MainScreen(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val authState by authViewModel.uiState.collectAsState()
+    
+    val (showSaveDialog, setShowSaveDialog) = remember { mutableStateOf(false) }
+    val (showExportDialog, setShowExportDialog) = remember { mutableStateOf(false) }
 
     var currentArea by remember { mutableDoubleStateOf(0.0) }
     var currentPerimeter by remember { mutableDoubleStateOf(0.0) }
+    
+    var exportName by remember { mutableStateOf("") }
+    var pendingPdfFile by remember { mutableStateOf<File?>(null) }
+    
+    val exportPdfLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+        if (uri != null && pendingPdfFile != null) {
+            scope.launch(Dispatchers.IO) {
+                try {
+                    context.contentResolver.openOutputStream(uri)?.use { out ->
+                        pendingPdfFile!!.inputStream().use { input ->
+                            input.copyTo(out)
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "PDF Exported Successfully!", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (_: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Failed to save PDF.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
 
     var currentMapStyleId by rememberSaveable { mutableStateOf("satellite_streets") }
     var showStyleSheet by remember { mutableStateOf(false) }
@@ -89,12 +136,82 @@ fun MainScreen(
         isTopMenuExpanded = false
     }
 
+    if (showSaveDialog) {
+        SaveMeasurementDialog(
+            initialName = mapViewModel.uiState.value.loadedMeasurementName ?: "",
+            onDismiss = { setShowSaveDialog (false) },
+            onSave = { name ->
+                setShowSaveDialog (false)
+                val userId = authState.currentUser?.uid ?: return@SaveMeasurementDialog
+                mapViewModel.saveMeasurement(
+                    name = name,
+                    userId = userId,
+                    areaSqMeters = currentArea,
+                    perimeterMeters = currentPerimeter
+                ) { _, msg ->
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    if (showExportDialog) {
+        val currentOptions = mapViewModel.uiState.value.pdfExportOptions
+        val initialName = mapViewModel.uiState.value.loadedMeasurementName ?: currentOptions.name
+        
+        ExportPdfDialog(
+            initialOptions = currentOptions.copy(name = initialName),
+            onDismiss = { setShowExportDialog(false) },
+            onExport = { options ->
+                mapViewModel.onAction(MapAction.SetPdfExportOptions(options))
+                setShowExportDialog(false)
+                exportName = options.name
+                Toast.makeText(context, "Generating PDF...", Toast.LENGTH_SHORT).show()
+                scope.launch(Dispatchers.IO) {
+                    val pointsToMeasure = when (mapViewModel.uiState.value.completedMode ?: mapViewModel.uiState.value.activeMode) {
+                        CalcMode.PINS -> mapViewModel.uiState.value.pinPoints
+                        CalcMode.DRAW -> mapViewModel.uiState.value.drawPoints
+                        CalcMode.SHAPES -> mapViewModel.uiState.value.shapePoints
+                        else -> emptyList()
+                    }
+                    val pointDataList = pointsToMeasure.map { PointData(it.latitude(), it.longitude()) }
+                    var centerLat = 28.5355
+                    var centerLng = 77.3910
+                    if (pointsToMeasure.isNotEmpty()) {
+                        centerLat = pointsToMeasure.map { it.latitude() }.average()
+                        centerLng = pointsToMeasure.map { it.longitude() }.average()
+                    } else if (mapViewModel.uiState.value.currentUserLocation != null) {
+                        centerLat = mapViewModel.uiState.value.currentUserLocation!!.latitude()
+                        centerLng = mapViewModel.uiState.value.currentUserLocation!!.longitude()
+                    }
+                    
+                    val file = PdfGenerator.generatePdf(
+                        context = context,
+                        options = options,
+                        areaMeters = currentArea,
+                        perimeterMeters = currentPerimeter,
+                        points = pointDataList,
+                        centerLat = centerLat,
+                        centerLng = centerLng,
+                        zoom = 14.0,
+                        mapStyle = currentStyleUri
+                    )
+                    pendingPdfFile = file
+                    withContext(Dispatchers.Main) {
+                        exportPdfLauncher.launch("${exportName.replace(' ', '_')}.pdf")
+                    }
+                }
+            }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             AppSidebar(
                 currentRoute = currentRoute,
+                authViewModel = authViewModel,
                 onMenuSelect = { route ->
                     scope.launch {
                         drawerState.close()
@@ -109,7 +226,6 @@ fun MainScreen(
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
-            // Map Style Bottom Sheet
             if (showStyleSheet) {
                 MapStyleBottomSheet(
                     currentStyleId = currentMapStyleId,
@@ -155,7 +271,6 @@ fun MainScreen(
                             }
                         )
 
-                        // Custom Floating "Bottom Sheet" on the Left
                         MainCustomBottomSheet(
                             modifier = Modifier.align(Alignment.BottomStart),
                             peekHeight = landscapePeekHeight,
@@ -166,7 +281,17 @@ fun MainScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 areaMeters = currentArea,
                                 perimeterMeters = currentPerimeter,
-                                isAtPeekHeight = isAtPeekHeight
+                                isAtPeekHeight = isAtPeekHeight,
+                                onSaveClick = {
+                                    if (authState.currentUser == null) {
+                                        Toast.makeText(context, "Please sign in to save measurements.", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        setShowSaveDialog(true)
+                                    }
+                                },
+                                onExportClick = {
+                                    setShowExportDialog(true)
+                                }
                             )
                         }
                     }
@@ -208,7 +333,17 @@ fun MainScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 areaMeters = currentArea,
                                 perimeterMeters = currentPerimeter,
-                                isAtPeekHeight = isAtPeekHeight
+                                isAtPeekHeight = isAtPeekHeight,
+                                onSaveClick = {
+                                    if (authState.currentUser == null) {
+                                        Toast.makeText(context, "Please sign in to save measurements.", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        setShowSaveDialog(true)
+                                    }
+                                },
+                                onExportClick = {
+                                    setShowExportDialog(true)
+                                }
                             )
                         }
                     }

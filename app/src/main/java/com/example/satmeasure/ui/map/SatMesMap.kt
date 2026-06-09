@@ -197,7 +197,7 @@ fun SatMapComponent(
     bottomPadding: Dp = 0.dp,
     viewModel: MapViewModel = viewModel(),
     onMapInteract: () -> Unit = {},
-    onMeasurementsUpdated: (area: Double, perimeter: Double) -> Unit = { _, _ -> }
+    onMeasurementsUpdated: (area: Double, perimeter: Double) -> Unit = { _, _ -> },
 ) {
     val density = LocalDensity.current
     val bottomPaddingPx = with(density) { bottomPadding.toPx() }.toDouble()
@@ -368,6 +368,8 @@ fun SatMapComponent(
     var selectedShape by remember { mutableStateOf(ShapeType.HEXAGON) }
     var mapboxMap by remember { mutableStateOf<com.mapbox.maps.MapboxMap?>(null) }
 
+
+
     val handleDropShape: () -> Unit = {
         viewModel.onAction(MapAction.SetShapeDropped(true))
         val sw = windowInfo.containerSize.width.toDouble()
@@ -463,6 +465,11 @@ fun SatMapComponent(
         }
     }
 
+    val currentIsDrawing by rememberUpdatedState(isDrawing)
+    val currentDrawPoints by rememberUpdatedState(drawPoints)
+    val currentShapePoints by rememberUpdatedState(shapePoints)
+    val currentSelectedShape by rememberUpdatedState(selectedShape)
+
     Box(modifier = modifier.fillMaxSize()) {
 
         // --- 1. THE MAP LAYER ---
@@ -475,15 +482,15 @@ fun SatMapComponent(
                             val event = awaitPointerEvent(PointerEventPass.Initial)
                             val change = event.changes.firstOrNull() ?: continue
                             
-                            if (activeMode == CalcMode.DRAW && isDrawing && mapboxMap != null) {
+                            if (activeMode == CalcMode.DRAW && currentIsDrawing && mapboxMap != null) {
                                 val screenCoordinates = com.mapbox.maps.ScreenCoordinate(change.position.x.toDouble(), change.position.y.toDouble())
                                 val mapPoint = mapboxMap!!.coordinateForPixel(screenCoordinates)
                                 if (change.pressed) {
                                     if (!change.previousPressed) {
-                                        viewModel.onAction(MapAction.CommitDrawPath(drawPoints))
+                                        viewModel.onAction(MapAction.CommitDrawPath(currentDrawPoints))
                                         
                                     }
-                                    if (drawPoints.isEmpty() || MathHelpers.distanceInMeters(drawPoints.last(), mapPoint) > 2.0) {
+                                    if (currentDrawPoints.isEmpty() || MathHelpers.distanceInMeters(currentDrawPoints.last(), mapPoint) > 2.0) {
                                         viewModel.onAction(MapAction.AddDrawPoint(mapPoint))
                                     }
                                     change.consume()
@@ -497,7 +504,7 @@ fun SatMapComponent(
                                 if (change.pressed && !change.previousPressed) {
                                     // ACTION_DOWN
                                     var foundNode = false
-                                    for ((i, point) in shapePoints.withIndex()) {
+                                    for ((i, point) in currentShapePoints.withIndex()) {
                                         val pixel = mapboxMap!!.pixelForCoordinate(point)
                                         val dx = pixel.x - change.position.x
                                         val dy = pixel.y - change.position.y
@@ -508,11 +515,11 @@ fun SatMapComponent(
                                         }
                                     }
                                     if (!foundNode) {
-                                        if (selectedShape != ShapeType.CIRCLE && shapePoints.size >= 3) {
-                                            val handle1 = MathHelpers.midPoint(shapePoints[0], shapePoints[1])
-                                            val oppIdx = shapePoints.size / 2
-                                            val oppNextIdx = if (oppIdx + 1 < shapePoints.size) oppIdx + 1 else 0
-                                            val handle2 = MathHelpers.midPoint(shapePoints[oppIdx], shapePoints[oppNextIdx])
+                                        if (currentSelectedShape != ShapeType.CIRCLE && currentShapePoints.size >= 3) {
+                                            val handle1 = MathHelpers.midPoint(currentShapePoints[0], currentShapePoints[1])
+                                            val oppIdx = currentShapePoints.size / 2
+                                            val oppNextIdx = if (oppIdx + 1 < currentShapePoints.size) oppIdx + 1 else 0
+                                            val handle2 = MathHelpers.midPoint(currentShapePoints[oppIdx], currentShapePoints[oppNextIdx])
 
                                             val p1 = mapboxMap!!.pixelForCoordinate(handle1)
                                             val p2 = mapboxMap!!.pixelForCoordinate(handle2)
@@ -535,7 +542,7 @@ fun SatMapComponent(
                                     }
 
                                     if (!foundNode) {
-                                        val center = MathHelpers.calculateCenter(shapePoints)
+                                        val center = MathHelpers.calculateCenter(currentShapePoints)
                                         val centerPixel = mapboxMap!!.pixelForCoordinate(center)
                                         val dx = centerPixel.x - change.position.x
                                         val dy = centerPixel.y - change.position.y
@@ -546,68 +553,66 @@ fun SatMapComponent(
                                         }
                                     }
                                     if (draggedShapeNodeIndex != null || isDraggingShape || isRotatingShape) {
-                                        viewModel.onAction(MapAction.CommitShapePath(shapePoints))
+                                        viewModel.onAction(MapAction.CommitShapePath(currentShapePoints))
                                         
                                         change.consume()
                                     }
                                 } else if (change.pressed) {
                                     // ACTION_MOVE
                                     if (draggedShapeNodeIndex != null) {
-                                        if (selectedShape == ShapeType.CIRCLE) {
-                                            val center = MathHelpers.calculateCenter(shapePoints)
+                                        if (currentSelectedShape == ShapeType.CIRCLE) {
+                                            val center = MathHelpers.calculateCenter(currentShapePoints)
                                             val radius = MathHelpers.distanceInMeters(center, mapPoint)
-                                            viewModel.onAction(
-                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(0, MathHelpers.destinationPoint(center, radius, 0.0)) })) // N
-                                            viewModel.onAction(
-                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(1, MathHelpers.destinationPoint(center, radius, 90.0)) })) // E
-                                            viewModel.onAction(
-                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(2, MathHelpers.destinationPoint(center, radius, 180.0)) })) // S
-                                            viewModel.onAction(
-                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(3, MathHelpers.destinationPoint(center, radius, 270.0)) })) // W
+                                            val newShape = currentShapePoints.toMutableList()
+                                            newShape[0] = MathHelpers.destinationPoint(center, radius, 0.0)
+                                            newShape[1] = MathHelpers.destinationPoint(center, radius, 90.0)
+                                            newShape[2] = MathHelpers.destinationPoint(center, radius, 180.0)
+                                            newShape[3] = MathHelpers.destinationPoint(center, radius, 270.0)
+                                            viewModel.onAction(MapAction.SetShapePoints(newShape))
                                         } else {
-                                            viewModel.onAction(
-                                                MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(draggedShapeNodeIndex!!, mapPoint) }))
+                                            val newShape = currentShapePoints.toMutableList()
+                                            newShape[draggedShapeNodeIndex!!] = mapPoint
+                                            viewModel.onAction(MapAction.SetShapePoints(newShape))
                                         }
                                         change.consume()
                                     } else if (isDraggingShape) {
                                         if (lastDragPoint != null) {
                                             val dLat = mapPoint.latitude() - lastDragPoint!!.latitude()
                                             val dLng = mapPoint.longitude() - lastDragPoint!!.longitude()
-                                            for (i in shapePoints.indices) {
-                                                val pt = Point.fromLngLat(shapePoints[i].longitude() + dLng, shapePoints[i].latitude() + dLat)
-                                                viewModel.onAction(
-                                                    MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(i, pt) }))
+                                            val newShape = currentShapePoints.map {
+                                                Point.fromLngLat(it.longitude() + dLng, it.latitude() + dLat)
                                             }
+                                            viewModel.onAction(MapAction.SetShapePoints(newShape))
                                             lastDragPoint = mapPoint
                                         }
                                         change.consume()
                                     } else if (isRotatingShape) {
                                         if (lastDragPoint != null) {
-                                            val center = MathHelpers.calculateCenter(shapePoints)
+                                            val center = MathHelpers.calculateCenter(currentShapePoints)
                                             val oldAngle = MathHelpers.calculateBearing(center, lastDragPoint!!)
                                             val newAngle = MathHelpers.calculateBearing(center, mapPoint)
                                             val diff = newAngle - oldAngle
                                             
-                                            for (i in shapePoints.indices) {
-                                                viewModel.onAction(
-                                                    MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(i, MathHelpers.rotatePoint(center, shapePoints[i], diff)) }))
+                                            val newShape = currentShapePoints.map {
+                                                MathHelpers.rotatePoint(center, it, diff)
                                             }
+                                            viewModel.onAction(MapAction.SetShapePoints(newShape))
                                             lastDragPoint = mapPoint
                                         }
                                         change.consume()
                                     } else if (isResizingShape) {
                                         if (lastDragPoint != null) {
-                                            val center = MathHelpers.calculateCenter(shapePoints)
+                                            val center = MathHelpers.calculateCenter(currentShapePoints)
                                             val oldDist = MathHelpers.distanceInMeters(center, lastDragPoint!!)
                                             val newDist = MathHelpers.distanceInMeters(center, mapPoint)
                                             if (oldDist > 0) {
                                                 val scale = newDist / oldDist
-                                                for (i in shapePoints.indices) {
-                                                    val dist = MathHelpers.distanceInMeters(center, shapePoints[i])
-                                                    val bearing = MathHelpers.calculateBearing(center, shapePoints[i])
-                                                    viewModel.onAction(
-                                                        MapAction.SetShapePoints(shapePoints.toMutableList().apply { set(i, MathHelpers.destinationPoint(center, dist * scale, bearing)) }))
+                                                val newShape = currentShapePoints.map { pt ->
+                                                    val dist = MathHelpers.distanceInMeters(center, pt)
+                                                    val bearing = MathHelpers.calculateBearing(center, pt)
+                                                    MathHelpers.destinationPoint(center, dist * scale, bearing)
                                                 }
+                                                viewModel.onAction(MapAction.SetShapePoints(newShape))
                                             }
                                             lastDragPoint = mapPoint
                                         }
@@ -994,7 +999,8 @@ fun SatMapComponent(
                         }
                     },
                     onBackRequest = handleBackRequest,
-                    hasDrawing = drawPoints.isNotEmpty()
+                    hasDrawing = drawPoints.isNotEmpty(),
+                    isReadOnly = uiState.isReadOnly
                 )
             }
         } else {
@@ -1079,7 +1085,8 @@ fun SatMapComponent(
                         }
                     },
                     onBackRequest = handleBackRequest,
-                    hasDrawing = drawPoints.isNotEmpty()
+                    hasDrawing = drawPoints.isNotEmpty(),
+                    isReadOnly = uiState.isReadOnly
                 )
             }
         }
