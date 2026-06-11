@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.satmeasure.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +34,7 @@ fun HowToCoordinatesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Find Coordinates") },
+                title = { Text(stringResource(R.string.title_find_coordinates)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
@@ -54,7 +56,7 @@ fun HowToCoordinatesScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Use Google Maps to find the exact coordinates of your land for free.",
+                text = stringResource(R.string.desc_how_to_find_coordinates),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -63,29 +65,29 @@ fun HowToCoordinatesScreen(
             StepCard(
                 stepNum = 1,
                 icon = Icons.Default.Map,
-                title = "Open Maps",
-                desc = "Tap the 'Open Google Maps' button on the previous screen."
+                title = stringResource(R.string.step_open_maps_title),
+                desc = stringResource(R.string.step_open_maps_desc)
             )
 
             StepCard(
                 stepNum = 2,
                 icon = Icons.Default.TouchApp,
-                title = "Drop a Pin",
-                desc = "Find your land. Long-press on the map until a red pin drops."
+                title = stringResource(R.string.step_drop_pin_title),
+                desc = stringResource(R.string.step_drop_pin_desc)
             )
 
             StepCard(
                 stepNum = 3,
                 icon = Icons.Default.ContentCopy,
-                title = "Copy Coordinates",
-                desc = "Look at the search bar at the top of Google Maps. You will see numbers (e.g., 28.5355, 77.3910). Copy them."
+                title = stringResource(R.string.step_copy_coords_title),
+                desc = stringResource(R.string.step_copy_coords_desc)
             )
 
             StepCard(
                 stepNum = 4,
                 icon = Icons.Default.ContentPaste,
-                title = "Paste & Go",
-                desc = "Come back to our app and paste those numbers into the coordinate box."
+                title = stringResource(R.string.step_paste_go_title),
+                desc = stringResource(R.string.step_paste_go_desc)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -98,7 +100,7 @@ fun HowToCoordinatesScreen(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Got it, take me back!", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.action_got_it_take_me_back), style = MaterialTheme.typography.titleMedium)
             }
         }
     }
@@ -124,7 +126,7 @@ fun StepCard(stepNum: Int, icon: ImageVector, title: String, desc: String) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("Step $stepNum: $title", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.format_step_title, stepNum, title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(desc, style = MaterialTheme.typography.bodyMedium)
             }

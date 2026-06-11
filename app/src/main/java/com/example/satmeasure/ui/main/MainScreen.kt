@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.background
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -39,7 +40,6 @@ import com.example.satmeasure.ui.components.MainCustomBottomSheet
 import com.example.satmeasure.ui.navigation.MapStyleBottomSheet
 import com.example.satmeasure.ui.components.MainBottomSheet
 import com.example.satmeasure.ui.components.ExportPdfDialog
-import com.example.satmeasure.ui.components.PdfExportOptions
 import com.example.satmeasure.ui.navigation.availableMapStyles
 import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import com.example.satmeasure.ui.viewmodel.MapViewModel
@@ -58,6 +58,7 @@ import kotlinx.coroutines.withContext
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.satmeasure.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,31 +76,41 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val authState by authViewModel.uiState.collectAsState()
-    
+    val mapUiState by mapViewModel.uiState.collectAsState()
+
+    val msgPdfExportedSuccessfully = stringResource(R.string.msg_pdf_exported_successfully)
+    val msgFailedToSavePdf = stringResource(R.string.msg_failed_to_save_pdf)
+    val msgGeneratingPdf = stringResource(R.string.msg_generating_pdf)
+    val msgSignInToSave = stringResource(R.string.msg_sign_in_to_save)
+
     val (showSaveDialog, setShowSaveDialog) = remember { mutableStateOf(false) }
     val (showExportDialog, setShowExportDialog) = remember { mutableStateOf(false) }
 
     var currentArea by remember { mutableDoubleStateOf(0.0) }
     var currentPerimeter by remember { mutableDoubleStateOf(0.0) }
-    
+
     var exportName by remember { mutableStateOf("") }
     var pendingPdfFile by remember { mutableStateOf<File?>(null) }
-    
-    val exportPdfLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+
+    val exportPdfLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri ->
         if (uri != null && pendingPdfFile != null) {
             scope.launch(Dispatchers.IO) {
                 try {
-                    context.contentResolver.openOutputStream(uri)?.use { out ->
-                        pendingPdfFile!!.inputStream().use { input ->
-                            input.copyTo(out)
+                    context.contentResolver.openOutputStream(uri)
+                        ?.use { out ->
+                            pendingPdfFile!!.inputStream()
+                                .use { input ->
+                                    input.copyTo(out)
+                                }
                         }
-                    }
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "PDF Exported Successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, msgPdfExportedSuccessfully, Toast.LENGTH_SHORT).show()
                     }
                 } catch (_: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Failed to save PDF.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, msgFailedToSavePdf, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -110,8 +121,10 @@ fun MainScreen(
     var showStyleSheet by remember { mutableStateOf(false) }
 
     val isDarkTheme = isSystemInDarkTheme()
-    val currentStyleOption = availableMapStyles.find { it.id == currentMapStyleId } ?: availableMapStyles.first()
-    val currentStyleUri = if (isDarkTheme) currentStyleOption.darkStyleUri else currentStyleOption.lightStyleUri
+    val currentStyleOption =
+        availableMapStyles.find { it.id == currentMapStyleId } ?: availableMapStyles.first()
+    val currentStyleUri =
+        if (isDarkTheme) currentStyleOption.darkStyleUri else currentStyleOption.lightStyleUri
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -124,7 +137,11 @@ fun MainScreen(
 
     // --- Expand More Timer Logic ---
     var isTopMenuExpanded by remember { mutableStateOf(true) }
-    val (lastInteractionTime, setLastInteractionTime) = remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val (lastInteractionTime, setLastInteractionTime) = remember {
+        mutableLongStateOf(
+            System.currentTimeMillis()
+        )
+    }
 
     LaunchedEffect(lastInteractionTime) {
         delay(5000)
@@ -138,10 +155,10 @@ fun MainScreen(
 
     if (showSaveDialog) {
         SaveMeasurementDialog(
-            initialName = mapViewModel.uiState.value.loadedMeasurementName ?: "",
-            onDismiss = { setShowSaveDialog (false) },
+            initialName = mapUiState.loadedMeasurementName ?: "",
+            onDismiss = { setShowSaveDialog(false) },
             onSave = { name ->
-                setShowSaveDialog (false)
+                setShowSaveDialog(false)
                 val userId = authState.currentUser?.uid ?: return@SaveMeasurementDialog
                 mapViewModel.saveMeasurement(
                     name = name,
@@ -149,16 +166,17 @@ fun MainScreen(
                     areaSqMeters = currentArea,
                     perimeterMeters = currentPerimeter
                 ) { _, msg ->
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, msg, Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         )
     }
 
     if (showExportDialog) {
-        val currentOptions = mapViewModel.uiState.value.pdfExportOptions
-        val initialName = mapViewModel.uiState.value.loadedMeasurementName ?: currentOptions.name
-        
+        val currentOptions = mapUiState.pdfExportOptions
+        val initialName = mapUiState.loadedMeasurementName ?: currentOptions.name
+
         ExportPdfDialog(
             initialOptions = currentOptions.copy(name = initialName),
             onDismiss = { setShowExportDialog(false) },
@@ -166,25 +184,28 @@ fun MainScreen(
                 mapViewModel.onAction(MapAction.SetPdfExportOptions(options))
                 setShowExportDialog(false)
                 exportName = options.name
-                Toast.makeText(context, "Generating PDF...", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, msgGeneratingPdf, Toast.LENGTH_SHORT).show()
                 scope.launch(Dispatchers.IO) {
-                    val pointsToMeasure = when (mapViewModel.uiState.value.completedMode ?: mapViewModel.uiState.value.activeMode) {
-                        CalcMode.PINS -> mapViewModel.uiState.value.pinPoints
-                        CalcMode.DRAW -> mapViewModel.uiState.value.drawPoints
-                        CalcMode.SHAPES -> mapViewModel.uiState.value.shapePoints
+                    val pointsToMeasure = when (mapUiState.completedMode ?: mapUiState.activeMode) {
+                        CalcMode.PINS -> mapUiState.pinPoints
+                        CalcMode.DRAW -> mapUiState.drawPoints
+                        CalcMode.SHAPES -> mapUiState.shapePoints
                         else -> emptyList()
                     }
-                    val pointDataList = pointsToMeasure.map { PointData(it.latitude(), it.longitude()) }
+                    val pointDataList =
+                        pointsToMeasure.map { PointData(it.latitude(), it.longitude()) }
                     var centerLat = 28.5355
                     var centerLng = 77.3910
                     if (pointsToMeasure.isNotEmpty()) {
-                        centerLat = pointsToMeasure.map { it.latitude() }.average()
-                        centerLng = pointsToMeasure.map { it.longitude() }.average()
+                        centerLat = pointsToMeasure.map { it.latitude() }
+                            .average()
+                        centerLng = pointsToMeasure.map { it.longitude() }
+                            .average()
                     } else if (mapViewModel.uiState.value.currentUserLocation != null) {
                         centerLat = mapViewModel.uiState.value.currentUserLocation!!.latitude()
                         centerLng = mapViewModel.uiState.value.currentUserLocation!!.longitude()
                     }
-                    
+
                     val file = PdfGenerator.generatePdf(
                         context = context,
                         options = options,
@@ -284,7 +305,7 @@ fun MainScreen(
                                 isAtPeekHeight = isAtPeekHeight,
                                 onSaveClick = {
                                     if (authState.currentUser == null) {
-                                        Toast.makeText(context, "Please sign in to save measurements.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, msgSignInToSave, Toast.LENGTH_SHORT).show()
                                     } else {
                                         setShowSaveDialog(true)
                                     }
@@ -336,7 +357,7 @@ fun MainScreen(
                                 isAtPeekHeight = isAtPeekHeight,
                                 onSaveClick = {
                                     if (authState.currentUser == null) {
-                                        Toast.makeText(context, "Please sign in to save measurements.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, msgSignInToSave, Toast.LENGTH_SHORT).show()
                                     } else {
                                         setShowSaveDialog(true)
                                     }

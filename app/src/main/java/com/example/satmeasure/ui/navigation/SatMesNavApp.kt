@@ -22,12 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.satmeasure.ui.viewmodel.MapViewModel
 import com.mapbox.geojson.Point
 import com.example.satmeasure.ui.main.MainScreen
-import com.example.satmeasure.ui.main.HistoryScreen
+import com.example.satmeasure.ui.main.SavedScreen
 import com.example.satmeasure.ui.otherScreens.AboutUsScreen
 import com.example.satmeasure.ui.otherScreens.HowToCoordinatesScreen
 import com.example.satmeasure.ui.otherScreens.SearchScreen
@@ -35,12 +37,13 @@ import com.example.satmeasure.ui.otherScreens.SettingsScreen
 import com.example.satmeasure.ui.otherScreens.TutorialScreen
 import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import com.example.satmeasure.ui.viewmodel.MapAction
+import com.example.satmeasure.R
 
 const val ANIM_DURATION = 400
 val ANIM_EASING = FastOutSlowInEasing
 
 @Composable
-fun SatMesNavApp() {
+fun SatMesNavApp(initialPlotId: String? = null, initialOwnerId: String? = null) {
     // --- Bottom Sheet Configuration Variables ---
     // Portrait bottom sheet peek height
     val portraitPeekHeight = 245.dp
@@ -56,6 +59,12 @@ fun SatMesNavApp() {
     val activity = (context as? Activity)
     val mapViewModel: MapViewModel = viewModel(context as androidx.activity.ComponentActivity)
     val authViewModel: AuthViewModel = viewModel(context)
+
+    LaunchedEffect(initialPlotId, initialOwnerId) {
+        if (initialPlotId != null && initialOwnerId != null) {
+            mapViewModel.loadSharedMeasurement(initialOwnerId, initialPlotId)
+        }
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: SatMesRoutes.MAP
@@ -107,13 +116,14 @@ fun SatMesNavApp() {
                 var backPressedTime by remember { mutableLongStateOf(0L) }
 
                 // Only intercept hardware back button on the MAP screen
+                val exitMessage = stringResource(id = R.string.msg_press_back_to_exit)
                 BackHandler(enabled = currentRoute == SatMesRoutes.MAP) {
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - backPressedTime < 2000) {
                         activity?.finish()
                     } else {
                         backPressedTime = currentTime
-                        Toast.makeText(context, "Press back again to exit", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, exitMessage, Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -131,7 +141,7 @@ fun SatMesNavApp() {
 
             // 2. HISTORY SCREEN
             composable(route = SatMesRoutes.HISTORY) {
-                HistoryScreen(
+                SavedScreen(
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToMap = { navigateToDest(SatMesRoutes.MAP) },
                     authViewModel = authViewModel,
@@ -141,7 +151,11 @@ fun SatMesNavApp() {
 
             // 3. SETTINGS SCREEN
             composable(route = SatMesRoutes.SETTINGS) {
-                SettingsScreen(onBackClick = { navController.popBackStack() })
+                SettingsScreen(
+                    onBackClick = { navController.popBackStack() },
+                    mapViewModel = mapViewModel,
+                    authViewModel = authViewModel
+                )
             }
 
             // 5. ABOUT US SCREEN
@@ -161,7 +175,7 @@ fun SatMesNavApp() {
                     onBackClick = { navController.popBackStack() },
                     onHowToClick = { navController.navigate(SatMesRoutes.HOW_TO) },
                     onCoordinateSearch = { lat, lng ->
-                        mapViewModel.onAction(MapAction.SetCameraTarget(Point.fromLngLat(lng, lat)))
+                        mapViewModel.onAction(MapAction.SetCameraTargetBounds(listOf(Point.fromLngLat(lng, lat))))
                         navController.popBackStack()
                     },
                     currentUserLocation = mapUiState.currentUserLocation

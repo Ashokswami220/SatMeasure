@@ -35,13 +35,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.satmeasure.R
 import com.example.satmeasure.ui.map.models.CalcMode
 import com.example.satmeasure.ui.map.models.ShapeType
 import com.example.satmeasure.ui.components.WipeWarningDialog
@@ -88,7 +91,8 @@ fun CalculateAreaOverlay(
     onConnect: () -> Unit,
     hasDrawing: Boolean = false,
     onBackRequest: () -> Unit,
-    isReadOnly: Boolean = false
+    isReadOnly: Boolean = false,
+    onDoneReadOnly: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentState = when {
@@ -100,13 +104,13 @@ fun CalculateAreaOverlay(
 
     val (showWipeDialog, setShowWipeDialog) = remember { mutableStateOf(false) }
     val (wipeAction, setWipeAction) = remember { mutableStateOf<(() -> Unit)?>(null) }
-    
+
     if (showWipeDialog) {
         WipeWarningDialog(
             onDismiss = { setShowWipeDialog(false) },
-            onConfirm = { 
+            onConfirm = {
                 wipeAction?.invoke()
-                setShowWipeDialog(false) 
+                setShowWipeDialog(false)
             }
         )
     }
@@ -124,25 +128,40 @@ fun CalculateAreaOverlay(
                         onExpandToggle()
                     },
                     icon = { Icon(Icons.Default.Architecture, contentDescription = null) },
-                    text = { Text("Calculate Area", fontWeight = FontWeight.Bold) },
+                    text = {
+                        Text(
+                            stringResource(id = R.string.action_calculate_area),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
                     containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(12.dp),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_md)),
                     modifier = Modifier.size(width = 170.dp, height = 56.dp)
                 )
             }
+
             OverlayState.COMPLETED -> {
                 if (isReadOnly) {
                     ExtendedFloatingActionButton(
                         onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                            onClearAll()
+                            onDoneReadOnly()
                         },
-                        icon = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) },
-                        text = { Text("Done", fontWeight = FontWeight.Bold) },
+                        icon = {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null
+                            )
+                        },
+                        text = {
+                            Text(
+                                stringResource(id = R.string.action_done),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_md)),
                         modifier = Modifier.size(width = 170.dp, height = 56.dp)
                     )
                 } else {
@@ -154,7 +173,9 @@ fun CalculateAreaOverlay(
                         modifier = Modifier.size(width = 170.dp, height = 56.dp)
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 4.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -162,43 +183,67 @@ fun CalculateAreaOverlay(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable { 
+                                    .clickable {
                                         HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                        onActiveModeChange(completedMode) 
+                                        onActiveModeChange(completedMode)
                                     },
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary)
-                                Spacer(Modifier.width(8.dp))
-                                Text("Edit", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = stringResource(id = R.string.action_edit),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(Modifier.width(dimensionResource(id = R.dimen.spacing_sm)))
+                                Text(
+                                    stringResource(id = R.string.action_edit),
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
-    
-                            VerticalDivider(Modifier.height(24.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.2f))
-    
+
+                            VerticalDivider(
+                                Modifier.height(24.dp),
+                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                    alpha = 0.2f
+                                )
+                            )
+
                             Row(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()
-                                    .clickable { 
+                                    .clickable {
                                         HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                        onClearAll() 
+                                        onClearAll()
                                     },
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.error)
-                                Spacer(Modifier.width(8.dp))
-                                Text("Clear", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+                                Icon(
+                                    Icons.Default.Delete, contentDescription = stringResource(
+                                        id = R.string.action_clear_all
+                                    ), tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(Modifier.width(dimensionResource(id = R.dimen.spacing_sm)))
+                                Text(
+                                    stringResource(id = R.string.action_clear_all),
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.error
+                                )
                             }
                         }
                     }
                 }
             }
+
             OverlayState.EXPANDED -> {
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Row(
@@ -219,26 +264,52 @@ fun CalculateAreaOverlay(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 if (mode == null) {
                                     // LEVEL 1: MAIN MENU
-                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(
+                                            dimensionResource(id = R.dimen.spacing_md_minus)
+                                        )
+                                    ) {
                                         val modes = listOf(
-                                            Triple(CalcMode.SHAPES, Icons.Default.CropSquare, "Shapes"),
-                                            Triple(CalcMode.DRAW, Icons.Default.Draw, "Draw"),
-                                            Triple(CalcMode.PINS, Icons.Default.LocationOn, "Pins")
+                                            Triple(
+                                                CalcMode.SHAPES, Icons.Default.CropSquare,
+                                                stringResource(id = R.string.label_shapes)
+                                            ),
+                                            Triple(
+                                                CalcMode.DRAW, Icons.Default.Draw,
+                                                stringResource(id = R.string.label_draw)
+                                            ),
+                                            Triple(
+                                                CalcMode.PINS, Icons.Default.LocationOn,
+                                                stringResource(id = R.string.label_pins)
+                                            )
                                         )
                                         modes.forEach { (m, icon, label) ->
                                             Surface(
-                                                onClick = { 
-                                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                    onActiveModeChange(m) 
+                                                onClick = {
+                                                    HapticHelper.trigger(
+                                                        context, HapticHelper.Type.MEDIUM
+                                                    )
+                                                    onActiveModeChange(m)
                                                 },
                                                 shape = RoundedCornerShape(12.dp),
                                                 color = MaterialTheme.colorScheme.surface,
                                                 modifier = Modifier.size(64.dp)
                                             ) {
-                                                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                    Icon(icon, contentDescription = label, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                Column(
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center
+                                                ) {
+                                                    Icon(
+                                                        icon, contentDescription = label,
+                                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
                                                     Spacer(Modifier.height(4.dp))
-                                                    Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+                                                    Text(
+                                                        label,
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
                                                 }
                                             }
                                         }
@@ -247,335 +318,841 @@ fun CalculateAreaOverlay(
                                     Spacer(modifier = Modifier.width(16.dp))
                                     VerticalDivider(
                                         Modifier.height(48.dp), DividerDefaults.Thickness,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                            alpha = 0.2f
+                                        )
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
 
                                     // CLOSE BUTTON AT RIGHT
-                                    IconButton(onClick = {
-                                        HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                                        onActiveModeChange(null)
-                                        onExpandToggle()
-                                    }, modifier = Modifier.size(48.dp)) {
-                                        Icon(Icons.Default.Clear, "Close")
+                                    IconButton(
+                                        onClick = {
+                                            HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                                            onActiveModeChange(null)
+                                            onExpandToggle()
+                                        }, modifier = Modifier.size(
+                                            dimensionResource(id = R.dimen.icon_xl)
+                                        )
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            stringResource(id = R.string.cd_close)
+                                        )
                                     }
                                 } else {
                                     // LEVEL 2: SUB-MENU
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         when (mode) {
                                             CalcMode.PINS -> {
-                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                                Button(
-                                                    onClick = { 
-                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                        if (connectTargetIndex != null) onConnect() 
-                                                    },
-                                                    enabled = connectTargetIndex != null,
-                                                    modifier = Modifier.height(64.dp).widthIn(min = 48.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = MaterialTheme.colorScheme.tertiary,
-                                                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                                Row(
+                                                    horizontalArrangement = Arrangement.spacedBy(
+                                                        8.dp
                                                     ),
-                                                    contentPadding = PaddingValues(horizontal = 4.dp),
-                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)),
-
-                                                    ) {
-                                                    if (connectTargetIndex != null) {
-                                                        Text(buildAnnotatedString {
-                                                            append("Connect\n")
-                                                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiary)) {
-                                                                append("Pin $connectTargetIndex")
-                                                            }
-                                                        }, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
-                                                    } else {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Text("Connect", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
-                                                            Text("Pins", style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
-                                                        }
-                                                    }
-                                                }
-
-                                                Button(
-                                                    onClick = { 
-                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                        onDropPin() 
-                                                    },
-                                                    modifier = Modifier.height(64.dp).width(54.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    contentPadding = PaddingValues(0.dp)
+                                                    verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(Icons.Default.PushPin, null, modifier = Modifier.size(24.dp))
-                                                        Text("Drop", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
-                                                    }
-                                                }
-
-                                                VerticalDivider(Modifier.height(48.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-
-                                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onUndoPin() 
-                                                        },
-                                                        modifier = Modifier.height(64.dp).width(45.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.AutoMirrored.Filled.Undo, null, modifier = Modifier.size(24.dp))
-                                                            Text("Undo", style = MaterialTheme.typography.labelSmall)
-                                                        }
-                                                    }
-
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onRedoPin() 
-                                                        },
-                                                        modifier = Modifier.height(64.dp).width(45.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.AutoMirrored.Filled.Redo, null, modifier = Modifier.size(24.dp))
-                                                            Text("Redo", style = MaterialTheme.typography.labelSmall)
-                                                        }
-                                                    }
-                                                    
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            setWipeAction(onClearPins)
-                                                            setShowWipeDialog(true) 
-                                                        },
-                                                        enabled = hasPins,
-                                                        modifier = Modifier.height(64.dp).width(45.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.Delete, null, tint = if (hasPins) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f), modifier = Modifier.size(24.dp))
-                                                            Text("Clear", style = MaterialTheme.typography.labelSmall)
-                                                        }
-                                                    }
-
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onCompletedModeChange(mode)
-                                                            onActiveModeChange(null)
-                                                        },
-                                                        enabled = hasPins,
-                                                        modifier = Modifier.height(64.dp).width(45.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.Check, null, modifier = Modifier.size(24.dp))
-                                                            Text("Done", style = MaterialTheme.typography.labelSmall)
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        CalcMode.SHAPES -> {
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                if (!isShapeDropped) {
-                                                    ShapeIconButton(Icons.Default.Hexagon, selectedShape == ShapeType.HEXAGON, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.HEXAGON) }
-                                                    ShapeIconButton(Icons.Default.CropSquare, selectedShape == ShapeType.SQUARE, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.SQUARE) }
-                                                    ShapeIconButton(Icons.Default.Circle, selectedShape == ShapeType.CIRCLE, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.CIRCLE) }
-                                                    ShapeIconButton(Icons.Default.ChangeHistory, selectedShape == ShapeType.TRIANGLE, modifier = Modifier.height(64.dp).width(45.dp)) { HapticHelper.trigger(context, HapticHelper.Type.LIGHT); onSelectedShapeChange(ShapeType.TRIANGLE) }
-                                                    
-                                                    VerticalDivider(Modifier.height(48.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-    
                                                     Button(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onDropShape() 
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
+                                                            if (connectTargetIndex != null) onConnect()
                                                         },
-                                                        modifier = Modifier.height(64.dp).width(56.dp),
+                                                        enabled = connectTargetIndex != null,
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .widthIn(min = 48.dp),
                                                         shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.AddLocation, null, modifier = Modifier.size(24.dp))
-                                                            Text("Drop", style = MaterialTheme.typography.labelSmall)
-                                                        }
-                                                    }
-                                                } else {
-                                                    // Shape Dropped State
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onUndoShape() 
-                                                        },
-                                                        enabled = canUndoShape,
-                                                        modifier = Modifier.height(64.dp).width(45.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.AutoMirrored.Filled.Undo, null, modifier = Modifier.size(24.dp))
-                                                            Text("Undo", style = MaterialTheme.typography.labelSmall)
+                                                        colors = ButtonDefaults.buttonColors(
+                                                            containerColor = MaterialTheme.colorScheme.tertiary,
+                                                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                                                        ),
+                                                        contentPadding = PaddingValues(
+                                                            horizontal = 4.dp
+                                                        ),
+                                                        border = BorderStroke(
+                                                            1.dp,
+                                                            MaterialTheme.colorScheme.onSurface.copy(
+                                                                alpha = 0.38f
+                                                            )
+                                                        ),
+
+                                                        ) {
+                                                        if (connectTargetIndex != null) {
+                                                            Text(
+                                                                buildAnnotatedString {
+                                                                    append(
+                                                                        stringResource(
+                                                                            id = R.string.action_connect
+                                                                        ) + "\n"
+                                                                    )
+                                                                    withStyle(
+                                                                        SpanStyle(
+                                                                            fontWeight = FontWeight.Bold,
+                                                                            color = MaterialTheme.colorScheme.onTertiary
+                                                                        )
+                                                                    ) {
+                                                                        append(
+                                                                            stringResource(
+                                                                                id = R.string.label_pin_prefix
+                                                                            ) + "$connectTargetIndex"
+                                                                        )
+                                                                    }
+                                                                },
+                                                                style = MaterialTheme.typography.labelSmall,
+                                                                textAlign = TextAlign.Center
+                                                            )
+                                                        } else {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_connect
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall,
+                                                                    textAlign = TextAlign.Center,
+                                                                    color = MaterialTheme.colorScheme.onSurface
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.label_pins
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelMedium,
+                                                                    textAlign = TextAlign.Center,
+                                                                    color = MaterialTheme.colorScheme.onSurface
+                                                                )
+                                                            }
                                                         }
                                                     }
 
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onRedoShape() 
+                                                    Button(
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
+                                                            onDropPin()
                                                         },
-                                                        enabled = canRedoShape,
-                                                        modifier = Modifier.height(64.dp).width(45.dp),
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .width(54.dp),
                                                         shape = RoundedCornerShape(12.dp),
                                                         contentPadding = PaddingValues(0.dp)
                                                     ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.AutoMirrored.Filled.Redo, null, modifier = Modifier.size(24.dp))
-                                                            Text("Redo", style = MaterialTheme.typography.labelSmall)
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Default.PushPin, null,
+                                                                modifier = Modifier.size(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.icon_md
+                                                                    )
+                                                                )
+                                                            )
+                                                            Text(
+                                                                stringResource(
+                                                                    id = R.string.action_drop
+                                                                ),
+                                                                style = MaterialTheme.typography.labelSmall,
+                                                                textAlign = TextAlign.Center
+                                                            )
                                                         }
                                                     }
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            setWipeAction(onClearShape)
-                                                            setShowWipeDialog(true) 
-                                                        },
-                                                        modifier = Modifier.height(64.dp).width(52.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
+
+                                                    VerticalDivider(
+                                                        Modifier.height(48.dp),
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                            alpha = 0.2f
+                                                        )
+                                                    )
+
+                                                    Row(
+                                                        horizontalArrangement = Arrangement.spacedBy(
+                                                            dimensionResource(
+                                                                id = R.dimen.spacing_xs
+                                                            )
+                                                        )
                                                     ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(24.dp))
-                                                            Text("Clear", style = MaterialTheme.typography.labelSmall)
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onUndoPin()
+                                                            },
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(45.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.AutoMirrored.Filled.Undo,
+                                                                    null, modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_undo
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
                                                         }
-                                                    }
-                                                    
-                                                    OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                            onCompletedModeChange(mode)
-                                                            onActiveModeChange(null)
-                                                        },
-                                                        modifier = Modifier.height(64.dp).width(52.dp),
-                                                        shape = RoundedCornerShape(12.dp),
-                                                        contentPadding = PaddingValues(0.dp)
-                                                    ) {
-                                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                            Icon(Icons.Default.Check, null, modifier = Modifier.size(24.dp))
-                                                            Text("Done", style = MaterialTheme.typography.labelSmall)
+
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onRedoPin()
+                                                            },
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(45.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.AutoMirrored.Filled.Redo,
+                                                                    null, modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_redo
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
+
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                setWipeAction(onClearPins)
+                                                                setShowWipeDialog(true)
+                                                            },
+                                                            enabled = hasPins,
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(45.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Delete, null,
+                                                                    tint = if (hasPins) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(
+                                                                        alpha = 0.38f
+                                                                    ), modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_clear_all
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
+
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onCompletedModeChange(mode)
+                                                                onActiveModeChange(null)
+                                                            },
+                                                            enabled = hasPins,
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(45.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Check, null,
+                                                                    modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_done
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        CalcMode.DRAW -> {
-                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                Button(
-                                                    onClick = { 
-                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                        onToggleDrawing() 
-                                                    },
-                                                    modifier = Modifier.height(64.dp).width(75.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = if (isDrawing) MaterialTheme.colorScheme.errorContainer else ButtonDefaults.buttonColors().containerColor,
-                                                        contentColor = if (isDrawing) MaterialTheme.colorScheme.onErrorContainer else ButtonDefaults.buttonColors().contentColor
+                                            CalcMode.SHAPES -> {
+                                                Row(
+                                                    horizontalArrangement = Arrangement.spacedBy(
+                                                        12.dp
                                                     ),
-                                                    contentPadding = PaddingValues(0.dp)
+                                                    verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(if (isDrawing) Icons.Default.Lock else Icons.Default.LockOpen, null, modifier = Modifier.size(24.dp))
-                                                        Text(if (isDrawing) "Locked" else "Lock to Draw", style = MaterialTheme.typography.labelSmall)
-                                                    }
-                                                }
+                                                    if (!isShapeDropped) {
+                                                        ShapeIconButton(
+                                                            Icons.Default.Hexagon,
+                                                            selectedShape == ShapeType.HEXAGON,
+                                                            modifier = Modifier
+                                                                .height(
+                                                                    64.dp
+                                                                )
+                                                                .width(45.dp)
+                                                        ) {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.LIGHT
+                                                            ); onSelectedShapeChange(
+                                                            ShapeType.HEXAGON
+                                                        )
+                                                        }
+                                                        ShapeIconButton(
+                                                            Icons.Default.CropSquare,
+                                                            selectedShape == ShapeType.SQUARE,
+                                                            modifier = Modifier
+                                                                .height(
+                                                                    64.dp
+                                                                )
+                                                                .width(45.dp)
+                                                        ) {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.LIGHT
+                                                            ); onSelectedShapeChange(
+                                                            ShapeType.SQUARE
+                                                        )
+                                                        }
+                                                        ShapeIconButton(
+                                                            Icons.Default.Circle,
+                                                            selectedShape == ShapeType.CIRCLE,
+                                                            modifier = Modifier
+                                                                .height(
+                                                                    64.dp
+                                                                )
+                                                                .width(45.dp)
+                                                        ) {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.LIGHT
+                                                            ); onSelectedShapeChange(
+                                                            ShapeType.CIRCLE
+                                                        )
+                                                        }
+                                                        ShapeIconButton(
+                                                            Icons.Default.ChangeHistory,
+                                                            selectedShape == ShapeType.TRIANGLE,
+                                                            modifier = Modifier
+                                                                .height(
+                                                                    64.dp
+                                                                )
+                                                                .width(45.dp)
+                                                        ) {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.LIGHT
+                                                            ); onSelectedShapeChange(
+                                                            ShapeType.TRIANGLE
+                                                        )
+                                                        }
 
-                                                OutlinedButton(
-                                                    onClick = { 
-                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                        onUndoDraw() 
-                                                    },
-                                                    enabled = canUndoDraw,
-                                                    modifier = Modifier.height(64.dp).width(45.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    contentPadding = PaddingValues(0.dp)
-                                                ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(Icons.AutoMirrored.Filled.Undo, null, modifier = Modifier.size(24.dp))
-                                                        Text("Undo", style = MaterialTheme.typography.labelSmall)
-                                                    }
-                                                }
+                                                        VerticalDivider(
+                                                            Modifier.height(48.dp),
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                                alpha = 0.2f
+                                                            )
+                                                        )
 
-                                                OutlinedButton(
-                                                    onClick = { 
-                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                        onRedoDraw() 
-                                                    },
-                                                    enabled = canRedoDraw,
-                                                    modifier = Modifier.height(64.dp).width(45.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    contentPadding = PaddingValues(0.dp)
-                                                ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(Icons.AutoMirrored.Filled.Redo, null, modifier = Modifier.size(24.dp))
-                                                        Text("Redo", style = MaterialTheme.typography.labelSmall)
-                                                    }
-                                                }
+                                                        Button(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onDropShape()
+                                                            },
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(56.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.AddLocation, null,
+                                                                    modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_drop
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
+                                                    } else {
+                                                        // Shape Dropped State
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onUndoShape()
+                                                            },
+                                                            enabled = canUndoShape,
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(45.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.AutoMirrored.Filled.Undo,
+                                                                    null, modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_undo
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
 
-                                                OutlinedButton(
-                                                    onClick = { 
-                                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                                        setWipeAction(onClearDrawing)
-                                                        setShowWipeDialog(true) 
-                                                    },
-                                                    enabled = hasDrawing,
-                                                    modifier = Modifier.height(64.dp).width(52.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    contentPadding = PaddingValues(0.dp)
-                                                ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(Icons.Default.Delete, null, tint = if (hasDrawing) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f), modifier = Modifier.size(24.dp))
-                                                        Text("Clear", style = MaterialTheme.typography.labelSmall)
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onRedoShape()
+                                                            },
+                                                            enabled = canRedoShape,
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(45.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.AutoMirrored.Filled.Redo,
+                                                                    null, modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_redo
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                setWipeAction(onClearShape)
+                                                                setShowWipeDialog(true)
+                                                            },
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(52.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Delete, null,
+                                                                    tint = MaterialTheme.colorScheme.error,
+                                                                    modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_clear_all
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
+
+                                                        OutlinedButton(
+                                                            onClick = {
+                                                                HapticHelper.trigger(
+                                                                    context,
+                                                                    HapticHelper.Type.MEDIUM
+                                                                )
+                                                                onCompletedModeChange(mode)
+                                                                onActiveModeChange(null)
+                                                            },
+                                                            modifier = Modifier
+                                                                .height(64.dp)
+                                                                .width(52.dp),
+                                                            shape = RoundedCornerShape(
+                                                                dimensionResource(
+                                                                    id = R.dimen.corner_md
+                                                                )
+                                                            ),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Column(
+                                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                                verticalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    Icons.Default.Check, null,
+                                                                    modifier = Modifier.size(
+                                                                        dimensionResource(
+                                                                            id = R.dimen.icon_md
+                                                                        )
+                                                                    )
+                                                                )
+                                                                Text(
+                                                                    stringResource(
+                                                                        id = R.string.action_done
+                                                                    ),
+                                                                    style = MaterialTheme.typography.labelSmall
+                                                                )
+                                                            }
+                                                        }
                                                     }
                                                 }
-                                                
-                                                OutlinedButton(
-                                                        onClick = { 
-                                                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                            }
+
+                                            CalcMode.DRAW -> {
+                                                Row(
+                                                    horizontalArrangement = Arrangement.spacedBy(
+                                                        8.dp
+                                                    )
+                                                ) {
+                                                    Button(
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
+                                                            onToggleDrawing()
+                                                        },
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .width(75.dp),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(
+                                                                id = R.dimen.corner_md
+                                                            )
+                                                        ),
+                                                        colors = ButtonDefaults.buttonColors(
+                                                            containerColor = if (isDrawing) MaterialTheme.colorScheme.errorContainer else ButtonDefaults.buttonColors().containerColor,
+                                                            contentColor = if (isDrawing) MaterialTheme.colorScheme.onErrorContainer else ButtonDefaults.buttonColors().contentColor
+                                                        ),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Icon(
+                                                                if (isDrawing) Icons.Default.Lock else Icons.Default.LockOpen,
+                                                                null, modifier = Modifier.size(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.icon_md
+                                                                    )
+                                                                )
+                                                            )
+                                                            Text(
+                                                                if (isDrawing) stringResource(
+                                                                    id = R.string.status_locked
+                                                                ) else stringResource(
+                                                                    id = R.string.status_lock_to_draw
+                                                                ),
+                                                                style = MaterialTheme.typography.labelSmall
+                                                            )
+                                                        }
+                                                    }
+
+                                                    OutlinedButton(
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
+                                                            onUndoDraw()
+                                                        },
+                                                        enabled = canUndoDraw,
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .width(45.dp),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(
+                                                                id = R.dimen.corner_md
+                                                            )
+                                                        ),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Icon(
+                                                                Icons.AutoMirrored.Filled.Undo,
+                                                                null, modifier = Modifier.size(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.icon_md
+                                                                    )
+                                                                )
+                                                            )
+                                                            Text(
+                                                                stringResource(
+                                                                    id = R.string.action_undo
+                                                                ),
+                                                                style = MaterialTheme.typography.labelSmall
+                                                            )
+                                                        }
+                                                    }
+
+                                                    OutlinedButton(
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
+                                                            onRedoDraw()
+                                                        },
+                                                        enabled = canRedoDraw,
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .width(45.dp),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(
+                                                                id = R.dimen.corner_md
+                                                            )
+                                                        ),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Icon(
+                                                                Icons.AutoMirrored.Filled.Redo,
+                                                                null, modifier = Modifier.size(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.icon_md
+                                                                    )
+                                                                )
+                                                            )
+                                                            Text(
+                                                                stringResource(
+                                                                    id = R.string.action_redo
+                                                                ),
+                                                                style = MaterialTheme.typography.labelSmall
+                                                            )
+                                                        }
+                                                    }
+
+                                                    OutlinedButton(
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
+                                                            setWipeAction(onClearDrawing)
+                                                            setShowWipeDialog(true)
+                                                        },
+                                                        enabled = hasDrawing,
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .width(52.dp),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(
+                                                                id = R.dimen.corner_md
+                                                            )
+                                                        ),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Default.Delete, null,
+                                                                tint = if (hasDrawing) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(
+                                                                    alpha = 0.38f
+                                                                ), modifier = Modifier.size(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.icon_md
+                                                                    )
+                                                                )
+                                                            )
+                                                            Text(
+                                                                stringResource(
+                                                                    id = R.string.action_clear_all
+                                                                ),
+                                                                style = MaterialTheme.typography.labelSmall
+                                                            )
+                                                        }
+                                                    }
+
+                                                    OutlinedButton(
+                                                        onClick = {
+                                                            HapticHelper.trigger(
+                                                                context, HapticHelper.Type.MEDIUM
+                                                            )
                                                             if (isDrawing) onToggleDrawing()
                                                             onCompletedModeChange(mode)
                                                             onActiveModeChange(null)
                                                         },
-                                                    enabled = hasDrawing,
-                                                    modifier = Modifier.height(64.dp).width(52.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    contentPadding = PaddingValues(0.dp)
-                                                ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                                        Icon(Icons.Default.Check, null, modifier = Modifier.size(24.dp))
-                                                        Text("Done", style = MaterialTheme.typography.labelSmall)
+                                                        enabled = hasDrawing,
+                                                        modifier = Modifier
+                                                            .height(64.dp)
+                                                            .width(52.dp),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(
+                                                                id = R.dimen.corner_md
+                                                            )
+                                                        ),
+                                                        contentPadding = PaddingValues(0.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                                            verticalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Icon(
+                                                                Icons.Default.Check, null,
+                                                                modifier = Modifier.size(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.icon_md
+                                                                    )
+                                                                )
+                                                            )
+                                                            Text(
+                                                                stringResource(
+                                                                    id = R.string.action_done
+                                                                ),
+                                                                style = MaterialTheme.typography.labelSmall
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    VerticalDivider(Modifier.height(48.dp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    
-                                    IconButton(
-                                        onClick = onBackRequest,
-                                        modifier = Modifier.size(48.dp)
-                                    ) {
-                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        VerticalDivider(
+                                            Modifier.height(48.dp),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                                alpha = 0.2f
+                                            )
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+
+                                        IconButton(
+                                            onClick = onBackRequest,
+                                            modifier = Modifier.size(
+                                                dimensionResource(id = R.dimen.icon_xl)
+                                            )
+                                        ) {
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.ArrowBack,
+                                                stringResource(id = R.string.cd_back)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -586,7 +1163,6 @@ fun CalculateAreaOverlay(
         }
     }
 }
-}
 
 @Composable
 fun ShapeIconButton(
@@ -595,17 +1171,21 @@ fun ShapeIconButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
-    val iconColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+    val bgColor =
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val iconColor =
+        if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.corner_md)))
             .background(bgColor)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(32.dp))
+        Icon(
+            icon, contentDescription = null, tint = iconColor,
+            modifier = Modifier.size(dimensionResource(id = R.dimen.spacing_xl))
+        )
     }
 }
-

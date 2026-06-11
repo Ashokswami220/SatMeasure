@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">सैटमेज़र (SatMeasure)</string>
+
+    <!-- Dialog Strings -->
+    <string name="dialog_title_are_you_sure">क्या आप सुनिश्चित हैं?</string>
+    <string name="dialog_text_discard_warning">वापस जाने से सभी डेटा या वास्तुकला मिट जाएगी</string>
+    <string name="dialog_button_go_back">वापस जाएँ</string>
+    <string name="action_cancel">रद्द करें</string>
+    <string name="dialog_title_clear_architecture">वास्तुकला मिटाएँ?</string>
+    <string name="dialog_text_clear_architecture">यह मैप से पूर्ण वास्तुकला को स्थायी रूप से हटा देगा। क्या आप आगे बढ़ना चाहते हैं?</string>
+    <string name="action_clear">मिटाएँ</string>
+    <string name="dialog_text_wipe_warning">यह सभी डेटा या वास्तुकला मिटा देगा</string>
+    <string name="dialog_title_delete_data">डेटा हटाएँ</string>
+    <string name="dialog_text_delete_data">क्या आप सुनिश्चित हैं कि आप अपने सभी सहेजे गए माप हटाना चाहते हैं? यह क्रिया वापस नहीं ली जा सकती।</string>
+    <string name="action_delete">हटाएँ</string>
+    <string name="dialog_title_delete_account">खाता हटाएँ</string>
+    <string name="dialog_text_delete_account">क्या आप सुनिश्चित हैं कि आप अपना खाता स्थायी रूप से हटाना चाहते हैं? यह क्रिया वापस नहीं ली जा सकती।</string>
+    <string name="dialog_button_delete_account">खाता हटाएँ</string>
+
+    <string name="dialog_title_save_measurement">माप सहेजें</string>
+    <string name="dialog_text_save_measurement">इस माप के लिए एक कस्टम नाम दर्ज करें:</string>
+    <string name="label_name">नाम</string>
+    <string name="hint_measurement_name">उदा. उत्तरी खेत का प्लॉट</string>
+    <string name="default_unnamed_measurement">अनाम माप</string>
+    <string name="action_save">सहेजें</string>
+
+    <string name="dialog_title_export_pdf">PDF निर्यात करें</string>
+    <string name="action_advanced_select_unit">उन्नत (इकाई चुनें)</string>
+    <string name="cd_expand_options">विकल्पों का विस्तार करें</string>
+    <string name="label_document_name">दस्तावेज़ का नाम</string>
+    <string name="checkbox_perimeter_details">परिधि विवरण</string>
+    <string name="checkbox_coordinates_list">निर्देशांक सूची</string>
+    <string name="action_export">निर्यात करें</string>
+    <string name="title_select_units_to_export">निर्यात करने के लिए इकाइयाँ चुनें</string>
+    <string name="tab_global">वैश्विक</string>
+    <string name="tab_bigha">बीघा</string>
+    <string name="tab_local">स्थानीय</string>
+    <string name="tab_local_units">स्थानीय इकाइयाँ</string>
+    <string name="action_deselect_all">सभी का चयन रद्द करें</string>
+    <string name="action_select_all">सभी चुनें</string>
+    <string name="action_take_me_back">वापस ले चलें</string>
+    
+    <string name="title_select_area_unit">क्षेत्रफल की इकाई चुनें</string>
+    <string name="cd_selected">चयनित</string>
+
+    <string name="title_settings">सेटिंग्स</string>
+    <string name="cd_back">पीछे</string>
+    <string name="theme_system">सिस्टम</string>
+    <string name="theme_light">लाइट</string>
+    <string name="theme_dark">डार्क</string>
+    <string name="title_dynamic_color">डायनामिक रंग</string>
+    <string name="desc_dynamic_color">ऐप के रंगों को अपने वॉलपेपर से मिलाएँ</string>
+    <string name="title_delete_my_data">मेरा डेटा हटाएँ</string>
+    <string name="desc_delete_my_data">सभी स्थान और ट्रैकिंग इतिहास साफ़ करें</string>
+    <string name="title_delete_my_account">मेरा खाता हटाएँ</string>
+    <string name="desc_delete_my_account">अपना खाता स्थायी रूप से हटाएँ</string>
+    <string name="title_app_language">ऐप की भाषा</string>
+    <string name="lang_english">English</string>
+    <string name="lang_hindi">हिंदी</string>
+    <string name="msg_data_deleted_successfully">डेटा सफलतापूर्वक हटा दिया गया</string>
+
+    <string name="title_saved_measurements">सहेजे गए माप</string>
+    <string name="cd_menu">मेनू</string>
+    <string name="action_remove_all">सभी हटाएँ</string>
+    <string name="msg_no_saved_measurements">अभी तक कोई सहेजा गया माप नहीं है।</string>
+    <string name="cd_edit">संपादित करें</string>
+    <string name="action_open">खोलें</string>
+
+    <string name="cd_target">लक्ष्य</string>
+    <string name="cd_reset_north">उत्तर रीसेट करें</string>
+    <string name="cd_my_location">मेरा स्थान</string>
+    
+    <string name="action_calculate_area">क्षेत्रफल की गणना करें</string>
+    <string name="action_done">पूर्ण</string>
+    <string name="action_edit">संपादित करें</string>
+    <string name="action_clear_all">सभी मिटाएँ</string>
+    <string name="label_shapes">आकृतियाँ</string>
+    <string name="label_draw">ड्रा करें</string>
+    <string name="label_pins">पिन</string>
+    <string name="cd_close">बंद करें</string>
+    <string name="action_connect">कनेक्ट करें</string>
+    <string name="label_pin_prefix">पिन </string>
+    <string name="action_drop">डालें</string>
+    <string name="action_undo">पूर्ववत करें</string>
+    <string name="action_redo">फिर से करें</string>
+    <string name="status_locked">लॉक है</string>
+    <string name="status_lock_to_draw">ड्रा करने के लिए लॉक करें</string>
+
+    <string name="msg_pdf_exported_successfully">PDF सफलतापूर्वक निर्यात हो गया!</string>
+    <string name="msg_failed_to_save_pdf">PDF सहेजने में विफल।</string>
+    <string name="msg_generating_pdf">PDF जनरेट हो रहा है...</string>
+    <string name="msg_sign_in_to_save">माप सहेजने के लिए कृपया साइन इन करें।</string>
+
+    <string name="title_calculation_details">गणना विवरण</string>
+    <string name="action_export_pdf">PDF निर्यात करें</string>
+    <string name="label_area">क्षेत्रफल</string>
+    <string name="label_perimeter">परिधि</string>
+    <string name="label_bigha">बीघा</string>
+    <string name="label_other_local_units">अन्य स्थानीय इकाइयाँ</string>
+    <string name="unit_meters">मीटर</string>
+    <string name="unit_kilometers">किलोमीटर</string>
+    <string name="unit_feet">फीट</string>
+    <string name="unit_miles">मील</string>
+    <string name="title_select_perimeter_unit">परिधि की इकाई चुनें</string>
+
+    <string name="hint_search_city">शहर या जगह का नाम खोजें...</string>
+    <string name="title_search_by_coordinates">निर्देशांक द्वारा खोजें</string>
+    <string name="label_lat_lng">अक्षांश, देशांतर</string>
+    <string name="hint_lat_lng_example">उदा. 28.5355, 77.3910</string>
+    <string name="msg_invalid_numbers">अमान्य संख्याएँ</string>
+    <string name="msg_use_comma_to_separate">कृपया अलग करने के लिए अल्पविराम (कॉमा) का उपयोग करें</string>
+    <string name="action_go_to_coordinates">निर्देशांक पर जाएँ</string>
+    <string name="action_open_gmaps">G-Maps खोलें</string>
+    <string name="action_how_to_find">कैसे खोजें</string>
+
+    <string name="title_find_coordinates">निर्देशांक खोजें</string>
+    <string name="desc_how_to_find_coordinates">मुफ्त में अपनी ज़मीन के सटीक निर्देशांक खोजने के लिए Google Maps का उपयोग करें।</string>
+    <string name="step_open_maps_title">Maps खोलें</string>
+    <string name="step_open_maps_desc">पिछली स्क्रीन पर \'G-Maps खोलें\' बटन पर टैप करें।</string>
+    <string name="step_drop_pin_title">पिन डालें</string>
+    <string name="step_drop_pin_desc">अपनी ज़मीन खोजें। जब तक लाल पिन न गिर जाए, तब तक मैप पर देर तक दबाएं।</string>
+    <string name="step_copy_coords_title">निर्देशांक कॉपी करें</string>
+    <string name="step_copy_coords_desc">Google Maps के शीर्ष पर सर्च बार को देखें। आपको संख्याएँ दिखाई देंगी (उदा., 28.5355, 77.3910)। उन्हें कॉपी करें।</string>
+    <string name="step_paste_go_title">पेस्ट करें और जाएँ</string>
+    <string name="step_paste_go_desc">हमारे ऐप पर वापस आएं और उन संख्याओं को निर्देशांक बॉक्स में पेस्ट करें।</string>
+    <string name="action_got_it_take_me_back">समझ गया, मुझे वापस ले चलें!</string>
+    <string name="format_step_title">चरण %1$d: %2$s</string>
+
+    <string name="msg_press_back_to_exit">बाहर निकलने के लिए फिर से वापस दबाएं</string>
+
+    <string name="action_sign_in_with_google">Google के साथ साइन इन करें</string>
+    <string name="action_logout">लॉग आउट</string>
+    <string name="menu_saved_areas">सहेजे गए क्षेत्र</string>
+    <string name="menu_tutorial">ट्यूटोरियल</string>
+    <string name="menu_about_us">हमारे बारे में</string>
+    <string name="menu_share">ऐप साझा करें</string>
+    <string name="share_message">सैटेलाइट मैप का उपयोग करके तुरंत भूमि क्षेत्रों को मापें! SatMeasure यहाँ डाउनलोड करें: %1$s</string>
+
+    <string name="state_rajasthan">राजस्थान</string>
+    <string name="state_bihar">बिहार</string>
+    <string name="state_jharkhand">झारखंड</string>
+    <string name="state_uttar_pradesh">उत्तर प्रदेश</string>
+    <string name="state_gujarat">गुजरात</string>
+    <string name="state_assam">असम</string>
+    <string name="state_west_bengal">पश्चिम बंगाल</string>
+    <string name="state_madhya_pradesh">मध्य प्रदेश</string>
+    <string name="state_punjab_haryana">पंजाब और हरियाणा</string>
+    <string name="state_himachal_pradesh">हिमाचल प्रदेश</string>
+    <string name="state_uttarakhand">उत्तराखंड</string>
+
+    <string name="unit_square_meter">वर्ग मीटर</string>
+    <string name="unit_square_yard">वर्ग गज</string>
+    <string name="unit_acre">एकड़</string>
+    <string name="unit_hectare">हेक्टेयर</string>
+    <string name="unit_bigha">बीघा</string>
+    <string name="unit_kanal">कनाल</string>
+    <string name="unit_marla">मरला</string>
+    <string name="unit_biswa">बिस्वा</string>
+    <string name="unit_katha_assam">कठ्ठा (असम)</string>
+    <string name="unit_katha_bihar">कठ्ठा (बिहार)</string>
+    <string name="unit_katha_wb">कठ्ठा (पश्चिम बंगाल)</string>
+    <string name="unit_dhur">धुर (बिहार/झारखंड)</string>
+    <string name="unit_lecha">लेचा (असम)</string>
+    <string name="unit_decimal">डेसिमल (पश्चिम बंगाल)</string>
+</resources>

@@ -82,4 +82,21 @@ class AuthViewModel : ViewModel() {
     fun signOut() {
         auth.signOut()
     }
+
+    fun deleteAccount(onResult: (Boolean, String) -> Unit) {
+        val user = auth.currentUser
+        if (user != null) {
+            user.delete()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _uiState.update { it.copy(currentUser = null) }
+                        onResult(true, "Account deleted successfully.")
+                    } else {
+                        onResult(false, task.exception?.localizedMessage ?: "Failed to delete account.")
+                    }
+                }
+        } else {
+            onResult(false, "No user signed in.")
+        }
+    }
 }

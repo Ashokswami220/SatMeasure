@@ -31,9 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.satmeasure.BuildConfig
+import com.example.satmeasure.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -44,9 +46,15 @@ import java.net.URLEncoder
 
 data class PlaceSuggestion(val name: String, val lat: Double, val lng: Double)
 
-suspend fun searchPlaces(query: String, token: String, location: com.mapbox.geojson.Point?): List<PlaceSuggestion> = withContext(Dispatchers.IO) {
+suspend fun searchPlaces(
+    query: String, token: String, location: com.mapbox.geojson.Point?
+): List<PlaceSuggestion> = withContext(Dispatchers.IO) {
     if (query.isBlank()) return@withContext emptyList()
-    var urlStr = "https://api.mapbox.com/geocoding/v5/mapbox.places/${URLEncoder.encode(query, "UTF-8")}.json?access_token=$token&types=place,address,poi,neighborhood,locality"
+    var urlStr = "https://api.mapbox.com/geocoding/v5/mapbox.places/${
+        URLEncoder.encode(
+            query, "UTF-8"
+        )
+    }.json?access_token=$token&types=place,address,poi,neighborhood,locality"
     if (location != null) {
         urlStr += "&proximity=${location.longitude()},${location.latitude()}"
     }
@@ -57,7 +65,8 @@ suspend fun searchPlaces(query: String, token: String, location: com.mapbox.geoj
         conn.connectTimeout = 5000
         conn.readTimeout = 5000
         if (conn.responseCode == 200) {
-            val response = conn.inputStream.bufferedReader().use { it.readText() }
+            val response = conn.inputStream.bufferedReader()
+                .use { it.readText() }
             val json = JSONObject(response)
             val features = json.optJSONArray("features") ?: return@withContext emptyList()
             val results = mutableListOf<PlaceSuggestion>()
@@ -95,7 +104,9 @@ fun SearchScreen(
     LaunchedEffect(searchQuery) {
         if (searchQuery.trim().length > 2) {
             delay(500) // debounce
-            val results = searchPlaces(searchQuery.trim(), BuildConfig.MAPBOX_ACCESS_TOKEN, currentUserLocation)
+            val results = searchPlaces(
+                searchQuery.trim(), BuildConfig.MAPBOX_ACCESS_TOKEN, currentUserLocation
+            )
             suggestions = results
         } else {
             suggestions = emptyList()
@@ -118,7 +129,7 @@ fun SearchScreen(
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search city or place name...") },
+                placeholder = { Text(stringResource(R.string.hint_search_city)) },
                 leadingIcon = {
                     IconButton(onClick = {
                         HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
@@ -179,7 +190,10 @@ fun SearchScreen(
                                     }
                                     .padding(16.dp)
                             ) {
-                                Text(text = suggestion.name, style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = suggestion.name,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
                             }
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
@@ -206,7 +220,7 @@ fun SearchScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Search by Coordinates",
+                            text = stringResource(R.string.title_search_by_coordinates),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -218,8 +232,8 @@ fun SearchScreen(
                         OutlinedTextField(
                             value = coordinateInput,
                             onValueChange = { coordinateInput = it },
-                            label = { Text("Latitude, Longitude") },
-                            placeholder = { Text("e.g. 28.5355, 77.3910") },
+                            label = { Text(stringResource(R.string.label_lat_lng)) },
+                            placeholder = { Text(stringResource(R.string.hint_lat_lng_example)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
@@ -235,6 +249,9 @@ fun SearchScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        val msgInvalidNumbers = stringResource(id = R.string.msg_invalid_numbers)
+                        val msgUseComma = stringResource(id = R.string.msg_use_comma_to_separate)
+
                         Button(
                             onClick = {
                                 HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
@@ -245,10 +262,10 @@ fun SearchScreen(
                                     if (lat != null && lng != null) {
                                         onCoordinateSearch(lat, lng)
                                     } else {
-                                        Toast.makeText(context, "Invalid numbers", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, msgInvalidNumbers, Toast.LENGTH_SHORT).show()
                                     }
                                 } else {
-                                    Toast.makeText(context, "Please use a comma to separate", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, msgUseComma, Toast.LENGTH_SHORT).show()
                                 }
                             },
                             modifier = Modifier
@@ -259,7 +276,10 @@ fun SearchScreen(
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Go to Coordinates", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                stringResource(R.string.action_go_to_coordinates),
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -280,14 +300,19 @@ fun SearchScreen(
                                     if (mapIntent.resolveActivity(context.packageManager) != null) {
                                         context.startActivity(mapIntent)
                                     } else {
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, gmmIntentUri))
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                                        )
                                     }
                                 },
                                 shape = CircleShape
                             ) {
-                                Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(
+                                    Icons.Default.Map, contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Open G-Maps")
+                                Text(stringResource(R.string.action_open_gmaps))
                             }
 
                             OutlinedButton(
@@ -297,9 +322,12 @@ fun SearchScreen(
                                 },
                                 shape = CircleShape
                             ) {
-                                Icon(Icons.Default.TouchApp, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(
+                                    Icons.Default.TouchApp, contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("How to Find")
+                                Text(stringResource(R.string.action_how_to_find))
                             }
                         }
                     }

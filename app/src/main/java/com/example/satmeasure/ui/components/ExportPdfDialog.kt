@@ -11,16 +11,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.satmeasure.R
 import com.example.satmeasure.ui.map.AreaUnit
 import com.example.satmeasure.ui.map.MeasurementConverter
 import kotlinx.coroutines.launch
@@ -49,11 +52,17 @@ fun ExportPdfDialog(
 
     var showAdvancedOptions by remember { mutableStateOf(false) }
 
-    val globalUnits = listOf(AreaUnit.SquareMeter, AreaUnit.SquareYard, AreaUnit.Acre, AreaUnit.Hectare)
+    val globalUnits =
+        listOf(AreaUnit.SquareMeter, AreaUnit.SquareYard, AreaUnit.Acre, AreaUnit.Hectare)
     val bighaUnits = MeasurementConverter.getAllBighaUnits()
-    val localUnits = MeasurementConverter.getOtherLocalUnits().map { it.second }
+    val localUnits = MeasurementConverter.getOtherLocalUnits()
+        .map { it.second }
 
-    val pages = listOf("Global", "Bigha", "Local")
+    val pages = listOf(
+        stringResource(id = R.string.tab_global),
+        stringResource(id = R.string.tab_bigha),
+        stringResource(id = R.string.tab_local)
+    )
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
 
@@ -62,13 +71,15 @@ fun ExportPdfDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp,
+            tonalElevation = dimensionResource(id = R.dimen.spacing_sm),
             modifier = Modifier
                 .fillMaxWidth(if (isLandscape) 0.75f else 0.95f)
                 .then(
-                    if (showAdvancedOptions || isLandscape) Modifier.fillMaxHeight(if (isLandscape) 0.9f else 0.6f)
+                    if (showAdvancedOptions || isLandscape) Modifier.fillMaxHeight(
+                        if (isLandscape) 0.9f else 0.6f
+                    )
                     else Modifier.wrapContentHeight()
                 )
                 .animateContentSize()
@@ -77,7 +88,7 @@ fun ExportPdfDialog(
                 // Main View
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(dimensionResource(id = R.dimen.spacing_md))
                         .fillMaxWidth()
                 ) {
                     Row(
@@ -85,7 +96,7 @@ fun ExportPdfDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Export PDF",
+                            text = stringResource(id = R.string.dialog_title_export_pdf),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -94,59 +105,90 @@ fun ExportPdfDialog(
                         OutlinedButton(
                             onClick = { showAdvancedOptions = true },
                             shape = RoundedCornerShape(50),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            modifier = Modifier.height(32.dp)
+                            contentPadding = PaddingValues(
+                                horizontal = dimensionResource(id = R.dimen.spacing_md_minus),
+                                vertical = dimensionResource(id = R.dimen.spacing_xs)
+                            ),
+                            modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xl))
                         ) {
-                            Text("Advanced ( Select Unit )", fontSize = 12.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                stringResource(id = R.string.action_advanced_select_unit),
+                                fontSize = 12.sp
+                            )
+                            Spacer(
+                                modifier = Modifier.width(
+                                    dimensionResource(id = R.dimen.spacing_xs)
+                                )
+                            )
 
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Expand options",
-                                modifier = Modifier.size(16.dp) // Scaled down to match the 12.sp text!
+                                contentDescription = stringResource(
+                                    id = R.string.cd_expand_options
+                                ),
+                                modifier = Modifier.size(
+                                    dimensionResource(id = R.dimen.spacing_md)
+                                ) // Scaled down to match the 12.sp text!
                             )
 
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Document Name") },
+                        label = { Text(stringResource(id = R.string.label_document_name)) },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_md)),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                        CheckboxRow("Perimeter Details", incPerimeter, modifier = Modifier.weight(1f)) { incPerimeter = it }
-                        CheckboxRow("Coordinates List", incCoordinates, modifier = Modifier.weight(1f)) { incCoordinates = it }
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        CheckboxRow(
+                            stringResource(id = R.string.checkbox_perimeter_details), incPerimeter,
+                            modifier = Modifier.weight(1f)
+                        ) { incPerimeter = it }
+                        CheckboxRow(
+                            stringResource(id = R.string.checkbox_coordinates_list), incCoordinates,
+                            modifier = Modifier.weight(1f)
+                        ) { incCoordinates = it }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
 
                     // Advanced Options button moved to top
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_lg)))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = onDismiss) { Text("Cancel") }
-                        Spacer(modifier = Modifier.width(8.dp))
+                        TextButton(onClick = onDismiss) {
+                            Text(
+                                stringResource(id = R.string.action_cancel)
+                            )
+                        }
+                        Spacer(
+                            modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_sm))
+                        )
                         Button(
-                            onClick = { 
-                                onExport(PdfExportOptions(
-                                    name = name, 
-                                    includePerimeter = incPerimeter, 
-                                    includeCoordinates = incCoordinates,
-                                    selectedUnits = selectedUnits
-                                ))
+                            onClick = {
+                                onExport(
+                                    PdfExportOptions(
+                                        name = name,
+                                        includePerimeter = incPerimeter,
+                                        includeCoordinates = incCoordinates,
+                                        selectedUnits = selectedUnits
+                                    )
+                                )
                             },
                             enabled = name.isNotBlank() && selectedUnits.isNotEmpty(),
-                            shape = RoundedCornerShape(24.dp)
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_xl))
                         ) {
-                            Text("Export")
+                            Text(stringResource(id = R.string.action_export))
                         }
                     }
                 }
@@ -154,19 +196,21 @@ fun ExportPdfDialog(
                 // Advanced Options View
                 Column(
                     modifier = Modifier
-                        .padding(12.dp)
+                        .padding(dimensionResource(id = R.dimen.spacing_md_minus))
                         .fillMaxSize()
                 ) {
                     if (!isLandscape) {
                         Text(
-                            text = "Select Units to Export",
+                            text = stringResource(id = R.string.title_select_units_to_export),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 8.dp)
+                            modifier = Modifier.padding(
+                                bottom = dimensionResource(id = R.dimen.spacing_sm)
+                            )
                         )
                     }
-                    
+
                     val pagerContent = @Composable { modifier: Modifier ->
                         HorizontalPager(
                             state = pagerState,
@@ -180,35 +224,55 @@ fun ExportPdfDialog(
                             }
                             Column(modifier = Modifier.fillMaxSize()) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().height(32.dp), 
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(dimensionResource(id = R.dimen.spacing_xl)),
                                     horizontalArrangement = Arrangement.End,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    val allSelected = unitsForPage.all { selectedUnits.contains(it) }
+                                    val allSelected =
+                                        unitsForPage.all { selectedUnits.contains(it) }
                                     Text(
-                                        text = if (allSelected) "Deselect All" else "Select All",
+                                        text = if (allSelected) stringResource(
+                                            id = R.string.action_deselect_all
+                                        ) else stringResource(id = R.string.action_select_all),
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
-                                        modifier = Modifier.clickable {
-                                            selectedUnits = if (allSelected) {
-                                                selectedUnits - unitsForPage.toSet()
-                                            } else {
-                                                selectedUnits + unitsForPage.toSet()
+                                        modifier = Modifier
+                                            .clickable {
+                                                selectedUnits = if (allSelected) {
+                                                    selectedUnits - unitsForPage.toSet()
+                                                } else {
+                                                    selectedUnits + unitsForPage.toSet()
+                                                }
                                             }
-                                        }.padding(horizontal = 8.dp, vertical = 4.dp)
+                                            .padding(
+                                                horizontal = dimensionResource(
+                                                    id = R.dimen.spacing_sm
+                                                ), vertical = dimensionResource(
+                                                    id = R.dimen.spacing_xs
+                                                )
+                                            )
                                     )
                                 }
                                 androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                                    columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(if (isLandscape) 3 else 2),
+                                    columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(
+                                        if (isLandscape) 3 else 2
+                                    ),
                                     contentPadding = PaddingValues(bottom = 8.dp),
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     items(unitsForPage.size) { i ->
                                         val unit = unitsForPage[i]
-                                        val displayName = when(unit) {
-                                            is AreaUnit.Bigha -> "Bigha (${unit.state.displayName})"
-                                            else -> unit.displayName
+                                        val displayName = when (unit) {
+                                            is AreaUnit.Bigha -> "${
+                                                stringResource(
+                                                    id = R.string.unit_bigha
+                                                )
+                                            } (${stringResource(id = unit.state.displayNameResId)})"
+
+                                            else -> stringResource(id = unit.displayNameResId)
                                         }
                                         CheckboxRow(
                                             label = displayName,
@@ -228,19 +292,38 @@ fun ExportPdfDialog(
                     }
 
                     if (isLandscape) {
-                        Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                            Column(modifier = Modifier.weight(0.35f).padding(top = 8.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(0.35f)
+                                    .padding(top = dimensionResource(id = R.dimen.spacing_sm))
+                            ) {
                                 Text(
-                                    text = "Select Units to Export",
+                                    text = stringResource(
+                                        id = R.string.title_select_units_to_export
+                                    ),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(bottom = 16.dp, start = 8.dp)
+                                    modifier = Modifier.padding(
+                                        bottom = dimensionResource(id = R.dimen.spacing_md),
+                                        start = dimensionResource(id = R.dimen.spacing_sm)
+                                    )
                                 )
                                 pages.forEachIndexed { index, title ->
                                     val isSelected = pagerState.currentPage == index
                                     TextButton(
-                                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(
+                                                    index
+                                                )
+                                            }
+                                        },
                                         modifier = Modifier.fillMaxWidth(),
                                         colors = ButtonDefaults.textButtonColors(
                                             contentColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
@@ -254,32 +337,48 @@ fun ExportPdfDialog(
                             pagerContent(Modifier.weight(0.65f))
                         }
                     } else {
-                        TabRow(
-                            selectedTabIndex = pagerState.currentPage,
-                            indicator = { tabPositions ->
-                                TabRowDefaults.SecondaryIndicator(
-                                    Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage])
-                                )
-                            }
+                        SecondaryTabRow(
+                            selectedTabIndex = pagerState.currentPage
                         ) {
                             pages.forEachIndexed { index, title ->
                                 Tab(
                                     selected = pagerState.currentPage == index,
-                                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                                    text = { Text(title, fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                index
+                                            )
+                                        }
+                                    },
+                                    text = {
+                                        Text(
+                                            title, fontWeight = FontWeight.Bold, fontSize = 12.sp
+                                        )
+                                    }
                                 )
                             }
                         }
-                        pagerContent(Modifier.weight(1f).padding(top = 8.dp))
+                        pagerContent(
+                            Modifier
+                                .weight(1f)
+                                .padding(top = 8.dp)
+                        )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(
+                        modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md_minus))
+                    )
                     Button(
                         onClick = { showAdvancedOptions = false },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        shape = RoundedCornerShape(12.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(dimensionResource(id = R.dimen.spacing_xxl)),
+                        shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_md))
                     ) {
-                        Text("Take Me Back", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(id = R.string.action_take_me_back), fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -289,8 +388,8 @@ fun ExportPdfDialog(
 
 @Composable
 private fun CheckboxRow(
-    label: String, 
-    checked: Boolean, 
+    label: String,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     onCheckedChange: (Boolean) -> Unit
 ) {

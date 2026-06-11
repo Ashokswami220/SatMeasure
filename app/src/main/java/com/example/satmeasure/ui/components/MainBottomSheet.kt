@@ -32,12 +32,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import android.widget.Toast
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.satmeasure.ui.map.AreaUnit
 import com.example.satmeasure.ui.map.MeasurementConverter
 import kotlinx.coroutines.launch
+import com.example.satmeasure.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,12 +57,12 @@ fun MainBottomSheet(
 
     var areaUnit1 by remember { mutableStateOf<AreaUnit>(AreaUnit.SquareMeter) }
     var areaUnit2 by remember { mutableStateOf<AreaUnit>(AreaUnit.Acre) }
-    
+
     var perimeterUnit1 by remember { mutableStateOf("m") }
     var perimeterUnit2 by remember { mutableStateOf("km") }
 
-    var showAreaUnitSelectorFor by remember { mutableStateOf<Int?>(null) } // 1 or 2
-    var showPerimeterUnitSelectorFor by remember { mutableStateOf<Int?>(null) } // 1 or 2
+    val showAreaUnitSelectorFor = remember { mutableStateOf<Int?>(null) } // 1 or 2
+    val showPerimeterUnitSelectorFor = remember { mutableStateOf<Int?>(null) } // 1 or 2
 
     Surface(
         modifier = modifier,
@@ -81,19 +84,19 @@ fun MainBottomSheet(
                     .align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Calculation Details",
+                    text = stringResource(id = R.string.title_calculation_details),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 if (areaMeters > 0.0 || perimeterMeters > 0.0) {
                     Surface(
                         shape = CircleShape,
@@ -105,33 +108,43 @@ fun MainBottomSheet(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             TextButton(
-                                onClick = { 
+                                onClick = {
                                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                     onSaveClick()
                                 },
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                contentPadding = PaddingValues(
+                                    horizontal = dimensionResource(id = R.dimen.spacing_md_minus),
+                                    vertical = 0.dp
+                                )
                             ) {
                                 Text(
-                                    "Save", 
-                                    style = MaterialTheme.typography.labelMedium, 
+                                    stringResource(id = R.string.action_save),
+                                    style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
                             }
                             VerticalDivider(
-                                modifier = Modifier.fillMaxHeight().padding(vertical = 6.dp),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.2f)
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(vertical = 6.dp),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(
+                                    alpha = 0.2f
+                                )
                             )
                             TextButton(
-                                onClick = { 
+                                onClick = {
                                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                     onExportClick()
                                 },
-                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                contentPadding = PaddingValues(
+                                    horizontal = dimensionResource(id = R.dimen.spacing_md_minus),
+                                    vertical = 0.dp
+                                )
                             ) {
                                 Text(
-                                    "Export Pdf", 
-                                    style = MaterialTheme.typography.labelMedium, 
+                                    stringResource(id = R.string.action_export_pdf),
+                                    style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer
                                 )
@@ -140,19 +153,22 @@ fun MainBottomSheet(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+            )
             Spacer(modifier = Modifier.height(12.dp))
 
             val scrollState = rememberScrollState()
-            
+
             LaunchedEffect(isAtPeekHeight) {
                 if (isAtPeekHeight) {
                     scrollState.scrollTo(0)
                 }
             }
-            
+
             val configuration = LocalConfiguration.current
             val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
             val scrollEnabled = !(isPortrait && isAtPeekHeight)
@@ -163,11 +179,25 @@ fun MainBottomSheet(
                     .verticalScroll(scrollState, enabled = scrollEnabled)
             ) {
                 // --- Top Headers ---
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
-                    Text(text = "Area", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                    Text(text = "Perimeter", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(id = R.dimen.spacing_xs))
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.label_area),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = stringResource(id = R.string.label_perimeter),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
 
                 // --- 2x2 Grid Section ---
                 Row(
@@ -179,12 +209,12 @@ fun MainBottomSheet(
                         value = formatValue(MeasurementConverter.convertArea(areaSqFt, areaUnit1)),
                         unit = getFullAreaUnitName(areaUnit1),
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        onClick = { 
+                        onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                            showAreaUnitSelectorFor = 1 
+                            showAreaUnitSelectorFor.value = 1
                         }
                     )
-                    
+
                     val p1 = when (perimeterUnit1) {
                         "m" -> perimeterMeters
                         "km" -> perimeterMeters / 1000.0
@@ -197,9 +227,9 @@ fun MainBottomSheet(
                         value = formatValue(p1),
                         unit = getFullPerimeterUnitName(perimeterUnit1),
                         color = MaterialTheme.colorScheme.tertiaryContainer,
-                        onClick = { 
+                        onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                            showPerimeterUnitSelectorFor = 1 
+                            showPerimeterUnitSelectorFor.value = 1
                         }
                     )
                 }
@@ -213,12 +243,12 @@ fun MainBottomSheet(
                         value = formatValue(MeasurementConverter.convertArea(areaSqFt, areaUnit2)),
                         unit = getFullAreaUnitName(areaUnit2),
                         color = MaterialTheme.colorScheme.secondaryContainer,
-                        onClick = { 
+                        onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                            showAreaUnitSelectorFor = 2 
+                            showAreaUnitSelectorFor.value = 2
                         }
                     )
-                    
+
                     val p2 = when (perimeterUnit2) {
                         "m" -> perimeterMeters
                         "km" -> perimeterMeters / 1000.0
@@ -231,50 +261,68 @@ fun MainBottomSheet(
                         value = formatValue(p2),
                         unit = getFullPerimeterUnitName(perimeterUnit2),
                         color = MaterialTheme.colorScheme.tertiaryContainer,
-                        onClick = { 
+                        onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                            showPerimeterUnitSelectorFor = 2 
+                            showPerimeterUnitSelectorFor.value = 2
                         }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
-                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                HorizontalDivider(
+                    thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.2f
+                    )
+                )
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // --- Bigha Section ---
                 Text(
-                    text = "Bigha",
+                    text = stringResource(id = R.string.label_bigha),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
                 val bighas = MeasurementConverter.getAllBighaUnits()
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     bighas.forEach { bigha ->
                         val converted = MeasurementConverter.convertArea(areaSqFt, bigha)
-                        ConversionRow3(modifier = Modifier.fillMaxWidth(), stateName = bigha.state.displayName, unitName = "Bigha", value = converted)
+                        ConversionRow3(
+                            modifier = Modifier.fillMaxWidth(), stateName = stringResource(
+                                id = bigha.state.displayNameResId
+                            ), unitName = stringResource(id = R.string.unit_bigha),
+                            value = converted
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
+                HorizontalDivider(
+                    thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.2f
+                    )
+                )
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // --- Other Local Units Section ---
                 Text(
-                    text = "Other local units",
+                    text = stringResource(id = R.string.label_other_local_units),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
                 val locals = MeasurementConverter.getOtherLocalUnits()
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     locals.forEach { local ->
                         val converted = MeasurementConverter.convertArea(areaSqFt, local.second)
-                        ConversionRow3(modifier = Modifier.fillMaxWidth(), stateName = local.first, unitName = local.second.displayName, value = converted)
+                        ConversionRow3(
+                            modifier = Modifier.fillMaxWidth(),
+                            stateName = stringResource(id = local.first), unitName = stringResource(
+                                id = local.second.displayNameResId
+                            ), value = converted
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -283,42 +331,59 @@ fun MainBottomSheet(
     }
 
     // --- Unit Selection Dialogs/Sheets ---
-    if (showAreaUnitSelectorFor != null) {
-        val currentAreaUnit = if (showAreaUnitSelectorFor == 1) areaUnit1 else areaUnit2
+    if (showAreaUnitSelectorFor.value != null) {
+        val currentAreaUnit = if (showAreaUnitSelectorFor.value == 1) areaUnit1 else areaUnit2
         AreaUnitSelectorSheet(
             currentSelection = currentAreaUnit,
-            onDismiss = { showAreaUnitSelectorFor = null },
+            onDismiss = { 
+                showAreaUnitSelectorFor.value = null
+            },
             onUnitSelected = { selected ->
-                if (showAreaUnitSelectorFor == 1) areaUnit1 = selected else areaUnit2 = selected
-                showAreaUnitSelectorFor = null
+                if (showAreaUnitSelectorFor.value == 1) areaUnit1 = selected else areaUnit2 = selected
+                showAreaUnitSelectorFor.value = null
             }
         )
     }
 
-    if (showPerimeterUnitSelectorFor != null) {
-        val currentPerimeterUnit = if (showPerimeterUnitSelectorFor == 1) perimeterUnit1 else perimeterUnit2
-        CustomAreaUnitSelectorSheet(onDismiss = { showPerimeterUnitSelectorFor = null }) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Box(
-                    modifier = Modifier.width(40.dp).height(4.dp).clip(CircleShape).background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)).align(Alignment.CenterHorizontally)
+    if (showPerimeterUnitSelectorFor.value != null) {
+        val currentPerimeterUnit =
+            if (showPerimeterUnitSelectorFor.value == 1) perimeterUnit1 else perimeterUnit2
+        CustomAreaUnitSelectorSheet(onDismiss = { 
+            showPerimeterUnitSelectorFor.value = null
+        }) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(id = R.dimen.spacing_md))
+            ) {
+                Text(
+                    stringResource(id = R.string.title_select_perimeter_unit),
+                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Select Perimeter Unit", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                val perimeterUnits = listOf("m" to "Meter", "km" to "Kilometer", "ft" to "Feet", "mi" to "Miles")
-                
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
+
+                val options = listOf(
+                    "m" to stringResource(id = R.string.unit_meters),
+                    "km" to stringResource(id = R.string.unit_kilometers),
+                    "ft" to stringResource(id = R.string.unit_feet),
+                    "mi" to stringResource(id = R.string.unit_miles)
+                )
                 val scrollState = rememberScrollState()
-                Column(modifier = Modifier.verticalScroll(scrollState).simpleVerticalScrollbar(scrollState)) {
-                    perimeterUnits.forEach { (symbol, name) ->
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState)
+                        .simpleVerticalScrollbar(scrollState)
+                ) {
+                    options.forEach { (symbol, name) ->
                         val isSelected = currentPerimeterUnit == symbol
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                    if (showPerimeterUnitSelectorFor == 1) perimeterUnit1 = symbol else perimeterUnit2 = symbol
-                                    showPerimeterUnitSelectorFor = null
+                                    if (showPerimeterUnitSelectorFor.value == 1) perimeterUnit1 =
+                                        symbol else perimeterUnit2 = symbol
+                                    showPerimeterUnitSelectorFor.value = null
                                 }
                                 .padding(horizontal = 8.dp, vertical = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -333,7 +398,10 @@ fun MainBottomSheet(
                                 )
                             }
                             if (isSelected) {
-                                Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                Icon(
+                                    Icons.Default.Check, contentDescription = "Selected",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     }
@@ -355,7 +423,8 @@ fun MainCustomBottomSheet(
     content: @Composable (isAtPeekHeight: Boolean) -> Unit
 ) {
     val density = LocalDensity.current
-    val containerHeightPx = androidx.compose.ui.platform.LocalWindowInfo.current.containerSize.height.toFloat()
+    val containerHeightPx =
+        androidx.compose.ui.platform.LocalWindowInfo.current.containerSize.height.toFloat()
     val expandedHeightPx = containerHeightPx * expandedHeightRatio
     val peekHeightPx = with(density) { peekHeight.toPx() }
 
@@ -423,8 +492,12 @@ fun MainCustomBottomSheet(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MeasurementCard(modifier: Modifier = Modifier, value: String, unit: String, color: Color, onClick: () -> Unit) {
-    val clipboardManager = LocalContext.current.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+fun MeasurementCard(
+    modifier: Modifier = Modifier, value: String, unit: String, color: Color, onClick: () -> Unit
+) {
+    val clipboardManager = LocalContext.current.getSystemService(
+        android.content.Context.CLIPBOARD_SERVICE
+    ) as android.content.ClipboardManager
     val context = LocalContext.current
 
     Surface(
@@ -438,7 +511,8 @@ fun MeasurementCard(modifier: Modifier = Modifier, value: String, unit: String, 
                 val textToCopy = "$unit: $value"
                 val clip = android.content.ClipData.newPlainText("Copied Text", textToCopy)
                 clipboardManager.setPrimaryClip(clip)
-                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT)
+                    .show()
             }
         ),
         color = color.copy(alpha = 0.3f),
@@ -473,13 +547,18 @@ fun MeasurementCard(modifier: Modifier = Modifier, value: String, unit: String, 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ConversionRow3(modifier: Modifier = Modifier, stateName: String, unitName: String, value: Double) {
+fun ConversionRow3(
+    modifier: Modifier = Modifier, stateName: String, unitName: String, value: Double
+) {
     val context = LocalContext.current
     val formattedValue = formatValue(value)
 
     Row(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                RoundedCornerShape(8.dp)
+            )
             .clip(RoundedCornerShape(8.dp))
             .combinedClickable(
                 onClick = {
@@ -488,19 +567,33 @@ fun ConversionRow3(modifier: Modifier = Modifier, stateName: String, unitName: S
                 onLongClick = {
                     HapticHelper.trigger(context, HapticHelper.Type.HEAVY)
                     val textToCopy = "$stateName $unitName: $formattedValue"
-                    val clipboardManager = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clipboardManager = context.getSystemService(
+                        android.content.Context.CLIPBOARD_SERVICE
+                    ) as android.content.ClipboardManager
                     val clip = android.content.ClipData.newPlainText("Copied Text", textToCopy)
                     clipboardManager.setPrimaryClip(clip)
-                    Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT)
+                        .show()
                 }
             )
             .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = stateName, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-        Text(text = unitName, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-        Text(text = formattedValue, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+        Text(
+            text = stateName, style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = unitName, style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f), textAlign = TextAlign.Center
+        )
+        Text(
+            text = formattedValue, style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f), textAlign = TextAlign.End
+        )
     }
 }
 
@@ -509,11 +602,22 @@ fun formatValue(value: Double): String {
     return String.format(java.util.Locale.getDefault(), "%.2f", value)
 }
 
+@Composable
 fun getFullAreaUnitName(unit: AreaUnit): String {
     return when (unit) {
-        is AreaUnit.Bigha -> "${unit.state.displayName} Bigha"
-        is AreaUnit.Biswa -> "${unit.state.displayName} Biswa"
-        else -> unit.displayName
+        is AreaUnit.Bigha -> "${stringResource(id = unit.state.displayNameResId)} ${
+            stringResource(
+                id = R.string.unit_bigha
+            )
+        }"
+
+        is AreaUnit.Biswa -> "${stringResource(id = unit.state.displayNameResId)} ${
+            stringResource(
+                id = R.string.unit_biswa
+            )
+        }"
+
+        else -> stringResource(id = unit.displayNameResId)
     }
 }
 

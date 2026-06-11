@@ -1,3 +1,165 @@
 <resources>
     <string name="app_name">SatMeasure</string>
+
+    <!-- Dialog Strings -->
+    <string name="dialog_title_are_you_sure">Are You Sure?</string>
+    <string name="dialog_text_discard_warning">Going back will Wipe all the Data or Architecture</string>
+    <string name="dialog_button_go_back">Go, Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="dialog_title_clear_architecture">Clear Architecture?</string>
+    <string name="dialog_text_clear_architecture">This will permanently remove the completed architecture from the map. Do you want to proceed?</string>
+    <string name="action_clear">Clear</string>
+    <string name="dialog_text_wipe_warning">It will Wipe all the Data or Architecture</string>
+    <string name="dialog_title_delete_data">Delete Data</string>
+    <string name="dialog_text_delete_data">Are you sure you want to delete all your saved measurements? This action cannot be undone.</string>
+    <string name="action_delete">Delete</string>
+    <string name="dialog_title_delete_account">Delete Account</string>
+    <string name="dialog_text_delete_account">Are you sure you want to permanently delete your account? This action cannot be undone.</string>
+    <string name="dialog_button_delete_account">Delete Account</string>
+
+    <string name="dialog_title_save_measurement">Save Measurement</string>
+    <string name="dialog_text_save_measurement">Enter a custom name for this measurement:</string>
+    <string name="label_name">Name</string>
+    <string name="hint_measurement_name">e.g. North Farm Plot</string>
+    <string name="default_unnamed_measurement">Unnamed Measurement</string>
+    <string name="action_save">Save</string>
+
+    <string name="dialog_title_export_pdf">Export PDF</string>
+    <string name="action_advanced_select_unit">Advanced ( Select Unit )</string>
+    <string name="cd_expand_options">Expand options</string>
+    <string name="label_document_name">Document Name</string>
+    <string name="checkbox_perimeter_details">Perimeter Details</string>
+    <string name="checkbox_coordinates_list">Coordinates List</string>
+    <string name="action_export">Export</string>
+    <string name="title_select_units_to_export">Select Units to Export</string>
+    <string name="tab_global">Global</string>
+    <string name="tab_bigha">Bigha</string>
+    <string name="tab_local">Local</string>
+    <string name="tab_local_units">Local Units</string>
+    <string name="action_deselect_all">Deselect All</string>
+    <string name="action_select_all">Select All</string>
+    <string name="action_take_me_back">Take Me Back</string>
+    
+    <string name="title_select_area_unit">Select Area Unit</string>
+    <string name="cd_selected">Selected</string>
+
+    <string name="title_settings">Settings</string>
+    <string name="cd_back">Back</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="title_dynamic_color">Dynamic Color</string>
+    <string name="desc_dynamic_color">Match app colors to your wallpaper</string>
+    <string name="title_delete_my_data">Delete My Data</string>
+    <string name="desc_delete_my_data">Clear all location and tracking history</string>
+    <string name="title_delete_my_account">Delete My Account</string>
+    <string name="desc_delete_my_account">Permanently remove your account</string>
+    <string name="title_app_language">App Language</string>
+    <string name="lang_english">English</string>
+    <string name="lang_hindi">Hindi</string>
+    <string name="msg_data_deleted_successfully">Data deleted successfully</string>
+
+    <string name="title_saved_measurements">Saved Measurements</string>
+    <string name="cd_menu">Menu</string>
+    <string name="action_remove_all">Remove All</string>
+    <string name="msg_no_saved_measurements">No saved measurements yet.</string>
+    <string name="cd_edit">Edit</string>
+    <string name="action_open">Open</string>
+
+    <string name="cd_target">Target</string>
+    <string name="cd_reset_north">Reset North</string>
+    <string name="cd_my_location">My Location</string>
+    
+    <string name="action_calculate_area">Calculate Area</string>
+    <string name="action_done">Done</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_clear_all">Clear</string>
+    <string name="label_shapes">Shapes</string>
+    <string name="label_draw">Draw</string>
+    <string name="label_pins">Pins</string>
+    <string name="cd_close">Close</string>
+    <string name="action_connect">Connect</string>
+    <string name="label_pin_prefix">Pin </string>
+    <string name="action_drop">Drop</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_redo">Redo</string>
+    <string name="status_locked">Locked</string>
+    <string name="status_lock_to_draw">Lock to Draw</string>
+
+    <string name="msg_pdf_exported_successfully">PDF Exported Successfully!</string>
+    <string name="msg_failed_to_save_pdf">Failed to save PDF.</string>
+    <string name="msg_generating_pdf">Generating PDF...</string>
+    <string name="msg_sign_in_to_save">Please sign in to save measurements.</string>
+
+    <string name="title_calculation_details">Calculation Details</string>
+    <string name="action_export_pdf">Export Pdf</string>
+    <string name="label_area">Area</string>
+    <string name="label_perimeter">Perimeter</string>
+    <string name="label_bigha">Bigha</string>
+    <string name="label_other_local_units">Other local units</string>
+    <string name="unit_meters">Meters</string>
+    <string name="unit_kilometers">Kilometers</string>
+    <string name="unit_feet">Feet</string>
+    <string name="unit_miles">Miles</string>
+    <string name="title_select_perimeter_unit">Select Perimeter Unit</string>
+
+    <string name="hint_search_city">Search city or place name...</string>
+    <string name="title_search_by_coordinates">Search by Coordinates</string>
+    <string name="label_lat_lng">Latitude, Longitude</string>
+    <string name="hint_lat_lng_example">e.g. 28.5355, 77.3910</string>
+    <string name="msg_invalid_numbers">Invalid numbers</string>
+    <string name="msg_use_comma_to_separate">Please use a comma to separate</string>
+    <string name="action_go_to_coordinates">Go to Coordinates</string>
+    <string name="action_open_gmaps">Open G-Maps</string>
+    <string name="action_how_to_find">How to Find</string>
+
+    <string name="title_find_coordinates">Find Coordinates</string>
+    <string name="desc_how_to_find_coordinates">Use Google Maps to find the exact coordinates of your land for free.</string>
+    <string name="step_open_maps_title">Open Maps</string>
+    <string name="step_open_maps_desc">Tap the \'Open Google Maps\' button on the previous screen.</string>
+    <string name="step_drop_pin_title">Drop a Pin</string>
+    <string name="step_drop_pin_desc">Find your land. Long-press on the map until a red pin drops.</string>
+    <string name="step_copy_coords_title">Copy Coordinates</string>
+    <string name="step_copy_coords_desc">Look at the search bar at the top of Google Maps. You will see numbers (e.g., 28.5355, 77.3910). Copy them.</string>
+    <string name="step_paste_go_title">Paste &amp; Go</string>
+    <string name="step_paste_go_desc">Come back to our app and paste those numbers into the coordinate box.</string>
+    <string name="action_got_it_take_me_back">Got it, take me back!</string>
+    <string name="format_step_title">Step %1$d: %2$s</string>
+
+    <string name="msg_press_back_to_exit">Press back again to exit</string>
+
+    <string name="action_sign_in_with_google">Sign in with Google</string>
+    <string name="action_logout">Logout</string>
+    <string name="menu_saved_areas">Saved Areas</string>
+    <string name="menu_tutorial">Tutorial</string>
+    <string name="menu_about_us">About Us</string>
+    <string name="menu_share">Share App</string>
+    <string name="share_message">Measure land areas instantly using satellite maps! Download SatMeasure here: %1$s</string>
+
+    <string name="state_rajasthan">Rajasthan</string>
+    <string name="state_bihar">Bihar</string>
+    <string name="state_jharkhand">Jharkhand</string>
+    <string name="state_uttar_pradesh">Uttar Pradesh</string>
+    <string name="state_gujarat">Gujarat</string>
+    <string name="state_assam">Assam</string>
+    <string name="state_west_bengal">West Bengal</string>
+    <string name="state_madhya_pradesh">Madhya Pradesh</string>
+    <string name="state_punjab_haryana">Punjab &amp; Haryana</string>
+    <string name="state_himachal_pradesh">Himachal Pradesh</string>
+    <string name="state_uttarakhand">Uttarakhand</string>
+
+    <string name="unit_square_meter">Square Meter</string>
+    <string name="unit_square_yard">Square Yard (Gaj)</string>
+    <string name="unit_acre">Acre</string>
+    <string name="unit_hectare">Hectare</string>
+    <string name="unit_bigha">Bigha</string>
+    <string name="unit_kanal">Kanal</string>
+    <string name="unit_marla">Marla</string>
+    <string name="unit_biswa">Biswa</string>
+    <string name="unit_katha_assam">Katha (Assam)</string>
+    <string name="unit_katha_bihar">Katha (Bihar)</string>
+    <string name="unit_katha_wb">Katha (West Bengal)</string>
+    <string name="unit_dhur">Dhur (Bihar/Jharkhand)</string>
+    <string name="unit_lecha">Lecha (Assam)</string>
+    <string name="unit_decimal">Decimal (West Bengal)</string>
 </resources>

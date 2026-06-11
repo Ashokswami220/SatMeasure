@@ -1,6 +1,5 @@
 package com.example.satmeasure.ui.map.models
 
-import androidx.compose.ui.graphics.vector.ImageVector
 
 data class MapStyleOption(
     val id: String,

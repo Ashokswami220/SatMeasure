@@ -1,47 +1,51 @@
 package com.example.satmeasure.ui.map
 
-enum class IndianState(val displayName: String) {
-    RAJASTHAN("Rajasthan"),
-    BIHAR("Bihar"),
-    JHARKHAND("Jharkhand"),
-    UTTAR_PRADESH("Uttar Pradesh"),
-    GUJARAT("Gujarat"),
-    ASSAM("Assam"),
-    WEST_BENGAL("West Bengal"),
-    MADHYA_PRADESH("Madhya Pradesh"),
-    PUNJAB_HARYANA("Punjab & Haryana"),
-    HIMACHAL_PRADESH("Himachal Pradesh"),
-    UTTARAKHAND("Uttarakhand")
+import androidx.annotation.StringRes
+import com.example.satmeasure.R
+
+enum class IndianState(@param:StringRes val displayNameResId: Int) {
+    RAJASTHAN(R.string.state_rajasthan),
+    BIHAR(R.string.state_bihar),
+    JHARKHAND(R.string.state_jharkhand),
+    UTTAR_PRADESH(R.string.state_uttar_pradesh),
+    GUJARAT(R.string.state_gujarat),
+    ASSAM(R.string.state_assam),
+    WEST_BENGAL(R.string.state_west_bengal),
+    MADHYA_PRADESH(R.string.state_madhya_pradesh),
+    PUNJAB_HARYANA(R.string.state_punjab_haryana),
+    HIMACHAL_PRADESH(R.string.state_himachal_pradesh),
+    UTTARAKHAND(R.string.state_uttarakhand)
 }
 
 sealed class AreaUnit {
-    abstract val displayName: String
+    @get:StringRes
+    abstract val displayNameResId: Int
 
     // 1. Global Standard Units
-    data object SquareMeter : AreaUnit() { override val displayName = "Square Meter" }
-    data object SquareYard : AreaUnit() { override val displayName = "Square Yard (Gaj)" }
-    data object Acre : AreaUnit() { override val displayName = "Acre" }
-    data object Hectare : AreaUnit() { override val displayName = "Hectare" }
+    data object SquareMeter : AreaUnit() { override val displayNameResId = R.string.unit_square_meter }
+    data object SquareYard : AreaUnit() { override val displayNameResId = R.string.unit_square_yard }
+    data object Acre : AreaUnit() { override val displayNameResId = R.string.unit_acre }
+    data object Hectare : AreaUnit() { override val displayNameResId = R.string.unit_hectare }
 
     // 2. State-Specific "Bigha"
     data class Bigha(val state: IndianState) : AreaUnit() { 
-        override val displayName = "Bigha"
+        override val displayNameResId = R.string.unit_bigha
     }
 
     // 3. Regional North Indian Units
-    data object Kanal : AreaUnit() { override val displayName = "Kanal" }
-    data object Marla : AreaUnit() { override val displayName = "Marla" }
+    data object Kanal : AreaUnit() { override val displayNameResId = R.string.unit_kanal }
+    data object Marla : AreaUnit() { override val displayNameResId = R.string.unit_marla }
     data class Biswa(val state: IndianState) : AreaUnit() { 
-        override val displayName = "Biswa"
+        override val displayNameResId = R.string.unit_biswa
     }
 
     // 4. Regional East Indian Units
-    data object KathaAssam : AreaUnit() { override val displayName = "Katha (Assam)" }
-    data object KathaBihar : AreaUnit() { override val displayName = "Katha (Bihar)" }
-    data object KathaWestBengal : AreaUnit() { override val displayName = "Katha (West Bengal)" }
-    data object Dhur : AreaUnit() { override val displayName = "Dhur (Bihar/Jharkhand)" }
-    data object Lecha : AreaUnit() { override val displayName = "Lecha (Assam)" }
-    data object Decimal : AreaUnit() { override val displayName = "Decimal (West Bengal)" }
+    data object KathaAssam : AreaUnit() { override val displayNameResId = R.string.unit_katha_assam }
+    data object KathaBihar : AreaUnit() { override val displayNameResId = R.string.unit_katha_bihar }
+    data object KathaWestBengal : AreaUnit() { override val displayNameResId = R.string.unit_katha_wb }
+    data object Dhur : AreaUnit() { override val displayNameResId = R.string.unit_dhur }
+    data object Lecha : AreaUnit() { override val displayNameResId = R.string.unit_lecha }
+    data object Decimal : AreaUnit() { override val displayNameResId = R.string.unit_decimal }
 }
 
 object MeasurementConverter {
@@ -109,16 +113,16 @@ object MeasurementConverter {
     /**
      * Helper to get all non-Bigha regional units
      */
-    fun getOtherLocalUnits(): List<Pair<String, AreaUnit>> {
+    fun getOtherLocalUnits(): List<Pair<Int, AreaUnit>> {
         return listOf(
-            Pair("North India", AreaUnit.Kanal),
-            Pair("North India", AreaUnit.Marla),
-            Pair("Assam", AreaUnit.KathaAssam),
-            Pair("Assam", AreaUnit.Lecha),
-            Pair("Bihar", AreaUnit.KathaBihar),
-            Pair("Bihar/Jharkhand", AreaUnit.Dhur),
-            Pair("West Bengal", AreaUnit.KathaWestBengal),
-            Pair("West Bengal", AreaUnit.Decimal)
+            Pair(R.string.tab_local_units, AreaUnit.Kanal),
+            Pair(R.string.tab_local_units, AreaUnit.Marla),
+            Pair(R.string.state_assam, AreaUnit.KathaAssam),
+            Pair(R.string.state_assam, AreaUnit.Lecha),
+            Pair(R.string.state_bihar, AreaUnit.KathaBihar),
+            Pair(R.string.state_jharkhand, AreaUnit.Dhur),
+            Pair(R.string.state_west_bengal, AreaUnit.KathaWestBengal),
+            Pair(R.string.state_west_bengal, AreaUnit.Decimal)
         )
     }
 }

@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -67,6 +68,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.5")
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation("androidx.compose.material:material-icons-extended:1.7.6")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Mapbox SDK
     implementation("com.mapbox.maps:android:11.9.0")

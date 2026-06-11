@@ -31,10 +31,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.satmeasure.R
 import androidx.compose.ui.window.DialogProperties
 import com.example.satmeasure.ui.map.AreaUnit
 import com.example.satmeasure.ui.map.MeasurementConverter
@@ -47,38 +50,53 @@ fun AreaUnitSelectorSheet(
     onDismiss: () -> Unit,
     onUnitSelected: (AreaUnit) -> Unit
 ) {
-    val categories = listOf("Global", "Bigha", "Local Units")
-    
+    val categories = listOf(
+        stringResource(id = R.string.tab_global),
+        stringResource(id = R.string.tab_bigha),
+        stringResource(id = R.string.tab_local_units)
+    )
+
     val initialTab = when (currentSelection) {
         is AreaUnit.Bigha -> 1
         is AreaUnit.SquareMeter,
         is AreaUnit.SquareYard,
         is AreaUnit.Acre,
         is AreaUnit.Hectare -> 0
+
         else -> 2
     }
-    
+
     val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     CustomAreaUnitSelectorSheet(onDismiss = onDismiss) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_md))) {
             Box(
-                modifier = Modifier.width(40.dp).height(4.dp).clip(CircleShape).background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)).align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(4.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                    .align(Alignment.CenterHorizontally)
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Select Area Unit", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
+            Text(
+                stringResource(id = R.string.title_select_area_unit),
+                style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
+
             // Category Tabs
-            PrimaryTabRow(selectedTabIndex = pagerState.currentPage, containerColor = Color.Transparent) {
+            PrimaryTabRow(
+                selectedTabIndex = pagerState.currentPage, containerColor = Color.Transparent
+            ) {
                 categories.forEachIndexed { index, title ->
                     Tab(
                         selected = pagerState.currentPage == index,
-                        onClick = { 
+                        onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                            coroutineScope.launch { pagerState.animateScrollToPage(index) } 
+                            coroutineScope.launch { pagerState.animateScrollToPage(index) }
                         },
                         text = {
                             Text(
@@ -90,31 +108,53 @@ fun AreaUnitSelectorSheet(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
 
             // Swipeable Pages
-            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().weight(1f, fill = false)) { page ->
+            HorizontalPager(
+                state = pagerState, modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+            ) { page ->
                 val unitsToShow = when (page) {
-                    0 -> listOf(AreaUnit.SquareMeter, AreaUnit.SquareYard, AreaUnit.Acre, AreaUnit.Hectare)
+                    0 -> listOf(
+                        AreaUnit.SquareMeter, AreaUnit.SquareYard, AreaUnit.Acre, AreaUnit.Hectare
+                    )
+
                     1 -> MeasurementConverter.getAllBighaUnits()
-                    2 -> MeasurementConverter.getOtherLocalUnits().map { it.second }
+                    2 -> MeasurementConverter.getOtherLocalUnits()
+                        .map { it.second }
+
                     else -> emptyList()
                 }
 
                 val scrollState = rememberScrollState()
-                Column(modifier = Modifier.verticalScroll(scrollState).simpleVerticalScrollbar(scrollState)) {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState)
+                        .simpleVerticalScrollbar(scrollState)
+                ) {
                     unitsToShow.forEach { unit ->
                         val isSelected = unit == currentSelection
-                        val unitName = if (unit is AreaUnit.Bigha) "${unit.state.displayName} Bigha" else unit.displayName
-                        
+                        val unitName = if (unit is AreaUnit.Bigha) "${
+                            stringResource(
+                                id = unit.state.displayNameResId
+                            )
+                        } ${stringResource(id = unit.displayNameResId)}" else stringResource(
+                            id = unit.displayNameResId
+                        )
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { 
+                                .clickable {
                                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                    onUnitSelected(unit) 
+                                    onUnitSelected(unit)
                                 }
-                                .padding(horizontal = 8.dp, vertical = 16.dp),
+                                .padding(
+                                    horizontal = dimensionResource(id = R.dimen.spacing_sm),
+                                    vertical = dimensionResource(id = R.dimen.spacing_md)
+                                ),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -127,11 +167,15 @@ fun AreaUnitSelectorSheet(
                                 )
                             }
                             if (isSelected) {
-                                Icon(Icons.Default.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = stringResource(id = R.string.cd_selected),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_lg)))
                 }
             }
         }
@@ -164,7 +208,9 @@ fun CustomAreaUnitSelectorSheet(
         ) {
             MainCustomBottomSheet(
                 modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)
+                    )
                     .align(if (isLandscape) Alignment.BottomStart else Alignment.BottomCenter)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -200,7 +246,7 @@ fun Modifier.simpleVerticalScrollbar(
 
     drawWithContent {
         drawContent()
-        
+
         val maxScrollOffset = state.maxValue.toFloat()
         val currentScrollOffset = state.value.toFloat()
 

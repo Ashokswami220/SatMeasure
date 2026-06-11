@@ -9,6 +9,7 @@ import android.graphics.pdf.PdfDocument
 import com.example.satmeasure.model.PointData
 import com.example.satmeasure.ui.map.AreaUnit
 import com.example.satmeasure.ui.map.MeasurementConverter
+import com.example.satmeasure.R
 import com.mapbox.maps.Snapshotter
 
 import com.mapbox.maps.CameraOptions
@@ -25,6 +26,12 @@ import java.util.*
 import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.cos
+import kotlin.math.ln
+import kotlin.math.pow
+import kotlin.math.tan
+import androidx.core.graphics.scale
+import androidx.core.graphics.toColorInt
 
 object PdfGenerator {
     suspend fun generatePdf(
@@ -40,7 +47,7 @@ object PdfGenerator {
     ): File {
         // 1. Generate Mapbox Snapshot
         val snapshotBitmap = withContext(Dispatchers.Main) {
-            suspendCancellableCoroutine<Bitmap?> { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 try {
                     val snapshotterOptions = MapSnapshotOptions.Builder()
                         .size(Size(800.0f, 800.0f))
@@ -69,13 +76,13 @@ object PdfGenerator {
                             val mutableBitmap = snapshot.copy(Bitmap.Config.ARGB_8888, true)
                             val canvas = Canvas(mutableBitmap)
                             val paint = Paint().apply {
-                                color = Color.parseColor("#3bb2d0")
+                                color = "#3bb2d0".toColorInt()
                                 strokeWidth = 5f
                                 style = Paint.Style.STROKE
                                 isAntiAlias = true
                             }
                             val fillPaint = Paint().apply {
-                                color = Color.parseColor("#4D3bb2d0") // 30% opacity
+                                color = "#4D3bb2d0".toColorInt() // 30% opacity
                                 style = Paint.Style.FILL
                                 isAntiAlias = true
                             }
@@ -85,7 +92,7 @@ object PdfGenerator {
                                 isAntiAlias = true
                             }
                             val dotStrokePaint = Paint().apply {
-                                color = Color.parseColor("#3bb2d0")
+                                color = "#3bb2d0".toColorInt()
                                 strokeWidth = 3f
                                 style = Paint.Style.STROKE
                                 isAntiAlias = true
@@ -96,20 +103,19 @@ object PdfGenerator {
 
                             // Projection math
                             val tileSize = 512.0
-                            val scale = Math.pow(2.0, finalZoom)
+                            val scale = 2.0.pow(finalZoom)
                             val worldSize = tileSize * scale
 
                             fun latLngToPixel(lat: Double, lng: Double): Pair<Double, Double> {
                                 val x = (lng + 180.0) / 360.0 * worldSize
                                 val latRad = Math.toRadians(lat)
-                                val y = (1.0 - Math.log(Math.tan(latRad) + 1.0 / Math.cos(latRad)) / Math.PI) / 2.0 * worldSize
+                                val y = (1.0 - ln(tan(latRad) + 1.0 / cos(latRad)) / Math.PI) / 2.0 * worldSize
                                 return Pair(x, y)
                             }
 
                             val centerPixel = latLngToPixel(finalCenter.lat, finalCenter.lng)
 
                             val path = android.graphics.Path()
-                            var firstPoint: Pair<Double, Double>? = null
 
                             points.forEachIndexed { index, pt ->
                                 val px = latLngToPixel(pt.lat, pt.lng)
@@ -118,7 +124,6 @@ object PdfGenerator {
 
                                 if (index == 0) {
                                     path.moveTo(screenX, screenY)
-                                    firstPoint = Pair(screenX.toDouble(), screenY.toDouble())
                                 } else {
                                     path.lineTo(screenX, screenY)
                                 }
@@ -148,7 +153,7 @@ object PdfGenerator {
                     continuation.invokeOnCancellation {
                         snapshotter.cancel()
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     continuation.resume(null)
                 }
             }
@@ -208,7 +213,7 @@ object PdfGenerator {
             canvas.drawText(String.format(Locale.getDefault(), "Feet: %.2f ft", feet), 50f, currentY, paint)
             currentY += 20f
             canvas.drawText(String.format(Locale.getDefault(), "Miles: %.4f mi", miles), 50f, currentY, paint)
-            currentY += 10f
+            currentY += 30f // Increased space after perimeter section
         }
 
         val areaSqFt = areaMeters * 10.7639
@@ -231,8 +236,8 @@ object PdfGenerator {
 
                 for (unit in selectedInCat) {
                     val displayName = when(unit) {
-                        is AreaUnit.Bigha -> "Bigha (${unit.state.displayName})"
-                        else -> unit.displayName
+                        is AreaUnit.Bigha -> "${context.getString(R.string.unit_bigha)} (${context.getString(unit.state.displayNameResId)})"
+                        else -> context.getString(unit.displayNameResId)
                     }
                     val value = if (unit is AreaUnit.SquareMeter) areaMeters else MeasurementConverter.convertArea(areaSqFt, unit)
                     val str = String.format(Locale.getDefault(), "%s: %.4f", displayName, value)
@@ -243,9 +248,9 @@ object PdfGenerator {
             }
         }
 
-        printCategory("Global Units", globalUnits)
-        printCategory("Bigha Units", bighaUnits)
-        printCategory("Local Units", localUnits)
+        printCategory(context.getString(R.string.tab_global), globalUnits)
+        printCategory(context.getString(R.string.tab_bigha), bighaUnits)
+        printCategory(context.getString(R.string.tab_local_units), localUnits)
         
         // Draw Map Snapshot
         if (snapshotBitmap != null) {
@@ -255,7 +260,7 @@ object PdfGenerator {
             
             checkPageBreak(scaledHeight + 30f)
             
-            val scaledBitmap = Bitmap.createScaledBitmap(snapshotBitmap, scaledWidth, scaledHeight, true)
+            val scaledBitmap = snapshotBitmap.scale(scaledWidth, scaledHeight)
             
             val xPos = (595f - scaledWidth) / 2f
             canvas.drawBitmap(scaledBitmap, xPos, currentY, paint)
@@ -274,8 +279,8 @@ object PdfGenerator {
             
             points.forEachIndexed { i, pt ->
                 checkPageBreak(15f)
-                val coordStr = String.format(Locale.getDefault(), "P%d: %.6f, %.6f", i+1, pt.lat, pt.lng)
-                canvas.drawText(coordStr, 50f, currentY, paint)
+                val coordinatesStr = String.format(Locale.getDefault(), "P%d: %.6f, %.6f", i+1, pt.lat, pt.lng)
+                canvas.drawText(coordinatesStr, 50f, currentY, paint)
                 currentY += 15f
             }
         }

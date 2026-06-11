@@ -23,10 +23,15 @@ object MathHelpers {
         val r = 6371000.0 // Earth's radius in meters
         val lat1 = Math.toRadians(start.latitude())
         val lon1 = Math.toRadians(start.longitude())
-        val brng = Math.toRadians(bearingDegrees)
+        val bearing = Math.toRadians(bearingDegrees)
 
-        val lat2 = asin(sin(lat1) * cos(distanceMeters / r) + cos(lat1) * sin(distanceMeters / r) * cos(brng))
-        val lon2 = lon1 + atan2(sin(brng) * sin(distanceMeters / r) * cos(lat1), cos(distanceMeters / r) - sin(lat1) * sin(lat2))
+        val lat2 = asin(
+            sin(lat1) * cos(distanceMeters / r) + cos(lat1) * sin(distanceMeters / r) * cos(bearing)
+        )
+        val lon2 = lon1 + atan2(
+            sin(bearing) * sin(distanceMeters / r) * cos(lat1),
+            cos(distanceMeters / r) - sin(lat1) * sin(lat2)
+        )
 
         return Point.fromLngLat(Math.toDegrees(lon2), Math.toDegrees(lat2))
     }
@@ -68,8 +73,8 @@ object MathHelpers {
 
         val y = sin(dLon) * cos(lat2)
         val x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
-        val brng = atan2(y, x)
-        return (Math.toDegrees(brng) + 360) % 360
+        val bearing = atan2(y, x)
+        return (Math.toDegrees(bearing) + 360) % 360
     }
 
     /**
@@ -105,13 +110,13 @@ object MathHelpers {
      */
     fun calculatePolygonMeasurements(points: List<Point>): Pair<Double, Double> {
         if (points.size < 3) return Pair(0.0, calculatePerimeter(points))
-        
+
         var area = 0.0
         val r = 6378137.0 // Earth radius in meters WGS84
-        
+
         // Ensure closed polygon
         val pts = if (points.first() != points.last()) points + points.first() else points
-        
+
         if (pts.size > 2) {
             var sum = 0.0
             for (i in 0 until pts.size - 1) {
@@ -121,12 +126,12 @@ object MathHelpers {
                 val y1 = Math.toRadians(p1.latitude())
                 val x2 = Math.toRadians(p2.longitude())
                 val y2 = Math.toRadians(p2.latitude())
-                
-                sum += (x2 - x1) * (2 + Math.sin(y1) + Math.sin(y2))
+
+                sum += (x2 - x1) * (2 + sin(y1) + sin(y2))
             }
-            area = Math.abs(sum * r * r / 2.0)
+            area = abs(sum * r * r / 2.0)
         }
-        
+
         return Pair(area, calculatePerimeter(points))
     }
 
@@ -137,7 +142,7 @@ object MathHelpers {
         if (points.size < 2) return 0.0
         var perimeter = 0.0
         for (i in 0 until points.size - 1) {
-            perimeter += distanceInMeters(points[i], points[i+1])
+            perimeter += distanceInMeters(points[i], points[i + 1])
         }
         if (points.size > 2) {
             perimeter += distanceInMeters(points.last(), points.first())

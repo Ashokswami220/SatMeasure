@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import android.content.Intent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.rememberScrollState
@@ -68,10 +71,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ButtonDefaults.outlinedButtonColors
@@ -85,10 +85,20 @@ import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import coil.compose.AsyncImage
 
 val availableMapStyles = listOf(
-    MapStyleOption("satellite_streets", "Satellite & Streets", Style.SATELLITE_STREETS, Style.SATELLITE_STREETS, R.drawable.satellite_map),
-    MapStyleOption("standard", "Standard Navigation", Style.STANDARD, Style.STANDARD, R.drawable.standard_map),
-    MapStyleOption("outdoors", "Terrain & Outdoors", Style.OUTDOORS, Style.OUTDOORS, R.drawable.terrain_map),
-    MapStyleOption("satellite", "Pure Satellite", Style.STANDARD_SATELLITE, Style.SATELLITE, R.drawable.satellite_map)
+    MapStyleOption(
+        "satellite_streets", "Satellite & Streets", Style.SATELLITE_STREETS,
+        Style.SATELLITE_STREETS, R.drawable.satellite_map
+    ),
+    MapStyleOption(
+        "standard", "Standard Navigation", Style.STANDARD, Style.STANDARD, R.drawable.standard_map
+    ),
+    MapStyleOption(
+        "outdoors", "Terrain & Outdoors", Style.OUTDOORS, Style.OUTDOORS, R.drawable.terrain_map
+    ),
+    MapStyleOption(
+        "satellite", "Pure Satellite", Style.STANDARD_SATELLITE, Style.SATELLITE,
+        R.drawable.satellite_map
+    )
 )
 
 
@@ -157,7 +167,7 @@ fun MainTopControls(
                             },
                             shape = RoundedCornerShape(10.dp),
                             containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
                             Icon(Icons.Default.Search, contentDescription = "Search Location")
                         }
@@ -172,7 +182,7 @@ fun MainTopControls(
                             },
                             shape = RoundedCornerShape(10.dp),
                             containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
                             Icon(Icons.Default.Map, contentDescription = "Toggle Style")
                         }
@@ -180,9 +190,9 @@ fun MainTopControls(
                 }
 
                 FloatingActionButton(
-                    onClick = { 
+                    onClick = {
                         HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                        onExpandedChange(!expanded) 
+                        onExpandedChange(!expanded)
                     },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -202,9 +212,9 @@ fun MainTopControls(
                 horizontalAlignment = Alignment.End
             ) {
                 FloatingActionButton(
-                    onClick = { 
+                    onClick = {
                         HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                        onExpandedChange(!expanded) 
+                        onExpandedChange(!expanded)
                     },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -231,7 +241,7 @@ fun MainTopControls(
                             },
                             shape = RoundedCornerShape(10.dp),
                             containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
                             Icon(Icons.Default.Search, contentDescription = "Search Location")
                         }
@@ -246,7 +256,7 @@ fun MainTopControls(
                             },
                             shape = RoundedCornerShape(10.dp),
                             containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.primary
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
                             Icon(Icons.Default.Map, contentDescription = "Toggle Style")
                         }
@@ -268,7 +278,8 @@ fun AppSidebar(
 
     LaunchedEffect(authState.error) {
         authState.error?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            Toast.makeText(context, it, Toast.LENGTH_LONG)
+                .show()
             authViewModel.clearError()
         }
     }
@@ -353,8 +364,10 @@ fun AppSidebar(
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 } else if (authState.currentUser != null) {
-                                    val name = authState.currentUser?.displayName ?: authState.currentUser?.email ?: "U"
-                                    val initial = name.take(1).uppercase()
+                                    val name = authState.currentUser?.displayName
+                                        ?: authState.currentUser?.email ?: "U"
+                                    val initial = name.take(1)
+                                        .uppercase()
                                     Text(
                                         text = initial,
                                         style = MaterialTheme.typography.titleLarge,
@@ -398,9 +411,9 @@ fun AppSidebar(
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(12.dp))
-                        
+
                         // Auth Button
                         OutlinedButton(
                             onClick = {
@@ -411,7 +424,9 @@ fun AppSidebar(
                                     authViewModel.signOut()
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth().height(40.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp),
                             shape = RoundedCornerShape(12.dp),
                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
                             contentPadding = PaddingValues(0.dp),
@@ -426,15 +441,20 @@ fun AppSidebar(
                                     strokeWidth = 2.dp
                                 )
                             } else if (authState.currentUser == null) {
-                                Text("G", fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 8.dp))
-                                Text("Sign in with Google")
+                                Text(
+                                    "G", fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                                Text(stringResource(id = R.string.action_sign_in_with_google))
                             } else {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                                     contentDescription = null,
-                                    modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                                    modifier = Modifier
+                                        .size(18.dp)
+                                        .padding(end = 4.dp)
                                 )
-                                Text("Logout")
+                                Text(stringResource(id = R.string.action_logout))
                             }
                         }
                     }
@@ -450,7 +470,12 @@ fun AppSidebar(
                 }
 
                 NavigationDrawerItem(
-                    label = { Text("Saved Areas", modifier = Modifier.padding(start = 12.dp)) },
+                    label = {
+                        Text(
+                            stringResource(id = R.string.menu_saved_areas),
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                     selected = currentRoute == SatMesRoutes.HISTORY,
                     onClick = { onMenuSelect(SatMesRoutes.HISTORY) }, // Smooth navigation applied
@@ -459,7 +484,12 @@ fun AppSidebar(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Tutorial", modifier = Modifier.padding(start = 12.dp)) },
+                    label = {
+                        Text(
+                            stringResource(id = R.string.menu_tutorial),
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    },
                     icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
                     selected = currentRoute == SatMesRoutes.TUTORIAL,
                     onClick = { onMenuSelect(SatMesRoutes.TUTORIAL) }, // Smooth navigation applied
@@ -468,10 +498,39 @@ fun AppSidebar(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("About Us", modifier = Modifier.padding(start = 12.dp)) },
+                    label = {
+                        Text(
+                            stringResource(id = R.string.menu_about_us),
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    },
                     icon = { Icon(Icons.Default.Info, contentDescription = null) },
                     selected = currentRoute == SatMesRoutes.ABOUT_US,
                     onClick = { onMenuSelect(SatMesRoutes.ABOUT_US) }, // Smooth navigation applied
+                    colors = itemColors,
+                    modifier = itemPadding
+                )
+
+                val shareMessage =
+                    stringResource(id = R.string.share_message, "https://satmeasure.web.app/share")
+                NavigationDrawerItem(
+                    label = {
+                        Text(
+                            stringResource(id = R.string.menu_share),
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    },
+                    icon = { Icon(Icons.Default.Share, contentDescription = null) },
+                    selected = false,
+                    onClick = {
+                        val sendIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, shareMessage)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
+                    },
                     colors = itemColors,
                     modifier = itemPadding
                 )
@@ -481,12 +540,17 @@ fun AppSidebar(
             Spacer(modifier = Modifier.height(if (isLandscape) 4.dp else 8.dp))
 
             NavigationDrawerItem(
-                label = { Text("Settings", modifier = Modifier.padding(start = 12.dp)) },
+                label = {
+                    Text(
+                        stringResource(id = R.string.title_settings),
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                },
                 icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                 selected = currentRoute == SatMesRoutes.SETTINGS,
-                onClick = { 
+                onClick = {
                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                    onMenuSelect(SatMesRoutes.SETTINGS) 
+                    onMenuSelect(SatMesRoutes.SETTINGS)
                 }, // Smooth navigation applied
                 colors = itemColors,
                 modifier = Modifier.padding(
@@ -534,7 +598,7 @@ fun MapStyleBottomSheet(
                     .align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -551,9 +615,9 @@ fun MapStyleBottomSheet(
                     Icon(Icons.Default.Clear, contentDescription = "Close")
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Grid
             val chunkedStyles = availableMapStyles.chunked(chunkCount)
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -572,7 +636,9 @@ fun MapStyleBottomSheet(
                                     onClick = { onStyleSelected(styleOpt.id) },
                                     shape = RoundedCornerShape(12.dp),
                                     color = Color.Transparent,
-                                    border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
+                                    border = if (isSelected) BorderStroke(
+                                        2.dp, MaterialTheme.colorScheme.primary
+                                    ) else null,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(130.dp)

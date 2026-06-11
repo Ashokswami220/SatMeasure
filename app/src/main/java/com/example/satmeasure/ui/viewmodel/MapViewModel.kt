@@ -14,7 +14,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 data class MapUiState(
     val currentUserLocation: Point? = null,
-    val cameraTarget: Point? = null,
+    val cameraTargetBounds: List<Point>? = null,
     val isCalcExpanded: Boolean = false,
     val activeMode: CalcMode? = null,
     val completedMode: CalcMode? = null,
@@ -44,7 +44,7 @@ data class MapUiState(
 
 sealed class MapAction {
     data class SetCurrentUserLocation(val location: Point?) : MapAction()
-    data class SetCameraTarget(val target: Point?) : MapAction()
+    data class SetCameraTargetBounds(val bounds: List<Point>?) : MapAction()
     data class SetCalcExpanded(val expanded: Boolean) : MapAction()
     data class SetActiveMode(val mode: CalcMode?) : MapAction()
     data class SetCompletedMode(val mode: CalcMode?) : MapAction()
@@ -100,6 +100,17 @@ class MapViewModel : ViewModel() {
         }
     }
 
+    fun loadSharedMeasurement(ownerId: String, plotId: String) {
+        viewModelScope.launch {
+            val result = dbRepo.getSharedMeasurement(ownerId, plotId)
+            if (result.isSuccess) {
+                result.getOrNull()?.let { record ->
+                    loadRecordIntoMap(record, isEditable = false)
+                }
+            }
+        }
+    }
+
     fun loadRecordIntoMap(record: MeasurementRecord, isEditable: Boolean = false) {
         // Convert stored points back to Mapbox Point objects
         val points = record.points.map { Point.fromLngLat(it.lng, it.lat) }
@@ -130,9 +141,7 @@ class MapViewModel : ViewModel() {
         
         // Center camera if there are points
         if (points.isNotEmpty()) {
-            val centerLat = points.map { it.latitude() }.average()
-            val centerLng = points.map { it.longitude() }.average()
-            onAction(MapAction.SetCameraTarget(Point.fromLngLat(centerLng, centerLat)))
+            onAction(MapAction.SetCameraTargetBounds(points))
         }
     }
 
@@ -198,7 +207,7 @@ class MapViewModel : ViewModel() {
     fun onAction(action: MapAction) {
         when(action) {
             is MapAction.SetCurrentUserLocation -> _uiState.update { it.copy(currentUserLocation = action.location) }
-            is MapAction.SetCameraTarget -> _uiState.update { it.copy(cameraTarget = action.target) }
+            is MapAction.SetCameraTargetBounds -> _uiState.update { it.copy(cameraTargetBounds = action.bounds) }
             is MapAction.SetCalcExpanded -> _uiState.update { it.copy(isCalcExpanded = action.expanded) }
             is MapAction.SetActiveMode -> _uiState.update { it.copy(activeMode = action.mode) }
             is MapAction.SetCompletedMode -> _uiState.update { it.copy(completedMode = action.mode) }
@@ -321,7 +330,8 @@ class MapViewModel : ViewModel() {
                     redoShapePointsHistory = emptyList(),
                     loadedMeasurementName = null,
                     loadedMeasurementId = null,
-                    isReadOnly = false
+                    isReadOnly = false,
+                    pdfExportOptions = state.pdfExportOptions.copy(name = "")
                 )
             }
             is MapAction.ExitReadOnly -> _uiState.update { state ->
@@ -334,7 +344,8 @@ class MapViewModel : ViewModel() {
                     shapePoints = emptyList(),
                     loadedMeasurementName = null,
                     loadedMeasurementId = null,
-                    isReadOnly = false
+                    isReadOnly = false,
+                    pdfExportOptions = state.pdfExportOptions.copy(name = "")
                 )
             }
         }
