@@ -133,13 +133,24 @@ fun AboutUsScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
+                val glassButtonColors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+                val glassBorder = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                )
+
                 // Social Buttons
                 OutlinedButton(
                     onClick = { openLink(GITHUB_LINK) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = CircleShape
+                    shape = CircleShape,
+                    colors = glassButtonColors,
+                    border = glassBorder
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Icon(
@@ -160,7 +171,9 @@ fun AboutUsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = CircleShape
+                    shape = CircleShape,
+                    colors = glassButtonColors,
+                    border = glassBorder
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Icon(
@@ -182,7 +195,9 @@ fun AboutUsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = CircleShape
+                    shape = CircleShape,
+                    colors = glassButtonColors,
+                    border = glassBorder
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Icon(
@@ -204,7 +219,9 @@ fun AboutUsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = CircleShape
+                    shape = CircleShape,
+                    colors = glassButtonColors,
+                    border = glassBorder
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Icon(
@@ -222,15 +239,19 @@ fun AboutUsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Feedback Button
-                Button(
+                OutlinedButton(
                     onClick = { openLink(FEEDBACK_EMAIL) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                     )
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
