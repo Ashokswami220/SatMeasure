@@ -21,6 +21,7 @@ class SettingsManager(private val context: Context) {
     companion object {
         val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         val DYNAMIC_COLOR_KEY = booleanPreferencesKey("dynamic_color")
+        val HAPTICS_KEY = booleanPreferencesKey("haptics_enabled")
     }
 
     val themeModeFlow: Flow<ThemeMode> = context.dataStore.data.map { preferences ->
@@ -45,6 +46,16 @@ class SettingsManager(private val context: Context) {
     suspend fun setDynamicColor(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[DYNAMIC_COLOR_KEY] = enabled
+        }
+    }
+
+    val hapticsFlow: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[HAPTICS_KEY] ?: true
+    }
+
+    suspend fun setHaptics(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[HAPTICS_KEY] = enabled
         }
     }
 }

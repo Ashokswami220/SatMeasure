@@ -3,6 +3,7 @@ package com.example.satmeasure.ui.otherScreens
 import android.widget.Toast
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,8 +25,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.os.LocaleListCompat.forLanguageTags
 import com.example.satmeasure.R
 import com.example.satmeasure.data.SettingsManager
 import com.example.satmeasure.data.ThemeMode
@@ -49,6 +50,7 @@ fun SettingsScreen(
 
     val themeMode by settingsManager.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
     val dynamicColor by settingsManager.dynamicColorFlow.collectAsState(initial = false)
+    val hapticsEnabled by settingsManager.hapticsFlow.collectAsState(initial = true)
     val currentUser by authViewModel.uiState.collectAsState()
 
     val (showDeleteDataDialog, setShowDeleteDataDialog) = remember { mutableStateOf(false) }
@@ -271,6 +273,119 @@ fun SettingsScreen(
                 }
             }
 
+            // Haptic Feedback Card
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = dimensionResource(id = R.dimen.spacing_md),
+                            vertical = dimensionResource(id = R.dimen.spacing_md)
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            "Haptic Feedback",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            "Vibrate on tap and interactions",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Switch(
+                        checked = hapticsEnabled,
+                        onCheckedChange = {
+                            coroutineScope.launch { settingsManager.setHaptics(it) }
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
+
+            // App Language Card
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { languageMenuExpanded = true }
+                        .padding(
+                            horizontal = dimensionResource(id = R.dimen.spacing_md),
+                            vertical = dimensionResource(id = R.dimen.spacing_md)
+                        ),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.title_app_language),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Box {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                appLanguage, style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(
+                                modifier = Modifier.width(
+                                    dimensionResource(id = R.dimen.spacing_xs)
+                                )
+                            )
+                            Icon(
+                                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = languageMenuExpanded,
+                            onDismissRequest = { languageMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.lang_english)) },
+                                onClick = {
+                                    setApplicationLocales(
+                                        forLanguageTags("en")
+                                    )
+                                    languageMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(id = R.string.lang_hindi)) },
+                                onClick = {
+                                    setApplicationLocales(
+                                        forLanguageTags("hi")
+                                    )
+                                    languageMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
+
             // Danger Zone Card
             Card(
                 colors = CardDefaults.cardColors(
@@ -383,75 +498,6 @@ fun SettingsScreen(
                 }
             }
 
-            // App Language Card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { languageMenuExpanded = true }
-                        .padding(
-                            horizontal = dimensionResource(id = R.dimen.spacing_md),
-                            vertical = dimensionResource(id = R.dimen.spacing_md)
-                        ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        stringResource(id = R.string.title_app_language),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Box {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                appLanguage, style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_xs)
-                                )
-                            )
-                            Icon(
-                                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = languageMenuExpanded,
-                            onDismissRequest = { languageMenuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.lang_english)) },
-                                onClick = {
-                                    AppCompatDelegate.setApplicationLocales(
-                                        LocaleListCompat.forLanguageTags("en")
-                                    )
-                                    languageMenuExpanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.lang_hindi)) },
-                                onClick = {
-                                    AppCompatDelegate.setApplicationLocales(
-                                        LocaleListCompat.forLanguageTags("hi")
-                                    )
-                                    languageMenuExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 
