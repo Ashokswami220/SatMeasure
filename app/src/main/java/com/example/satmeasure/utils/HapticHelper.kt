@@ -6,7 +6,24 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import com.example.satmeasure.data.SettingsManager
+
 object HapticHelper {
+    var isHapticsEnabled = true
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    fun init(context: Context) {
+        scope.launch {
+            SettingsManager(context).hapticsFlow.collect { enabled ->
+                isHapticsEnabled = enabled
+            }
+        }
+    }
     enum class Type {
         LIGHT,   // For scrolling, clock ticks
         MEDIUM,  // For standard button clicks (Confirm)
@@ -15,6 +32,8 @@ object HapticHelper {
     }
 
     fun trigger(context: Context, type: Type) {
+        if (!isHapticsEnabled) return
+        
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager =
                 context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager

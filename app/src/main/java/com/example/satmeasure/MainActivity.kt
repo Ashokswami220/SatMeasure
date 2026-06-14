@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        com.example.satmeasure.utils.HapticHelper.init(applicationContext)
+
         MapboxOptions.accessToken = BuildConfig.MAPBOX_ACCESS_TOKEN
 
         // Handle intent if completely closed
