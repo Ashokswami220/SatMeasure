@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat.forLanguageTags
 import com.example.satmeasure.R
 import com.example.satmeasure.data.SettingsManager

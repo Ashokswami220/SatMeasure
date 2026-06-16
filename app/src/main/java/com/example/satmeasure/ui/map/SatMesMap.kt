@@ -76,6 +76,7 @@ import androidx.core.graphics.toColorInt
 import androidx.core.graphics.createBitmap
 import com.example.satmeasure.ui.viewmodel.MapAction
 import com.example.satmeasure.ui.viewmodel.MapViewModel
+import kotlin.time.Duration.Companion.milliseconds
 
 fun createNumberedPinBitmap(context: Context, number: Int): Bitmap {
     val drawable =
@@ -230,7 +231,7 @@ fun SatMapComponent(
     var mapboxMap by remember { mutableStateOf<com.mapbox.maps.MapboxMap?>(null) }
     LaunchedEffect(cameraTargetBounds, mapboxMap) {
         if (!cameraTargetBounds.isNullOrEmpty() && mapboxMap != null) {
-            kotlinx.coroutines.delay(450) // Wait for screen transition to complete
+            kotlinx.coroutines.delay(450.milliseconds) // Wait for screen transition to complete
             try {
                 val padding =
                     com.mapbox.maps.EdgeInsets(100.0, 100.0, 100.0 + bottomPaddingPx, 100.0)

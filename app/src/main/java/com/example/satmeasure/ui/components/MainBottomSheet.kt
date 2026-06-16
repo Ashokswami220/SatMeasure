@@ -36,7 +36,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.example.satmeasure.ui.map.AreaUnit
 import com.example.satmeasure.ui.map.MeasurementConverter
 import kotlinx.coroutines.launch
