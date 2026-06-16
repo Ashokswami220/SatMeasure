@@ -442,10 +442,6 @@ fun AppSidebar(
                                     strokeWidth = dimensionResource(id = R.dimen.spacing_xxs)
                                 )
                             } else if (authState.currentUser == null) {
-                                Text(
-                                    "G", fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.corner_sm))
-                                )
                                 Text(stringResource(id = R.string.action_sign_in_with_google))
                             } else {
                                 Icon(

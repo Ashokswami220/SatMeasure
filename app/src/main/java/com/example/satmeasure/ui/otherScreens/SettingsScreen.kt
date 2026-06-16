@@ -912,7 +912,7 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xxs)))
                     Text(
-                        "Enjoy an ad-free premium experience",
+                        stringResource(id = R.string.desc_enjoy_ad_free),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -163,14 +163,6 @@
     <string name="unit_dhur">धुर (बिहार/झारखंड)</string>
     <string name="unit_lecha">लेचा (असम)</string>
     <string name="unit_decimal">डेसिमल (पश्चिम बंगाल)</string>
-<string name="developed_and">द्वारा विकसित और</string>
-    <string name="designed_by">डिज़ाइन किया गया</string>
-    <string name="ashok_swami">अशोक स्वामी</string>
-    <string name="github">गिटहब</string>
-    <string name="twitter_x">ट्विटर / एक्स</string>
-    <string name="instagram">इंस्टाग्राम</string>
-    <string name="linkedin">लिंक्डइन</string>
-    <string name="send_feedback">फीडबैक भेजें</string>
     <string name="profile_photo">प्रोफ़ाइल फ़ोटो</string>
     <string name="appearance">दिखावट</string>
     <string name="theme_mode">थीम मोड</string>
@@ -197,4 +189,5 @@
     <string name="standard_navigation">मानक नेविगेशन</string>
     <string name="terrain_outdoors">इलाका और बाहर</string>
     <string name="pure_satellite">शुद्ध सैटेलाइट</string>
+    <string name="desc_enjoy_ad_free">विज्ञापन-मुक्त प्रीमियम अनुभव का आनंद लें</string>
     </resources>
