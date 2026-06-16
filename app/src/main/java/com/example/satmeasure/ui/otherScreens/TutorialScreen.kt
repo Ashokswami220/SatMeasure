@@ -1,17 +1,64 @@
 package com.example.satmeasure.ui.otherScreens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.RenderMode
+import com.example.satmeasure.R
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun TutorialScreen(
     onBackClick: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Tutorial Screen")
+    Scaffold { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            // iOS-style back button in top left
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .padding(
+                        top = dimensionResource(id = R.dimen.spacing_lg),
+                        start = dimensionResource(id = R.dimen.spacing_lg)
+                    )
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape)
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Rounded.ArrowBackIos,
+                    contentDescription = "Back",
+                    modifier = Modifier.padding(start = 6.dp)
+                )
+            }
+
+            // Centered Lottie animation
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.site_under_construction))
+            
+            LottieAnimation(
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+                renderMode = RenderMode.SOFTWARE,
+                enableMergePaths = true,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(400.dp)
+            )
+        }
     }
 }
