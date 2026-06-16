@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import com.example.satmeasure.ui.navigation.SatMesNavApp
 import com.example.satmeasure.ui.theme.SatMeasureTheme
 import com.mapbox.common.MapboxOptions
-
 import android.content.Intent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState

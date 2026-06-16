@@ -2,30 +2,52 @@ package com.example.satmeasure.ui.otherScreens
 
 import android.widget.Toast
 
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.PersonRemove
+import androidx.compose.material.icons.outlined.Vibration
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat.forLanguageTags
 import com.example.satmeasure.R
 import com.example.satmeasure.data.SettingsManager
@@ -53,26 +75,36 @@ fun SettingsScreen(
     val hapticsEnabled by settingsManager.hapticsFlow.collectAsState(initial = true)
     val currentUser by authViewModel.uiState.collectAsState()
 
+    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val isDarkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemDark
+    }
+
     val (showDeleteDataDialog, setShowDeleteDataDialog) = remember { mutableStateOf(false) }
     val (showDeleteAccountDialog, setShowDeleteAccountDialog) = remember { mutableStateOf(false) }
 
-    val currentLocale = AppCompatDelegate.getApplicationLocales()
-        .toLanguageTags()
-    val appLanguage = if (currentLocale.contains("hi")) stringResource(
-        id = R.string.lang_hindi
-    ) else stringResource(id = R.string.lang_english)
-    var languageMenuExpanded by remember { mutableStateOf(false) }
+
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Column {
+            if (!isLandscape) {
                 TopAppBar(
                     title = {
                         Text(
-                            stringResource(id = R.string.title_settings),
-                            fontWeight = FontWeight.Bold
+                            text = stringResource(id = R.string.title_settings),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                    ),
                     navigationIcon = {
                         IconButton(onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
@@ -85,419 +117,109 @@ fun SettingsScreen(
                         }
                     }
                 )
-                HorizontalDivider()
             }
         }
     ) { paddingValues ->
-        Column(
+        val settingsContent: @Composable () -> Unit = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(
+                    modifier = Modifier.then(
+                        if (isLandscape) Modifier.fillMaxWidth(0.5f) else Modifier.fillMaxWidth()
+                    )
+                ) {
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    AppLanguageCard(
+                        isDarkTheme = isDarkTheme,
+                        modifier = Modifier.padding(vertical = 6.dp)
+                    )
+
+                    HapticFeedbackCard(
+                        isDarkTheme = isDarkTheme,
+                        hapticsEnabled = hapticsEnabled,
+                        onHapticsChange = {
+                            coroutineScope.launch {
+                                settingsManager.setHaptics(it)
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 6.dp)
+                    )
+
+                    // Remove Ads
+                    RemoveAdsCard(modifier = Modifier.padding(vertical = 12.dp), isDarkTheme = isDarkTheme)
+
+                    AppearanceCard(
+                        dynamicColor = dynamicColor,
+                        themeMode = themeMode,
+                        isDarkTheme = isDarkTheme,
+                        onDynamicColorChange = {
+                            coroutineScope.launch {
+                                settingsManager.setDynamicColor(
+                                    it
+                                )
+                            }
+                        },
+                        onThemeModeChange = { mode ->
+                            coroutineScope.launch {
+                                settingsManager.setThemeMode(
+                                    mode
+                                )
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 6.dp)
+                    )
+
+
+
+                    // --- ACCOUNT CATEGORY ---
+                    AccountCard(
+                        onDeleteDataClick = { setShowDeleteDataDialog(true) },
+                        onDeleteAccountClick = { setShowDeleteAccountDialog(true) },
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+            }
+        }
+
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(dimensionResource(id = R.dimen.spacing_md)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_lg))
         ) {
-            // Appearance Card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_sm))) {
-                    // Theme Selector
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(dimensionResource(id = R.dimen.spacing_xxxl))
-                            .clip(RoundedCornerShape(50)),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // System
-                        val systemSelected = themeMode == ThemeMode.SYSTEM
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(50))
-                                .background(
-                                    if (systemSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
-                                )
-                                .clickable {
-                                    coroutineScope.launch {
-                                        settingsManager.setThemeMode(
-                                            ThemeMode.SYSTEM
-                                        )
-                                    }
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                Icons.Default.Settings,
-                                contentDescription = stringResource(id = R.string.theme_system),
-                                tint = if (systemSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(dimensionResource(id = R.dimen.icon_sm))
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_sm_minus)
-                                )
-                            )
-                            Text(
-                                stringResource(id = R.string.theme_system),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = if (systemSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+            settingsContent()
 
-                        // Light
-                        val lightSelected = themeMode == ThemeMode.LIGHT
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(50))
-                                .background(
-                                    if (lightSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
-                                )
-                                .clickable {
-                                    coroutineScope.launch {
-                                        settingsManager.setThemeMode(
-                                            ThemeMode.LIGHT
-                                        )
-                                    }
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                Icons.Default.LightMode,
-                                contentDescription = stringResource(id = R.string.theme_light),
-                                tint = if (lightSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(dimensionResource(id = R.dimen.icon_sm))
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_sm_minus)
-                                )
-                            )
-                            Text(
-                                stringResource(id = R.string.theme_light),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = if (lightSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        // Dark
-                        val darkSelected = themeMode == ThemeMode.DARK
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(50))
-                                .background(
-                                    if (darkSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
-                                )
-                                .clickable {
-                                    coroutineScope.launch {
-                                        settingsManager.setThemeMode(
-                                            ThemeMode.DARK
-                                        )
-                                    }
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                Icons.Default.DarkMode,
-                                contentDescription = stringResource(id = R.string.theme_dark),
-                                tint = if (darkSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(dimensionResource(id = R.dimen.icon_sm))
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_sm_minus)
-                                )
-                            )
-                            Text(
-                                stringResource(id = R.string.theme_dark),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = if (darkSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
-
-                    // Dynamic Color
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = dimensionResource(id = R.dimen.spacing_sm),
-                                vertical = dimensionResource(id = R.dimen.spacing_sm)
-                            ),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Palette, contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_md)
-                                )
-                            )
-                            Column {
-                                Text(
-                                    stringResource(id = R.string.title_dynamic_color),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Text(
-                                    stringResource(id = R.string.desc_dynamic_color),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Switch(
-                            checked = dynamicColor,
-                            onCheckedChange = {
-                                coroutineScope.launch { settingsManager.setDynamicColor(it) }
-                            }
-                        )
-                    }
-                }
-            }
-
-            // Haptic Feedback Card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            if (isLandscape) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = dimensionResource(id = R.dimen.spacing_md),
-                            vertical = dimensionResource(id = R.dimen.spacing_md)
-                        ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .padding(horizontal = 4.dp, vertical = 8.dp)
+                        .align(Alignment.TopStart),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            "Haptic Feedback",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            "Vibrate on tap and interactions",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    IconButton(onClick = {
+                        HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                        onBackClick()
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBackIos,
+                            contentDescription = stringResource(id = R.string.cd_back)
                         )
                     }
-                    Switch(
-                        checked = hapticsEnabled,
-                        onCheckedChange = {
-                            coroutineScope.launch { settingsManager.setHaptics(it) }
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
-
-            // App Language Card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { languageMenuExpanded = true }
-                        .padding(
-                            horizontal = dimensionResource(id = R.dimen.spacing_md),
-                            vertical = dimensionResource(id = R.dimen.spacing_md)
-                        ),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        stringResource(id = R.string.title_app_language),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        text = stringResource(id = R.string.title_settings),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-
-                    Box {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                appLanguage, style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_xs)
-                                )
-                            )
-                            Icon(
-                                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = languageMenuExpanded,
-                            onDismissRequest = { languageMenuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.lang_english)) },
-                                onClick = {
-                                    setApplicationLocales(
-                                        forLanguageTags("en")
-                                    )
-                                    languageMenuExpanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.lang_hindi)) },
-                                onClick = {
-                                    setApplicationLocales(
-                                        forLanguageTags("hi")
-                                    )
-                                    languageMenuExpanded = false
-                                }
-                            )
-                        }
-                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_md)))
-
-            // Danger Zone Card
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_lg)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(
-                        vertical = dimensionResource(id = R.dimen.spacing_sm)
-                    )
-                ) {
-                    // Delete My Data
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { setShowDeleteDataDialog(true) }
-                            .padding(
-                                horizontal = dimensionResource(id = R.dimen.spacing_md),
-                                vertical = dimensionResource(id = R.dimen.spacing_md)
-                            ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Delete, contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_md)
-                                )
-                            )
-                            Column {
-                                Text(
-                                    stringResource(id = R.string.title_delete_my_data),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    stringResource(id = R.string.desc_delete_my_data),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Icon(
-                            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.1f),
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(id = R.dimen.spacing_md)
-                        )
-                    )
-
-                    // Delete Account
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { setShowDeleteAccountDialog(true) }
-                            .padding(
-                                horizontal = dimensionResource(id = R.dimen.spacing_md),
-                                vertical = dimensionResource(id = R.dimen.spacing_md)
-                            ),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(
-                                Icons.Outlined.PersonRemove, contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(
-                                modifier = Modifier.width(
-                                    dimensionResource(id = R.dimen.spacing_md)
-                                )
-                            )
-                            Column {
-                                Text(
-                                    stringResource(id = R.string.title_delete_my_account),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    stringResource(id = R.string.desc_delete_my_account),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Icon(
-                            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
         }
     }
 
@@ -530,5 +252,803 @@ fun SettingsScreen(
                 setShowDeleteAccountDialog(false)
             }
         )
+    }
+}
+
+@Composable
+fun AppearanceCard(
+    dynamicColor: Boolean,
+    themeMode: ThemeMode,
+    isDarkTheme: Boolean,
+    onDynamicColorChange: (Boolean) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.spacing_lg)
+            ),
+        shape = RoundedCornerShape(36.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    ) {
+        Column {
+            Text(
+                text = "Appearance",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 8.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SettingsToggleCard(
+                    title = "Theme Mode",
+                    subtitle = when (themeMode) {
+                        ThemeMode.DARK -> "Dark"
+                        ThemeMode.LIGHT -> "Light"
+                        ThemeMode.SYSTEM -> "System"
+                    },
+                    icon = Icons.Outlined.DarkMode,
+                    checked = true,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.weight(1f),
+                    actionContent = {
+                        var themeMenuExpanded by remember { mutableStateOf(false) }
+                        var pillSize by remember { mutableStateOf(IntSize.Zero) }
+
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 7.dp, bottom = 7.dp)
+                                .onGloballyPositioned { pillSize = it.size }
+                        ) {
+                            if (!themeMenuExpanded) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                        .clickable { 
+                                            HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                                            themeMenuExpanded = true 
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = when (themeMode) {
+                                            ThemeMode.DARK -> "Dark"
+                                            ThemeMode.LIGHT -> "Light"
+                                            ThemeMode.SYSTEM -> "System"
+                                        },
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            } else {
+                                Spacer(
+                                    modifier = Modifier
+                                        .width(with(LocalDensity.current) { pillSize.width.toDp() })
+                                        .height(
+                                            with(LocalDensity.current) { pillSize.height.toDp() })
+                                )
+                            }
+
+                            if (themeMenuExpanded) {
+                                Popup(
+                                    alignment = Alignment.BottomCenter,
+                                    onDismissRequest = { themeMenuExpanded = false },
+                                    properties = PopupProperties(focusable = true)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .width(
+                                                with(
+                                                    LocalDensity.current
+                                                ) { pillSize.width.toDp() })
+                                            .border(
+                                                1.dp, MaterialTheme.colorScheme.onSurfaceVariant,
+                                                RoundedCornerShape(16.dp)
+                                            )
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(
+                                                MaterialTheme.colorScheme.surfaceContainerHigh
+                                            )
+                                            .padding(4.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        val options = listOf(
+                                            ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.SYSTEM
+                                        )
+                                        val labels = listOf("Light", "Dark", "System")
+                                        options.forEachIndexed { index, mode ->
+                                            val isSelected = themeMode == mode
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clip(CircleShape)
+                                                    .clickable {
+                                                        HapticHelper.trigger(
+                                                            context, HapticHelper.Type.LIGHT
+                                                        )
+                                                        onThemeModeChange(mode)
+                                                        themeMenuExpanded = false
+                                                    }
+                                                    .then(
+                                                        if (isSelected) Modifier.background(
+                                                            MaterialTheme.colorScheme.primary,
+                                                            CircleShape
+                                                        )
+                                                        else Modifier
+                                                    )
+                                                    .padding(vertical = 6.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = labels[index],
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+
+                SettingsToggleCard(
+                    title = "Dynamic Color",
+                    subtitle = "Material You",
+                    icon = Icons.Default.Palette,
+                    checked = dynamicColor,
+                    isDarkTheme = isDarkTheme,
+                    onCheckedChange = onDynamicColorChange,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsToggleCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    checked: Boolean = false,
+    isDarkTheme: Boolean = false,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
+    actionContent: @Composable () -> Unit = {
+        val context = LocalContext.current
+        if (onCheckedChange != null) {
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                    onCheckedChange(it)
+                },
+                modifier = Modifier.scale(0.85f)
+            )
+        }
+    }
+) {
+
+    val iconBgColor =
+        if (checked) {
+            if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
+                alpha = 0.9f
+            )
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        }
+    val iconColor =
+        if (checked) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant
+    Card(
+        modifier = modifier.aspectRatio(1f),
+        shape = RoundedCornerShape(36.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .padding(start = 6.dp, top = 6.dp)
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(iconBgColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                actionContent()
+            }
+        }
+    }
+}
+
+@Composable
+fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val currentLocale = AppCompatDelegate.getApplicationLocales()
+        .toLanguageTags()
+    val appLanguage = if (currentLocale.contains("hi")) stringResource(
+        id = R.string.lang_hindi
+    ) else stringResource(id = R.string.lang_english)
+    var languageMenuExpanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.spacing_lg)
+            ),
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                val iconBgColor =
+                    if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
+                        alpha = 0.9f
+                    )
+                val iconColor = MaterialTheme.colorScheme.surface
+
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(iconBgColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Language,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = stringResource(id = R.string.title_app_language),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            var languagePillSize by remember { mutableStateOf(IntSize.Zero) }
+
+            Box(
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .onGloballyPositioned { languagePillSize = it.size }
+            ) {
+                if (!languageMenuExpanded) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                            .clickable { 
+                                HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                                languageMenuExpanded = true 
+                            }
+                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = appLanguage,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                } else {
+                    Spacer(
+                        modifier = Modifier
+                            .width(with(LocalDensity.current) { languagePillSize.width.toDp() })
+                            .height(with(LocalDensity.current) { languagePillSize.height.toDp() })
+                    )
+                }
+
+                if (languageMenuExpanded) {
+                    Popup(
+                        alignment = Alignment.BottomCenter,
+                        onDismissRequest = { languageMenuExpanded = false },
+                        properties = PopupProperties(focusable = true)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .width(
+                                    with(
+                                        LocalDensity.current
+                                    ) { languagePillSize.width.toDp() }.let { if (it < 100.dp) 100.dp else it })
+                                .border(
+                                    1.dp, MaterialTheme.colorScheme.onSurfaceVariant,
+                                    RoundedCornerShape(16.dp)
+                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                                .padding(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            val options = listOf("en", "hi")
+                            val labels = listOf(
+                                stringResource(id = R.string.lang_english),
+                                stringResource(id = R.string.lang_hindi)
+                            )
+
+                            options.forEachIndexed { index, langTag ->
+                                val isSelected = currentLocale.contains(
+                                    langTag
+                                ) || (langTag == "en" && !currentLocale.contains("hi"))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(CircleShape)
+                                        .clickable {
+                                            HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                                            AppCompatDelegate.setApplicationLocales(
+                                                forLanguageTags(langTag)
+                                            )
+                                            languageMenuExpanded = false
+                                        }
+                                        .then(
+                                            if (isSelected) Modifier.background(
+                                                MaterialTheme.colorScheme.primary,
+                                                CircleShape
+                                            )
+                                            else Modifier
+                                        )
+                                        .padding(vertical = 6.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = labels[index],
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HapticFeedbackCard(
+    isDarkTheme: Boolean,
+    hapticsEnabled: Boolean,
+    onHapticsChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.spacing_lg)
+            ),
+        shape = CircleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                val iconBgColor = if (hapticsEnabled) {
+                    if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
+                        alpha = 0.9f
+                    )
+                } else {
+                    MaterialTheme.colorScheme.background
+                }
+                val iconColor =
+                    if (hapticsEnabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant
+
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(iconBgColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Vibration,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = "Haptic Feedback",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            val context = LocalContext.current
+            Switch(
+                checked = hapticsEnabled,
+                onCheckedChange = {
+                    HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
+                    onHapticsChange(it)
+                },
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .scale(0.85f)
+            )
+        }
+    }
+}
+data class WavyShape(
+    private val periodDp: Float = 80f,
+    private val amplitudeDp: Float = 2.5f,
+    private val cornerRadiusDp: Float = 24f,
+    private val phaseOffset: Float = 0f
+) : Shape {
+    override fun createOutline(
+        size: androidx.compose.ui.geometry.Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val period = periodDp * density.density
+        val amplitude = amplitudeDp * density.density
+        val r = cornerRadiusDp * density.density
+        val path = Path()
+        
+        val w = size.width
+        val h = size.height
+        
+        val actualR = kotlin.math.min(r, kotlin.math.min(w / 2, h / 2))
+        
+        path.arcTo(
+            rect = androidx.compose.ui.geometry.Rect(0f, 0f, 2 * actualR, 2 * actualR),
+            startAngleDegrees = 180f,
+            sweepAngleDegrees = 90f,
+            forceMoveTo = false
+        )
+        
+        val steps = 40
+        
+        val topLen = w - 2 * actualR
+        val wavesX = kotlin.math.max(1, kotlin.math.round(topLen / period).toInt())
+        for (i in 1..(wavesX * steps)) {
+            val frac = i / (wavesX * steps).toFloat()
+            val x = actualR + frac * topLen
+            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val currentAmp = env * amplitude
+            val y = currentAmp - currentAmp * kotlin.math.cos((frac * wavesX - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            path.lineTo(x, y)
+        }
+        
+        path.arcTo(
+            rect = androidx.compose.ui.geometry.Rect(w - 2 * actualR, 0f, w, 2 * actualR),
+            startAngleDegrees = 270f,
+            sweepAngleDegrees = 90f,
+            forceMoveTo = false
+        )
+        
+        val rightLen = h - 2 * actualR
+        val wavesY = kotlin.math.max(1, kotlin.math.round(rightLen / period).toInt())
+        for (i in 1..(wavesY * steps)) {
+            val frac = i / (wavesY * steps).toFloat()
+            val y = actualR + frac * rightLen
+            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val currentAmp = env * amplitude
+            val x = w - currentAmp + currentAmp * kotlin.math.cos((frac * wavesY - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            path.lineTo(x, y)
+        }
+        
+        path.arcTo(
+            rect = androidx.compose.ui.geometry.Rect(w - 2 * actualR, h - 2 * actualR, w, h),
+            startAngleDegrees = 0f,
+            sweepAngleDegrees = 90f,
+            forceMoveTo = false
+        )
+        
+        for (i in 1..(wavesX * steps)) {
+            val frac = i / (wavesX * steps).toFloat()
+            val x = w - actualR - frac * topLen
+            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val currentAmp = env * amplitude
+            val y = h - currentAmp + currentAmp * kotlin.math.cos((frac * wavesX - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            path.lineTo(x, y)
+        }
+        
+        path.arcTo(
+            rect = androidx.compose.ui.geometry.Rect(0f, h - 2 * actualR, 2 * actualR, h),
+            startAngleDegrees = 90f,
+            sweepAngleDegrees = 90f,
+            forceMoveTo = false
+        )
+        
+        for (i in 1..(wavesY * steps)) {
+            val frac = i / (wavesY * steps).toFloat()
+            val y = h - actualR - frac * rightLen
+            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val currentAmp = env * amplitude
+            val x = currentAmp - currentAmp * kotlin.math.cos((frac * wavesY - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            path.lineTo(x, y)
+        }
+        
+        path.close()
+        return Outline.Generic(path)
+    }
+}
+
+@Composable
+fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
+    val infiniteTransition = rememberInfiniteTransition(label = "wave_anim")
+    val phase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "wave_phase"
+    )
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp) // roughly 2x AppLanguageCard height
+            .padding(horizontal = dimensionResource(id = R.dimen.spacing_lg)),
+        shape = WavyShape(phaseOffset = phase),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        border = BorderStroke(4.dp, MaterialTheme.colorScheme.surfaceContainerHigh)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { /* TODO: Implement Remove Ads */ }
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
+                            alpha = 0.9f
+                        )),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Outlined.Block, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_md))
+                )
+                Column {
+                    Text(
+                        "Remove Ads",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        "Enjoy an ad-free premium experience",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Icon(
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun AccountCard(
+    onDeleteDataClick: () -> Unit,
+    onDeleteAccountClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.spacing_lg)
+            ),
+        shape = RoundedCornerShape(36.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(bottom = 6.dp)
+        ) {
+            Text(
+                text = "Account",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 8.dp)
+            )
+
+            Card(
+                onClick = onDeleteDataClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .padding(horizontal = 8.dp),
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Outlined.Delete, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_md)))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            stringResource(id = R.string.title_delete_my_data),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            stringResource(id = R.string.desc_delete_my_data),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Card(
+                onClick = onDeleteAccountClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .padding(horizontal = 8.dp),
+                shape = CircleShape,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Outlined.PersonRemove, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_md)))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            stringResource(id = R.string.title_delete_my_account),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            stringResource(id = R.string.desc_delete_my_account),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
     }
 }
