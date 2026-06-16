@@ -67,23 +67,23 @@ fun MainBottomSheet(
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)
+        shape = RoundedCornerShape(topStart = dimensionResource(id = R.dimen.text_xl), topEnd = dimensionResource(id = R.dimen.text_xl))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 10.dp)
+                .padding(start = dimensionResource(id = R.dimen.text_lg), end = dimensionResource(id = R.dimen.text_lg), bottom = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.dimen_10))
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
             Box(
                 modifier = Modifier
-                    .width(40.dp)
-                    .height(4.dp)
+                    .width(dimensionResource(id = R.dimen.dimen_40))
+                    .height(dimensionResource(id = R.dimen.spacing_xs))
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
                     .align(Alignment.CenterHorizontally)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -104,7 +104,7 @@ fun MainBottomSheet(
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     ) {
                         Row(
-                            modifier = Modifier.height(28.dp),
+                            modifier = Modifier.height(dimensionResource(id = R.dimen.dimen_28)),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             TextButton(
@@ -114,7 +114,7 @@ fun MainBottomSheet(
                                 },
                                 contentPadding = PaddingValues(
                                     horizontal = dimensionResource(id = R.dimen.spacing_md_minus),
-                                    vertical = 0.dp
+                                    vertical = dimensionResource(id = R.dimen.dimen_0)
                                 )
                             ) {
                                 Text(
@@ -127,7 +127,7 @@ fun MainBottomSheet(
                             VerticalDivider(
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .padding(vertical = 6.dp),
+                                    .padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
                                 color = MaterialTheme.colorScheme.onSecondaryContainer.copy(
                                     alpha = 0.2f
                                 )
@@ -139,7 +139,7 @@ fun MainBottomSheet(
                                 },
                                 contentPadding = PaddingValues(
                                     horizontal = dimensionResource(id = R.dimen.spacing_md_minus),
-                                    vertical = 0.dp
+                                    vertical = dimensionResource(id = R.dimen.dimen_0)
                                 )
                             ) {
                                 Text(
@@ -154,12 +154,12 @@ fun MainBottomSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.corner_sm)))
             HorizontalDivider(
-                thickness = 1.dp,
+                thickness = dimensionResource(id = R.dimen.dimen_1),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
 
             val scrollState = rememberScrollState()
 
@@ -202,7 +202,7 @@ fun MainBottomSheet(
                 // --- 2x2 Grid Section ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_sm))
                 ) {
                     MeasurementCard(
                         modifier = Modifier.weight(1f),
@@ -233,10 +233,10 @@ fun MainBottomSheet(
                         }
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_sm))
                 ) {
                     MeasurementCard(
                         modifier = Modifier.weight(1f),
@@ -268,13 +268,13 @@ fun MainBottomSheet(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.icon_lg)))
                 HorizontalDivider(
-                    thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    thickness = dimensionResource(id = R.dimen.dimen_1), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.2f
                     )
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
 
                 // --- Bigha Section ---
                 Text(
@@ -285,7 +285,7 @@ fun MainBottomSheet(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
                 val bighas = MeasurementConverter.getAllBighaUnits()
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.corner_sm))) {
                     bighas.forEach { bigha ->
                         val converted = MeasurementConverter.convertArea(areaSqFt, bigha)
                         ConversionRow3(
@@ -297,13 +297,13 @@ fun MainBottomSheet(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
                 HorizontalDivider(
-                    thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    thickness = dimensionResource(id = R.dimen.dimen_1), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.2f
                     )
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
 
                 // --- Other Local Units Section ---
                 Text(
@@ -314,7 +314,7 @@ fun MainBottomSheet(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
                 val locals = MeasurementConverter.getOtherLocalUnits()
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.corner_sm))) {
                     locals.forEach { local ->
                         val converted = MeasurementConverter.convertArea(areaSqFt, local.second)
                         ConversionRow3(
@@ -325,7 +325,7 @@ fun MainBottomSheet(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
             }
         }
     }
@@ -385,7 +385,7 @@ fun MainBottomSheet(
                                         symbol else perimeterUnit2 = symbol
                                     showPerimeterUnitSelectorFor.value = null
                                 }
-                                .padding(horizontal = 8.dp, vertical = 16.dp),
+                                .padding(horizontal = dimensionResource(id = R.dimen.corner_sm), vertical = dimensionResource(id = R.dimen.text_lg)),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -405,7 +405,7 @@ fun MainBottomSheet(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
                 }
             }
         }
@@ -415,7 +415,7 @@ fun MainBottomSheet(
 @Composable
 fun MainCustomBottomSheet(
     modifier: Modifier = Modifier,
-    peekHeight: Dp = 110.dp,
+    peekHeight: Dp = dimensionResource(id = R.dimen.dimen_110),
     expandedHeightRatio: Float = 0.93f,
     widthRatio: Float = 1f,
     initialExpanded: Boolean = false,
@@ -478,8 +478,8 @@ fun MainCustomBottomSheet(
                 }
             ),
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        shadowElevation = 8.dp
+        shape = RoundedCornerShape(topStart = dimensionResource(id = R.dimen.text_xxl), topEnd = dimensionResource(id = R.dimen.text_xxl)),
+        shadowElevation = dimensionResource(id = R.dimen.corner_sm)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Sheet Content
@@ -516,9 +516,9 @@ fun MeasurementCard(
             }
         ),
         color = color.copy(alpha = 0.3f),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm))
     ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
+        Column(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.spacing_xs))) {
             Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -537,7 +537,7 @@ fun MeasurementCard(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Change Unit",
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxl))
                 )
             }
         }
@@ -557,9 +557,9 @@ fun ConversionRow3(
         modifier = modifier
             .background(
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                RoundedCornerShape(8.dp)
+                RoundedCornerShape(dimensionResource(id = R.dimen.corner_sm))
             )
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.corner_sm)))
             .combinedClickable(
                 onClick = {
                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
@@ -576,7 +576,7 @@ fun ConversionRow3(
                         .show()
                 }
             )
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.dimen_10)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.example.satmeasure.R
 
@@ -41,7 +42,7 @@ fun HowToCoordinatesScreen(
                         onBackClick()
                     }) {
                         // iOS Style Back Arrow
-                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 }
             )
@@ -52,14 +53,14 @@ fun HowToCoordinatesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(dimensionResource(id = R.dimen.text_lg)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_lg))
         ) {
             Text(
                 text = stringResource(R.string.desc_how_to_find_coordinates),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.corner_sm))
             )
 
             StepCard(
@@ -90,15 +91,15 @@ fun HowToCoordinatesScreen(
                 desc = stringResource(R.string.step_paste_go_desc)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
 
             Button(
                 onClick = {
                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                     onBackClick()
                 },
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(12.dp)
+                modifier = Modifier.fillMaxWidth().height(dimensionResource(id = R.dimen.button_height)),
+                shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm))
             ) {
                 Text(stringResource(R.string.action_got_it_take_me_back), style = MaterialTheme.typography.titleMedium)
             }
@@ -113,21 +114,21 @@ fun StepCard(stepNum: Int, icon: ImageVector, title: String, desc: String) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.text_lg)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(dimensionResource(id = R.dimen.icon_xl))
                     .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
             }
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_lg)))
             Column {
                 Text(stringResource(R.string.format_step_title, stepNum, title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
                 Text(desc, style = MaterialTheme.typography.bodyMedium)
             }
         }

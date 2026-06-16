@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.satmeasure.BuildConfig
@@ -121,9 +122,9 @@ fun SearchScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = dimensionResource(id = R.dimen.text_lg))
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
             // --- 1. THE CUSTOM SEARCH PILL ---
             TextField(
@@ -139,16 +140,16 @@ fun SearchScreen(
                             onBackClick()
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = stringResource(id = R.string.cd_back))
                     }
                 },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, "Clear")
+                            Icon(Icons.Default.Clear, stringResource(id = R.string.clear))
                         }
                     } else {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
+                        Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search))
                     }
                 },
                 shape = CircleShape,
@@ -164,7 +165,7 @@ fun SearchScreen(
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
 
             // --- 2. THE SUGGESTIONS LIST (Appears when typing) ---
             AnimatedVisibility(
@@ -174,11 +175,11 @@ fun SearchScreen(
             ) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)),
                     // Also applying the native color to the dropdown for consistency
                     color = nativeSearchBarColor
                 ) {
-                    LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                    LazyColumn(modifier = Modifier.heightIn(max = dimensionResource(id = R.dimen.dimen_300))) {
                         items(suggestions) { suggestion ->
                             Box(
                                 modifier = Modifier
@@ -188,14 +189,14 @@ fun SearchScreen(
                                         searchQuery = suggestion.name
                                         onCoordinateSearch(suggestion.lat, suggestion.lng)
                                     }
-                                    .padding(16.dp)
+                                    .padding(dimensionResource(id = R.dimen.text_lg))
                             ) {
                                 Text(
                                     text = suggestion.name,
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_lg)))
                         }
                     }
                 }
@@ -209,14 +210,14 @@ fun SearchScreen(
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_xxxl)),
                     // Applied the exact native SearchBar color to the Card!
                     colors = CardDefaults.cardColors(
                         containerColor = nativeSearchBarColor
                     )
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.text_xxl)),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -227,7 +228,7 @@ fun SearchScreen(
                             modifier = Modifier.align(Alignment.Start)
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
                         OutlinedTextField(
                             value = coordinateInput,
@@ -236,18 +237,18 @@ fun SearchScreen(
                             placeholder = { Text(stringResource(R.string.hint_lat_lng_example)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
                             singleLine = true,
                             trailingIcon = {
                                 if (coordinateInput.isNotEmpty()) {
                                     IconButton(onClick = { coordinateInput = "" }) {
-                                        Icon(Icons.Default.Clear, "Clear")
+                                        Icon(Icons.Default.Clear, stringResource(id = R.string.clear))
                                     }
                                 }
                             }
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
                         val msgInvalidNumbers = stringResource(id = R.string.msg_invalid_numbers)
                         val msgUseComma = stringResource(id = R.string.msg_use_comma_to_separate)
@@ -270,21 +271,21 @@ fun SearchScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp),
-                            shape = RoundedCornerShape(16.dp),
+                                .height(dimensionResource(id = R.dimen.button_height)),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)),
                             enabled = coordinateInput.contains(",")
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm)))
                             Text(
                                 stringResource(R.string.action_go_to_coordinates),
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(24.dp))
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_xxxl)))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxl)))
 
                         // Helper Buttons Row
                         Row(
@@ -309,9 +310,9 @@ fun SearchScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Map, contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xl))
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_sm_minus)))
                                 Text(stringResource(R.string.action_open_gmaps))
                             }
 
@@ -324,9 +325,9 @@ fun SearchScreen(
                             ) {
                                 Icon(
                                     Icons.Default.TouchApp, contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xl))
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_sm_minus)))
                                 Text(stringResource(R.string.action_how_to_find))
                             }
                         }

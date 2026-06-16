@@ -15,10 +15,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material3.*
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -129,10 +139,10 @@ fun AboutUsScreen(
                     modifier = Modifier
                         .fillMaxWidth(if (isLandscape) 0.5f else 1f)
                         .padding(
-                            top = paddingValues.calculateTopPadding() + 16.dp,
-                            bottom = paddingValues.calculateBottomPadding() + 32.dp,
-                            start = 16.dp,
-                            end = 16.dp
+                            top = paddingValues.calculateTopPadding() + dimensionResource(id = R.dimen.text_lg),
+                            bottom = paddingValues.calculateBottomPadding() + dimensionResource(id = R.dimen.icon_lg),
+                            start = dimensionResource(id = R.dimen.text_lg),
+                            end = dimensionResource(id = R.dimen.text_lg)
                         )
                         .drawBehind {
                             val paint = Paint().apply {
@@ -155,7 +165,7 @@ fun AboutUsScreen(
                                 )
                             }
                         }
-                        .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 24.dp),
+                        .padding(start = dimensionResource(id = R.dimen.text_xxxl), end = dimensionResource(id = R.dimen.text_xxxl), bottom = dimensionResource(id = R.dimen.text_xxxl), top = dimensionResource(id = R.dimen.text_xxxl)),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
@@ -163,9 +173,9 @@ fun AboutUsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                horizontal = 4.dp
+                                horizontal = dimensionResource(id = R.dimen.spacing_xs)
                             ) // 24dp (from parent) + 4dp = 28dp total inner padding
-                            .padding(bottom = 32.dp),
+                            .padding(bottom = dimensionResource(id = R.dimen.icon_lg)),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(modifier = Modifier.fillMaxWidth()) {
@@ -173,42 +183,42 @@ fun AboutUsScreen(
                                 modifier = Modifier.align(Alignment.CenterStart)
                             ) {
                                 Text(
-                                    text = "Developed and",
+                                    text = stringResource(id = R.string.developed_and),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.padding(end = 40.dp)
+                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.dimen_40))
                                 )
                                 Text(
-                                    text = "designed by",
+                                    text = stringResource(id = R.string.designed_by),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.padding(end = 120.dp)
+                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.dimen_120))
                                 )
                                 Text(
-                                    text = "Ashok Swami",
+                                    text = stringResource(id = R.string.ashok_swami),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(end = 40.dp)
+                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.dimen_40))
                                 )
                             }
 
                             Box(
                                 modifier = Modifier
-                                    .size(100.dp)
+                                    .size(dimensionResource(id = R.dimen.dimen_100))
                                     .align(Alignment.CenterEnd)
                                     .background(
                                         MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                                         CircleShape
                                     )
-                                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                                    .border(dimensionResource(id = R.dimen.spacing_xxs), MaterialTheme.colorScheme.primary, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.profile),
-                                    contentDescription = "Profile Photo",
+                                    contentDescription = stringResource(id = R.string.profile_photo),
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -223,7 +233,7 @@ fun AboutUsScreen(
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
                     val glassBorder = BorderStroke(
-                        width = 1.dp,
+                        width = dimensionResource(id = R.dimen.dimen_1),
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                     )
 
@@ -232,7 +242,7 @@ fun AboutUsScreen(
                         onClick = { openLink(GITHUB_LINK) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(dimensionResource(id = R.dimen.icon_xl)),
                         shape = CircleShape,
                         colors = glassButtonColors,
                         border = glassBorder
@@ -244,19 +254,19 @@ fun AboutUsScreen(
                                 modifier = Modifier.align(Alignment.CenterStart)
                             )
                             Text(
-                                "GitHub", fontSize = 16.sp,
+                                stringResource(id = R.string.github), fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
                     OutlinedButton(
                         onClick = { openLink(TWITTER_LINK) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(dimensionResource(id = R.dimen.icon_xl)),
                         shape = CircleShape,
                         colors = glassButtonColors,
                         border = glassBorder
@@ -268,19 +278,19 @@ fun AboutUsScreen(
                                 modifier = Modifier.align(Alignment.CenterStart)
                             )
                             Text(
-                                "Twitter / X", fontSize = 16.sp,
+                                stringResource(id = R.string.twitter_x), fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
                     OutlinedButton(
                         onClick = { openLink(INSTAGRAM_LINK) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(dimensionResource(id = R.dimen.icon_xl)),
                         shape = CircleShape,
                         colors = glassButtonColors,
                         border = glassBorder
@@ -292,19 +302,19 @@ fun AboutUsScreen(
                                 modifier = Modifier.align(Alignment.CenterStart)
                             )
                             Text(
-                                "Instagram", fontSize = 16.sp,
+                                stringResource(id = R.string.instagram), fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
                     OutlinedButton(
                         onClick = { openLink(LINKEDIN_LINK) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(dimensionResource(id = R.dimen.icon_xl)),
                         shape = CircleShape,
                         colors = glassButtonColors,
                         border = glassBorder
@@ -316,27 +326,27 @@ fun AboutUsScreen(
                                 modifier = Modifier.align(Alignment.CenterStart)
                             )
                             Text(
-                                "LinkedIn", fontSize = 16.sp,
+                                stringResource(id = R.string.linkedin), fontSize = 16.sp,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
                     // Feedback Button
                     OutlinedButton(
                         onClick = { openLink(FEEDBACK_EMAIL) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(dimensionResource(id = R.dimen.icon_xl)),
                         shape = CircleShape,
                         colors = ButtonDefaults.outlinedButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                             contentColor = MaterialTheme.colorScheme.primary
                         ),
                         border = BorderStroke(
-                            width = 1.dp,
+                            width = dimensionResource(id = R.dimen.dimen_1),
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
                     ) {
@@ -347,7 +357,7 @@ fun AboutUsScreen(
                                 modifier = Modifier.align(Alignment.CenterStart)
                             )
                             Text(
-                                text = "Send Feedback",
+                                text = stringResource(id = R.string.send_feedback),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.align(Alignment.Center)
@@ -365,7 +375,7 @@ fun AboutUsScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.TopStart)
-                    .padding(16.dp)
+                    .padding(dimensionResource(id = R.dimen.text_lg))
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                         shape = CircleShape
@@ -373,8 +383,8 @@ fun AboutUsScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
-                    contentDescription = "Back",
-                    modifier = Modifier.padding(start = 8.dp)
+                    contentDescription = stringResource(id = R.string.cd_back),
+                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.corner_sm))
                 )
             }
         }

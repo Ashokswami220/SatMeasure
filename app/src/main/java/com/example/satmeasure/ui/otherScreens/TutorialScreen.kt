@@ -6,7 +6,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material3.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,8 +44,8 @@ fun TutorialScreen(
             ) {
                 Icon(
                     Icons.AutoMirrored.Rounded.ArrowBackIos,
-                    contentDescription = "Back",
-                    modifier = Modifier.padding(start = 6.dp)
+                    contentDescription = stringResource(id = R.string.cd_back),
+                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.spacing_sm_minus))
                 )
             }
 
@@ -57,7 +59,7 @@ fun TutorialScreen(
                 enableMergePaths = true,
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .size(400.dp)
+                    .size(dimensionResource(id = R.dimen.dimen_400))
             )
         }
     }

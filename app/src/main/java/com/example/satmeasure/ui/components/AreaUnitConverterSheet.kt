@@ -74,8 +74,8 @@ fun AreaUnitSelectorSheet(
         Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_md))) {
             Box(
                 modifier = Modifier
-                    .width(40.dp)
-                    .height(4.dp)
+                    .width(dimensionResource(id = R.dimen.dimen_40))
+                    .height(dimensionResource(id = R.dimen.spacing_xs))
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
                     .align(Alignment.CenterHorizontally)
@@ -216,7 +216,7 @@ fun CustomAreaUnitSelectorSheet(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) { },
-                peekHeight = 0.dp,
+                peekHeight = dimensionResource(id = R.dimen.dimen_0),
                 expandedHeightRatio = if (isLandscape) 0.8f else 0.55f,
                 widthRatio = if (isLandscape) 0.5f else 1f,
                 initialExpanded = true,

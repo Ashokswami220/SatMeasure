@@ -260,7 +260,7 @@ fun ExportPdfDialog(
                                     columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(
                                         if (isLandscape) 3 else 2
                                     ),
-                                    contentPadding = PaddingValues(bottom = 8.dp),
+                                    contentPadding = PaddingValues(bottom = dimensionResource(id = R.dimen.corner_sm)),
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     items(unitsForPage.size) { i ->
@@ -333,7 +333,7 @@ fun ExportPdfDialog(
                                     }
                                 }
                             }
-                            VerticalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+                            VerticalDivider(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.corner_sm)))
                             pagerContent(Modifier.weight(0.65f))
                         }
                     } else {
@@ -361,7 +361,7 @@ fun ExportPdfDialog(
                         pagerContent(
                             Modifier
                                 .weight(1f)
-                                .padding(top = 8.dp)
+                                .padding(top = dimensionResource(id = R.dimen.corner_sm))
                         )
                     }
 
@@ -396,14 +396,14 @@ private fun CheckboxRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = dimensionResource(id = R.dimen.spacing_xxs)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
             checked = checked,
             onCheckedChange = onCheckedChange
         )
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_xs)))
         Text(
             text = label,
             fontSize = 13.sp,

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.background
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -40,7 +41,7 @@ import com.example.satmeasure.ui.components.MainCustomBottomSheet
 import com.example.satmeasure.ui.navigation.MapStyleBottomSheet
 import com.example.satmeasure.ui.components.MainBottomSheet
 import com.example.satmeasure.ui.components.ExportPdfDialog
-import com.example.satmeasure.ui.navigation.availableMapStyles
+import com.example.satmeasure.ui.navigation.getAvailableMapStyles
 import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import com.example.satmeasure.ui.viewmodel.MapViewModel
 import com.example.satmeasure.ui.viewmodel.MapAction
@@ -67,9 +68,9 @@ fun MainScreen(
     onNavigate: (String) -> Unit,
     mapViewModel: MapViewModel,
     authViewModel: AuthViewModel,
-    portraitPeekHeight: Dp = 120.dp,
+    portraitPeekHeight: Dp = dimensionResource(id = R.dimen.dimen_120),
     portraitExpandedHeightRatio: Float = 0.5f,
-    landscapePeekHeight: Dp = 100.dp,
+    landscapePeekHeight: Dp = dimensionResource(id = R.dimen.dimen_100),
     landscapeExpandedHeightRatio: Float = 0.93f
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -122,7 +123,7 @@ fun MainScreen(
 
     val isDarkTheme = isSystemInDarkTheme()
     val currentStyleOption =
-        availableMapStyles.find { it.id == currentMapStyleId } ?: availableMapStyles.first()
+        getAvailableMapStyles().find { it.id == currentMapStyleId } ?: getAvailableMapStyles().first()
     val currentStyleUri =
         if (isDarkTheme) currentStyleOption.darkStyleUri else currentStyleOption.lightStyleUri
 
@@ -268,7 +269,7 @@ fun MainScreen(
                         SatMapComponent(
                             modifier = Modifier.fillMaxSize(),
                             currentMapStyle = currentStyleUri,
-                            bottomPadding = 50.dp,
+                            bottomPadding = dimensionResource(id = R.dimen.dimen_50),
                             viewModel = mapViewModel,
                             onMapInteract = handleMapInteract,
                             onMeasurementsUpdated = { area, perimeter ->

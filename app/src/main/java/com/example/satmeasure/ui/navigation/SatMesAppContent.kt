@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import android.content.Intent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.BorderStroke
@@ -84,19 +85,20 @@ import com.example.satmeasure.ui.map.models.MapStyleOption
 import com.example.satmeasure.ui.viewmodel.AuthViewModel
 import coil.compose.AsyncImage
 
-val availableMapStyles = listOf(
+@Composable
+fun getAvailableMapStyles() = listOf(
     MapStyleOption(
-        "satellite_streets", "Satellite & Streets", Style.SATELLITE_STREETS,
+        "satellite_streets", stringResource(id = R.string.satellite_streets), Style.SATELLITE_STREETS,
         Style.SATELLITE_STREETS, R.drawable.satellite_map
     ),
     MapStyleOption(
-        "standard", "Standard Navigation", Style.STANDARD, Style.STANDARD, R.drawable.standard_map
+        "standard", stringResource(id = R.string.standard_navigation), Style.STANDARD, Style.STANDARD, R.drawable.standard_map
     ),
     MapStyleOption(
-        "outdoors", "Terrain & Outdoors", Style.OUTDOORS, Style.OUTDOORS, R.drawable.terrain_map
+        "outdoors", stringResource(id = R.string.terrain_outdoors), Style.OUTDOORS, Style.OUTDOORS, R.drawable.terrain_map
     ),
     MapStyleOption(
-        "satellite", "Pure Satellite", Style.STANDARD_SATELLITE, Style.SATELLITE,
+        "satellite", stringResource(id = R.string.pure_satellite), Style.STANDARD_SATELLITE, Style.SATELLITE,
         R.drawable.satellite_map
     )
 )
@@ -130,7 +132,7 @@ fun MainTopControls(
         modifier = Modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(16.dp)
+            .padding(dimensionResource(id = R.dimen.text_lg))
     ) {
         // --- LEFT: Hamburger Menu ---
         FloatingActionButton(
@@ -143,9 +145,9 @@ fun MainTopControls(
             contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .size(52.dp)
+                .size(dimensionResource(id = R.dimen.button_height))
         ) {
-            Icon(Icons.Default.Menu, contentDescription = "Open Menu")
+            Icon(Icons.Default.Menu, contentDescription = stringResource(id = R.string.open_menu))
         }
 
         // --- RIGHT: Expandable Action Button ---
@@ -157,7 +159,7 @@ fun MainTopControls(
                 AnimatedVisibility(visible = expanded) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(end = 12.dp)
+                        modifier = Modifier.padding(end = dimensionResource(id = R.dimen.text_sm))
                     ) {
                         SmallFloatingActionButton(
                             onClick = {
@@ -165,14 +167,14 @@ fun MainTopControls(
                                 onExpandedChange(false)
                                 onSearchClick()
                             },
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_10)),
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Search, contentDescription = "Search Location")
+                            Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search_location))
                         }
 
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_sm)))
 
                         SmallFloatingActionButton(
                             onClick = {
@@ -180,11 +182,11 @@ fun MainTopControls(
                                 onExpandedChange(false)
                                 onStyleToggle()
                             },
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_10)),
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Map, contentDescription = "Toggle Style")
+                            Icon(Icons.Default.Map, contentDescription = stringResource(id = R.string.toggle_style))
                         }
                     }
                 }
@@ -197,11 +199,11 @@ fun MainTopControls(
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(52.dp)
+                    modifier = Modifier.size(dimensionResource(id = R.dimen.button_height))
                 ) {
                     Icon(
                         Icons.Default.ExpandMore,
-                        contentDescription = "Expand Options",
+                        contentDescription = stringResource(id = R.string.expand_options),
                         modifier = Modifier.rotate(rotation)
                     )
                 }
@@ -219,11 +221,11 @@ fun MainTopControls(
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(52.dp)
+                    modifier = Modifier.size(dimensionResource(id = R.dimen.button_height))
                 ) {
                     Icon(
                         Icons.Default.ExpandMore,
-                        contentDescription = "Expand Options",
+                        contentDescription = stringResource(id = R.string.expand_options),
                         modifier = Modifier.rotate(rotation)
                     )
                 }
@@ -231,7 +233,7 @@ fun MainTopControls(
                 AnimatedVisibility(visible = expanded) {
                     Column(
                         horizontalAlignment = Alignment.End,
-                        modifier = Modifier.padding(top = 12.dp)
+                        modifier = Modifier.padding(top = dimensionResource(id = R.dimen.text_sm))
                     ) {
                         SmallFloatingActionButton(
                             onClick = {
@@ -239,14 +241,14 @@ fun MainTopControls(
                                 onExpandedChange(false)
                                 onSearchClick()
                             },
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_10)),
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Search, contentDescription = "Search Location")
+                            Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search_location))
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
 
                         SmallFloatingActionButton(
                             onClick = {
@@ -254,11 +256,11 @@ fun MainTopControls(
                                 onExpandedChange(false)
                                 onStyleToggle()
                             },
-                            shape = RoundedCornerShape(10.dp),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_10)),
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Map, contentDescription = "Toggle Style")
+                            Icon(Icons.Default.Map, contentDescription = stringResource(id = R.string.toggle_style))
                         }
                     }
                 }
@@ -307,12 +309,12 @@ fun AppSidebar(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                Spacer(modifier = Modifier.height(if (isLandscape) 4.dp else 16.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.text_lg)))
 
                 val titlePadding = if (isLandscape) {
-                    Modifier.padding(start = 22.dp, end = 22.dp, top = 10.dp, bottom = 10.dp)
+                    Modifier.padding(start = dimensionResource(id = R.dimen.dimen_22), end = dimensionResource(id = R.dimen.dimen_22), top = dimensionResource(id = R.dimen.dimen_10), bottom = dimensionResource(id = R.dimen.dimen_10))
                 } else {
-                    Modifier.padding(start = 22.dp, end = 22.dp, top = 0.dp, bottom = 16.dp)
+                    Modifier.padding(start = dimensionResource(id = R.dimen.dimen_22), end = dimensionResource(id = R.dimen.dimen_22), top = dimensionResource(id = R.dimen.dimen_0), bottom = dimensionResource(id = R.dimen.text_lg))
                 }
 
                 Text(
@@ -327,23 +329,23 @@ fun AppSidebar(
 
                 // Profile Section (Alive and Premium)
                 val profilePadding = if (isLandscape) {
-                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.corner_sm))
                 } else {
-                    Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.text_lg))
                 }
 
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .then(profilePadding)
-                        .clip(RoundedCornerShape(16.dp)),
+                        .clip(RoundedCornerShape(dimensionResource(id = R.dimen.text_lg))),
                     color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg))
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.text_sm))
                     ) {
                         // Sleek Row Layout
                         Row(
@@ -352,7 +354,7 @@ fun AppSidebar(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(48.dp)
+                                    .size(dimensionResource(id = R.dimen.icon_xl))
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.tertiary),
                                 contentAlignment = Alignment.Center
@@ -360,7 +362,7 @@ fun AppSidebar(
                                 if (authState.currentUser?.photoUrl != null) {
                                     AsyncImage(
                                         model = authState.currentUser?.photoUrl,
-                                        contentDescription = "Profile Picture",
+                                        contentDescription = stringResource(id = R.string.profile_picture),
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 } else if (authState.currentUser != null) {
@@ -377,13 +379,13 @@ fun AppSidebar(
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Person,
-                                        contentDescription = "Profile Picture",
-                                        modifier = Modifier.size(24.dp),
+                                        contentDescription = stringResource(id = R.string.profile_picture),
+                                        modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxxl)),
                                         tint = MaterialTheme.colorScheme.onTertiary
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_lg)))
                             Column(modifier = Modifier.weight(1f)) {
                                 if (authState.currentUser != null) {
                                     Text(
@@ -393,7 +395,7 @@ fun AppSidebar(
                                         color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1
                                     )
-                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xxs)))
                                     Text(
                                         text = authState.currentUser?.email ?: "",
                                         style = MaterialTheme.typography.bodySmall,
@@ -412,7 +414,7 @@ fun AppSidebar(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
 
                         // Auth Button
                         OutlinedButton(
@@ -426,24 +428,24 @@ fun AppSidebar(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(40.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
-                            contentPadding = PaddingValues(0.dp),
+                                .height(dimensionResource(id = R.dimen.dimen_40)),
+                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
+                            border = BorderStroke(dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.tertiary),
+                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0)),
                             colors = outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.tertiary
                             )
                         ) {
                             if (authState.isLoading) {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
+                                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxl)),
                                     color = MaterialTheme.colorScheme.tertiary,
-                                    strokeWidth = 2.dp
+                                    strokeWidth = dimensionResource(id = R.dimen.spacing_xxs)
                                 )
                             } else if (authState.currentUser == null) {
                                 Text(
                                     "G", fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(end = 8.dp)
+                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.corner_sm))
                                 )
                                 Text(stringResource(id = R.string.action_sign_in_with_google))
                             } else {
@@ -451,8 +453,8 @@ fun AppSidebar(
                                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(18.dp)
-                                        .padding(end = 4.dp)
+                                        .size(dimensionResource(id = R.dimen.text_xl))
+                                        .padding(end = dimensionResource(id = R.dimen.spacing_xs))
                                 )
                                 Text(stringResource(id = R.string.action_logout))
                             }
@@ -461,19 +463,19 @@ fun AppSidebar(
                 }
 
                 HorizontalDivider()
-                Spacer(modifier = Modifier.height(if (isLandscape) 4.dp else 8.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.corner_sm)))
 
                 val itemPadding = if (isLandscape) {
-                    Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
+                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.corner_sm), vertical = dimensionResource(id = R.dimen.dimen_0))
                 } else {
-                    Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.corner_sm), vertical = dimensionResource(id = R.dimen.spacing_xxs))
                 }
 
                 NavigationDrawerItem(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_saved_areas),
-                            modifier = Modifier.padding(start = 12.dp)
+                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
                         )
                     },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
@@ -487,7 +489,7 @@ fun AppSidebar(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_tutorial),
-                            modifier = Modifier.padding(start = 12.dp)
+                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
                         )
                     },
                     icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
@@ -501,7 +503,7 @@ fun AppSidebar(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_about_us),
-                            modifier = Modifier.padding(start = 12.dp)
+                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
                         )
                     },
                     icon = { Icon(Icons.Default.Info, contentDescription = null) },
@@ -517,7 +519,7 @@ fun AppSidebar(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_share),
-                            modifier = Modifier.padding(start = 12.dp)
+                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
                         )
                     },
                     icon = { Icon(Icons.Default.Share, contentDescription = null) },
@@ -537,13 +539,13 @@ fun AppSidebar(
             }
 
             HorizontalDivider()
-            Spacer(modifier = Modifier.height(if (isLandscape) 4.dp else 8.dp))
+            Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.corner_sm)))
 
             NavigationDrawerItem(
                 label = {
                     Text(
                         stringResource(id = R.string.title_settings),
-                        modifier = Modifier.padding(start = 12.dp)
+                        modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
                     )
                 },
                 icon = { Icon(Icons.Default.Settings, contentDescription = null) },
@@ -554,10 +556,10 @@ fun AppSidebar(
                 }, // Smooth navigation applied
                 colors = itemColors,
                 modifier = Modifier.padding(
-                    start = 8.dp,
-                    end = 8.dp,
-                    bottom = if (isLandscape) 4.dp else 16.dp,
-                    top = if (isLandscape) 0.dp else 4.dp
+                    start = dimensionResource(id = R.dimen.corner_sm),
+                    end = dimensionResource(id = R.dimen.corner_sm),
+                    bottom = if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.text_lg),
+                    top = if (isLandscape) dimensionResource(id = R.dimen.dimen_0) else dimensionResource(id = R.dimen.spacing_xs)
                 )
             )
         }
@@ -578,26 +580,26 @@ fun MapStyleBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        shape = RoundedCornerShape(topStart = dimensionResource(id = R.dimen.text_lg), topEnd = dimensionResource(id = R.dimen.text_lg)),
         containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = null
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 8.dp)
+                .padding(start = dimensionResource(id = R.dimen.text_lg), end = dimensionResource(id = R.dimen.text_lg), bottom = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.corner_sm))
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
             Box(
                 modifier = Modifier
-                    .width(40.dp)
-                    .height(4.dp)
+                    .width(dimensionResource(id = R.dimen.dimen_40))
+                    .height(dimensionResource(id = R.dimen.spacing_xs))
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
                     .align(Alignment.CenterHorizontally)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
             // Header
             Row(
@@ -606,7 +608,7 @@ fun MapStyleBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Map Type",
+                    text = stringResource(id = R.string.map_type),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -616,15 +618,15 @@ fun MapStyleBottomSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
             // Grid
-            val chunkedStyles = availableMapStyles.chunked(chunkCount)
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            val chunkedStyles = getAvailableMapStyles().chunked(chunkCount)
+            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_lg))) {
                 chunkedStyles.forEach { rowStyles ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(32.dp)
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.icon_lg))
                     ) {
                         rowStyles.forEach { styleOpt ->
                             val isSelected = currentStyleId == styleOpt.id
@@ -634,14 +636,14 @@ fun MapStyleBottomSheet(
                             ) {
                                 Surface(
                                     onClick = { onStyleSelected(styleOpt.id) },
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
                                     color = Color.Transparent,
                                     border = if (isSelected) BorderStroke(
-                                        2.dp, MaterialTheme.colorScheme.primary
+                                        dimensionResource(id = R.dimen.spacing_xxs), MaterialTheme.colorScheme.primary
                                     ) else null,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(130.dp)
+                                        .height(dimensionResource(id = R.dimen.dimen_130))
                                 ) {
                                     Image(
                                         painter = painterResource(id = styleOpt.imageRes),
@@ -650,7 +652,7 @@ fun MapStyleBottomSheet(
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.corner_sm)))
                                 Text(
                                     text = styleOpt.name,
                                     style = MaterialTheme.typography.labelLarge,
@@ -666,7 +668,7 @@ fun MapStyleBottomSheet(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(if (isLandscape) 4.dp else 24.dp))
+            Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.text_xxxl)))
         }
     }
 }

@@ -1,7 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">SatMeasure</string>
 
-    <!-- Dialog Strings -->
+    
     <string name="dialog_title_are_you_sure">Are You Sure?</string>
     <string name="dialog_text_discard_warning">Going back will Wipe all the Data or Architecture</string>
     <string name="dialog_button_go_back">Go, Back</string>
@@ -162,4 +163,38 @@
     <string name="unit_dhur">Dhur (Bihar/Jharkhand)</string>
     <string name="unit_lecha">Lecha (Assam)</string>
     <string name="unit_decimal">Decimal (West Bengal)</string>
-</resources>
+<string name="developed_and">Developed and</string>
+    <string name="designed_by">designed by</string>
+    <string name="ashok_swami">Ashok Swami</string>
+    <string name="github">GitHub</string>
+    <string name="twitter_x">Twitter / X</string>
+    <string name="instagram">Instagram</string>
+    <string name="linkedin">LinkedIn</string>
+    <string name="send_feedback">Send Feedback</string>
+    <string name="profile_photo">Profile Photo</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="haptic_feedback">Haptic Feedback</string>
+    <string name="remove_ads">Remove Ads</string>
+    <string name="account">Account</string>
+    <string name="search">Search</string>
+    <string name="clear">Clear</string>
+    <string name="open_menu">Open Menu</string>
+    <string name="search_location">Search Location</string>
+    <string name="toggle_style">Toggle Style</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="expand_options">Expand Options</string>
+    <string name="map_type">Map Type</string>
+    <string name="error_unknown_credential">Unknown credential type.</string>
+    <string name="error_sign_in_failed">Sign-in failed.</string>
+    <string name="msg_account_deleted">Account deleted successfully.</string>
+    <string name="error_delete_account_failed">Failed to delete account.</string>
+    <string name="error_no_user_signed_in">No user signed in.</string>
+    <string name="msg_saved_successfully">Saved successfully!</string>
+    <string name="error_failed_to_save">Failed to save</string>
+    <string name="error_no_points_to_save">No points to save</string>
+    <string name="satellite_streets">Satellite &amp; Streets</string>
+    <string name="standard_navigation">Standard Navigation</string>
+    <string name="terrain_outdoors">Terrain &amp; Outdoors</string>
+    <string name="pure_satellite">Pure Satellite</string>
+    </resources>

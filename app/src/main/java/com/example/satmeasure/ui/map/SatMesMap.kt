@@ -199,7 +199,7 @@ fun createResizeNodeBitmap(context: Context): Bitmap {
 fun SatMapComponent(
     modifier: Modifier = Modifier,
     currentMapStyle: String,
-    bottomPadding: Dp = 0.dp,
+    bottomPadding: Dp = dimensionResource(id = R.dimen.dimen_0),
     viewModel: MapViewModel = viewModel(),
     onMapInteract: () -> Unit = {},
     onMeasurementsUpdated: (area: Double, perimeter: Double) -> Unit = { _, _ -> },
@@ -982,7 +982,7 @@ fun SatMapComponent(
         }
 
         val controlsBottomPadding =
-            if (isLandscape) dimensionResource(id = R.dimen.spacing_md) else bottomPadding + 16.dp
+            if (isLandscape) dimensionResource(id = R.dimen.spacing_md) else bottomPadding + dimensionResource(id = R.dimen.text_lg)
         val controlModifier = Modifier
             .align(Alignment.BottomEnd)
             .padding(
@@ -1041,7 +1041,7 @@ fun SatMapComponent(
         if (isLandscape) {
             Column(
                 modifier = controlModifier,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_sm)),
                 horizontalAlignment = Alignment.End
             ) {
                 CompassButton()
@@ -1138,7 +1138,7 @@ fun SatMapComponent(
         } else {
             Column(
                 modifier = controlModifier,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_lg)),
                 horizontalAlignment = Alignment.End
             ) {
                 CompassButton()

@@ -134,11 +134,11 @@ fun SettingsScreen(
                     )
                 ) {
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm_minus)))
                     
                     AppLanguageCard(
                         isDarkTheme = isDarkTheme,
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus))
                     )
 
                     HapticFeedbackCard(
@@ -149,11 +149,11 @@ fun SettingsScreen(
                                 settingsManager.setHaptics(it)
                             }
                         },
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus))
                     )
 
                     // Remove Ads
-                    RemoveAdsCard(modifier = Modifier.padding(vertical = 12.dp), isDarkTheme = isDarkTheme)
+                    RemoveAdsCard(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.text_sm)), isDarkTheme = isDarkTheme)
 
                     AppearanceCard(
                         dynamicColor = dynamicColor,
@@ -173,7 +173,7 @@ fun SettingsScreen(
                                 )
                             }
                         },
-                        modifier = Modifier.padding(vertical = 6.dp)
+                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus))
                     )
 
 
@@ -182,7 +182,7 @@ fun SettingsScreen(
                     AccountCard(
                         onDeleteDataClick = { setShowDeleteDataDialog(true) },
                         onDeleteAccountClick = { setShowDeleteAccountDialog(true) },
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_xs))
                     )
                 }
             }
@@ -198,7 +198,7 @@ fun SettingsScreen(
             if (isLandscape) {
                 Row(
                     modifier = Modifier
-                        .padding(horizontal = 4.dp, vertical = 8.dp)
+                        .padding(horizontal = dimensionResource(id = R.dimen.spacing_xs), vertical = dimensionResource(id = R.dimen.corner_sm))
                         .align(Alignment.TopStart),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -211,7 +211,7 @@ fun SettingsScreen(
                             contentDescription = stringResource(id = R.string.cd_back)
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm)))
                     Text(
                         text = stringResource(id = R.string.title_settings),
                         style = MaterialTheme.typography.titleLarge,
@@ -271,31 +271,31 @@ fun AppearanceCard(
             .padding(
                 horizontal = dimensionResource(id = R.dimen.spacing_lg)
             ),
-        shape = RoundedCornerShape(36.dp),
+        shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_36)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         )
     ) {
         Column {
             Text(
-                text = "Appearance",
+                text = stringResource(id = R.string.appearance),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.text_sm), bottom = dimensionResource(id = R.dimen.corner_sm))
             )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(start = dimensionResource(id = R.dimen.spacing_sm_minus), end = dimensionResource(id = R.dimen.spacing_sm_minus), bottom = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.corner_sm))
             ) {
                 SettingsToggleCard(
-                    title = "Theme Mode",
+                    title = stringResource(id = R.string.theme_mode),
                     subtitle = when (themeMode) {
-                        ThemeMode.DARK -> "Dark"
-                        ThemeMode.LIGHT -> "Light"
-                        ThemeMode.SYSTEM -> "System"
+                        ThemeMode.DARK -> stringResource(id = R.string.theme_dark)
+                        ThemeMode.LIGHT -> stringResource(id = R.string.theme_light)
+                        ThemeMode.SYSTEM -> stringResource(id = R.string.theme_system)
                     },
                     icon = Icons.Outlined.DarkMode,
                     checked = true,
@@ -307,7 +307,7 @@ fun AppearanceCard(
 
                         Box(
                             modifier = Modifier
-                                .padding(end = 7.dp, bottom = 7.dp)
+                                .padding(end = dimensionResource(id = R.dimen.dimen_7), bottom = dimensionResource(id = R.dimen.dimen_7))
                                 .onGloballyPositioned { pillSize = it.size }
                         ) {
                             if (!themeMenuExpanded) {
@@ -319,14 +319,14 @@ fun AppearanceCard(
                                             HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
                                             themeMenuExpanded = true 
                                         }
-                                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                                        .padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = when (themeMode) {
-                                            ThemeMode.DARK -> "Dark"
-                                            ThemeMode.LIGHT -> "Light"
-                                            ThemeMode.SYSTEM -> "System"
+                                            ThemeMode.DARK -> stringResource(id = R.string.theme_dark)
+                                            ThemeMode.LIGHT -> stringResource(id = R.string.theme_light)
+                                            ThemeMode.SYSTEM -> stringResource(id = R.string.theme_system)
                                         },
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onPrimary
@@ -354,20 +354,20 @@ fun AppearanceCard(
                                                     LocalDensity.current
                                                 ) { pillSize.width.toDp() })
                                             .border(
-                                                1.dp, MaterialTheme.colorScheme.onSurfaceVariant,
-                                                RoundedCornerShape(16.dp)
+                                                dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.onSurfaceVariant,
+                                                RoundedCornerShape(dimensionResource(id = R.dimen.text_lg))
                                             )
-                                            .clip(RoundedCornerShape(16.dp))
+                                            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)))
                                             .background(
                                                 MaterialTheme.colorScheme.surfaceContainerHigh
                                             )
-                                            .padding(4.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                            .padding(dimensionResource(id = R.dimen.spacing_xs)),
+                                        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_xs))
                                     ) {
                                         val options = listOf(
                                             ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.SYSTEM
                                         )
-                                        val labels = listOf("Light", "Dark", "System")
+                                        val labels = listOf(stringResource(id = R.string.theme_light), stringResource(id = R.string.theme_dark), stringResource(id = R.string.theme_system))
                                         options.forEachIndexed { index, mode ->
                                             val isSelected = themeMode == mode
                                             Box(
@@ -388,7 +388,7 @@ fun AppearanceCard(
                                                         )
                                                         else Modifier
                                                     )
-                                                    .padding(vertical = 6.dp),
+                                                    .padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
@@ -406,8 +406,8 @@ fun AppearanceCard(
                 )
 
                 SettingsToggleCard(
-                    title = "Dynamic Color",
-                    subtitle = "Material You",
+                    title = stringResource(id = R.string.title_dynamic_color),
+                    subtitle = stringResource(id = R.string.desc_dynamic_color),
                     icon = Icons.Default.Palette,
                     checked = dynamicColor,
                     isDarkTheme = isDarkTheme,
@@ -455,7 +455,7 @@ fun SettingsToggleCard(
         if (checked) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant
     Card(
         modifier = modifier.aspectRatio(1f),
-        shape = RoundedCornerShape(36.dp),
+        shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_36)),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
         Column(
@@ -466,8 +466,8 @@ fun SettingsToggleCard(
             Column {
                 Box(
                     modifier = Modifier
-                        .padding(start = 6.dp, top = 6.dp)
-                        .size(60.dp)
+                        .padding(start = dimensionResource(id = R.dimen.spacing_sm_minus), top = dimensionResource(id = R.dimen.spacing_sm_minus))
+                        .size(dimensionResource(id = R.dimen.dimen_60))
                         .clip(CircleShape)
                         .background(iconBgColor),
                     contentAlignment = Alignment.Center
@@ -476,10 +476,10 @@ fun SettingsToggleCard(
                         imageVector = icon,
                         contentDescription = null,
                         tint = iconColor,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(dimensionResource(id = R.dimen.icon_lg))
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium,
@@ -487,23 +487,23 @@ fun SettingsToggleCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_sm))
                 )
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xxs)))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_sm))
                 )
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+                    .padding(start = dimensionResource(id = R.dimen.spacing_sm_minus), end = dimensionResource(id = R.dimen.spacing_sm_minus), bottom = dimensionResource(id = R.dimen.spacing_sm_minus)),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -537,7 +537,7 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.corner_sm)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -553,7 +553,7 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
 
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(dimensionResource(id = R.dimen.dimen_42))
                         .clip(CircleShape)
                         .background(iconBgColor),
                     contentAlignment = Alignment.Center
@@ -562,11 +562,11 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
                         imageVector = Icons.Outlined.Language,
                         contentDescription = null,
                         tint = iconColor,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxl))
                     )
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_sm)))
 
                 Text(
                     text = stringResource(id = R.string.title_app_language),
@@ -580,19 +580,19 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
 
             Box(
                 modifier = Modifier
-                    .padding(end = 4.dp)
+                    .padding(end = dimensionResource(id = R.dimen.spacing_xs))
                     .onGloballyPositioned { languagePillSize = it.size }
             ) {
                 if (!languageMenuExpanded) {
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                            .border(dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.outline, CircleShape)
                             .clickable { 
                                 HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
                                 languageMenuExpanded = true 
                             }
-                            .padding(horizontal = 16.dp, vertical = 6.dp),
+                            .padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -620,15 +620,15 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
                                 .width(
                                     with(
                                         LocalDensity.current
-                                    ) { languagePillSize.width.toDp() }.let { if (it < 100.dp) 100.dp else it })
+                                    ) { languagePillSize.width.toDp() }.let { if (it < dimensionResource(id = R.dimen.dimen_100)) dimensionResource(id = R.dimen.dimen_100) else it })
                                 .border(
-                                    1.dp, MaterialTheme.colorScheme.onSurfaceVariant,
-                                    RoundedCornerShape(16.dp)
+                                    dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.onSurfaceVariant,
+                                    RoundedCornerShape(dimensionResource(id = R.dimen.text_lg))
                                 )
-                                .clip(RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)))
                                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                                .padding(4.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                .padding(dimensionResource(id = R.dimen.spacing_xs)),
+                            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_xs))
                         ) {
                             val options = listOf("en", "hi")
                             val labels = listOf(
@@ -658,7 +658,7 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
                                             )
                                             else Modifier
                                         )
-                                        .padding(vertical = 6.dp),
+                                        .padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -697,7 +697,7 @@ fun HapticFeedbackCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.corner_sm)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -717,7 +717,7 @@ fun HapticFeedbackCard(
 
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(dimensionResource(id = R.dimen.dimen_42))
                         .clip(CircleShape)
                         .background(iconBgColor),
                     contentAlignment = Alignment.Center
@@ -726,14 +726,14 @@ fun HapticFeedbackCard(
                         imageVector = Icons.Outlined.Vibration,
                         contentDescription = null,
                         tint = iconColor,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxl))
                     )
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_sm)))
 
                 Text(
-                    text = "Haptic Feedback",
+                    text = stringResource(id = R.string.haptic_feedback),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -748,7 +748,7 @@ fun HapticFeedbackCard(
                     onHapticsChange(it)
                 },
                 modifier = Modifier
-                    .padding(end = 4.dp)
+                    .padding(end = dimensionResource(id = R.dimen.spacing_xs))
                     .scale(0.85f)
             )
         }
@@ -866,19 +866,19 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(120.dp) // roughly 2x AppLanguageCard height
+            .height(dimensionResource(id = R.dimen.dimen_120)) // roughly 2x AppLanguageCard height
             .padding(horizontal = dimensionResource(id = R.dimen.spacing_lg)),
         shape = WavyShape(phaseOffset = phase),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
         ),
-        border = BorderStroke(4.dp, MaterialTheme.colorScheme.surfaceContainerHigh)
+        border = BorderStroke(dimensionResource(id = R.dimen.spacing_xs), MaterialTheme.colorScheme.surfaceContainerHigh)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable { /* TODO: Implement Remove Ads */ }
-                .padding(16.dp),
+                .padding(dimensionResource(id = R.dimen.text_lg)),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -888,7 +888,7 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(dimensionResource(id = R.dimen.icon_xl))
                         .clip(CircleShape)
                         .background(if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
                             alpha = 0.9f
@@ -898,7 +898,7 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
                     Icon(
                         Icons.Outlined.Block, contentDescription = null,
                         tint = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxxl))
                     )
                 }
                 Spacer(
@@ -906,12 +906,12 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
                 )
                 Column {
                     Text(
-                        "Remove Ads",
+                        stringResource(id = R.string.remove_ads),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xxs)))
                     Text(
                         "Enjoy an ad-free premium experience",
                         style = MaterialTheme.typography.bodySmall,
@@ -940,28 +940,28 @@ fun AccountCard(
             .padding(
                 horizontal = dimensionResource(id = R.dimen.spacing_lg)
             ),
-        shape = RoundedCornerShape(36.dp),
+        shape = RoundedCornerShape(dimensionResource(id = R.dimen.dimen_36)),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         )
     ) {
         Column(
-            modifier = Modifier.padding(bottom = 6.dp)
+            modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.spacing_sm_minus))
         ) {
             Text(
-                text = "Account",
+                text = stringResource(id = R.string.account),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.text_sm), bottom = dimensionResource(id = R.dimen.corner_sm))
             )
 
             Card(
                 onClick = onDeleteDataClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp)
-                    .padding(horizontal = 8.dp),
+                    .height(dimensionResource(id = R.dimen.dimen_70))
+                    .padding(horizontal = dimensionResource(id = R.dimen.corner_sm)),
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -970,12 +970,12 @@ fun AccountCard(
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = dimensionResource(id = R.dimen.corner_sm)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(dimensionResource(id = R.dimen.icon_xl))
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                         contentAlignment = Alignment.Center
@@ -983,7 +983,7 @@ fun AccountCard(
                         Icon(
                             Icons.Outlined.Delete, contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxxl))
                         )
                     }
                     Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_md)))
@@ -1002,14 +1002,14 @@ fun AccountCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.corner_sm)))
 
             Card(
                 onClick = onDeleteAccountClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp)
-                    .padding(horizontal = 8.dp),
+                    .height(dimensionResource(id = R.dimen.dimen_70))
+                    .padding(horizontal = dimensionResource(id = R.dimen.corner_sm)),
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -1018,12 +1018,12 @@ fun AccountCard(
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = dimensionResource(id = R.dimen.corner_sm)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(dimensionResource(id = R.dimen.icon_xl))
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                         contentAlignment = Alignment.Center
@@ -1031,7 +1031,7 @@ fun AccountCard(
                         Icon(
                             Icons.Outlined.PersonRemove, contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxxl))
                         )
                     }
                     Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_md)))
