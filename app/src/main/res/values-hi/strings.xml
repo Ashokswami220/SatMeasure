@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">सैटमेज़र (SatMeasure)</string>
 
-    
+
     <string name="dialog_title_are_you_sure">क्या आप सुनिश्चित हैं?</string>
     <string name="dialog_text_discard_warning">वापस जाने से सभी डेटा या वास्तुकला मिट जाएगी</string>
     <string name="dialog_button_go_back">वापस जाएँ</string>
@@ -40,7 +40,7 @@
     <string name="action_deselect_all">सभी का चयन रद्द करें</string>
     <string name="action_select_all">सभी चुनें</string>
     <string name="action_take_me_back">वापस ले चलें</string>
-    
+
     <string name="title_select_area_unit">क्षेत्रफल की इकाई चुनें</string>
     <string name="cd_selected">चयनित</string>
 
@@ -70,7 +70,7 @@
     <string name="cd_target">लक्ष्य</string>
     <string name="cd_reset_north">उत्तर रीसेट करें</string>
     <string name="cd_my_location">मेरा स्थान</string>
-    
+
     <string name="action_calculate_area">क्षेत्रफल की गणना करें</string>
     <string name="action_done">पूर्ण</string>
     <string name="action_edit">संपादित करें</string>
@@ -190,4 +190,4 @@
     <string name="terrain_outdoors">इलाका और बाहर</string>
     <string name="pure_satellite">शुद्ध सैटेलाइट</string>
     <string name="desc_enjoy_ad_free">विज्ञापन-मुक्त प्रीमियम अनुभव का आनंद लें</string>
-    </resources>
+</resources>

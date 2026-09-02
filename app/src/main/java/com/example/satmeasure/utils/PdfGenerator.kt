@@ -6,32 +6,30 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
-import com.example.satmeasure.data.model.PointData
-import com.example.satmeasure.utils.AreaUnit
-import com.example.satmeasure.utils.MeasurementConverter
+import androidx.core.graphics.scale
+import androidx.core.graphics.toColorInt
 import com.example.satmeasure.R
-import com.mapbox.maps.Snapshotter
-
+import com.example.satmeasure.data.model.PointData
+import com.example.satmeasure.ui.components.dialogs.PdfExportOptions
+import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapSnapshotOptions
 import com.mapbox.maps.Size
-import com.mapbox.maps.EdgeInsets
-import com.mapbox.geojson.Point
-import com.example.satmeasure.ui.components.dialogs.PdfExportOptions
+import com.mapbox.maps.Snapshotter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import kotlin.coroutines.resume
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.cos
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.tan
-import androidx.core.graphics.scale
-import androidx.core.graphics.toColorInt
 
 object PdfGenerator {
     suspend fun generatePdf(
@@ -53,11 +51,14 @@ object PdfGenerator {
                         .size(Size(800.0f, 800.0f))
                         .pixelRatio(2.0f)
                         .build()
-                    
+
                     val snapshotter = Snapshotter(context, snapshotterOptions)
                     snapshotter.setStyleUri(mapStyle)
                     val camera = if (points.size >= 2) {
-                        snapshotter.cameraForCoordinates(coordinates = points.map { Point.fromLngLat(it.lng, it.lat) }, padding = EdgeInsets(80.0, 80.0, 80.0, 80.0), bearing = 0.0, pitch = 0.0)
+                        snapshotter.cameraForCoordinates(
+                            coordinates = points.map { Point.fromLngLat(it.lng, it.lat) },
+                            padding = EdgeInsets(80.0, 80.0, 80.0, 80.0), bearing = 0.0, pitch = 0.0
+                        )
                     } else {
                         CameraOptions.Builder()
                             .center(Point.fromLngLat(centerLng, centerLat))
@@ -65,12 +66,14 @@ object PdfGenerator {
                             .build()
                     }
                     snapshotter.setCamera(camera)
-                    
+
                     snapshotter.start { snapshot, _ ->
                         // Determine the actual zoom and center used by the snapshotter
                         val finalZoom = camera.zoom ?: zoom
-                        val finalCenter = camera.center?.let { PointData(it.latitude(), it.longitude()) } ?: PointData(centerLat, centerLng)
-                        
+                        val finalCenter =
+                            camera.center?.let { PointData(it.latitude(), it.longitude()) }
+                                ?: PointData(centerLat, centerLng)
+
                         if (snapshot != null && points.isNotEmpty()) {
                             // Draw the polygon on the bitmap using Spherical Mercator projection
                             val mutableBitmap = snapshot.copy(Bitmap.Config.ARGB_8888, true)
@@ -109,7 +112,9 @@ object PdfGenerator {
                             fun latLngToPixel(lat: Double, lng: Double): Pair<Double, Double> {
                                 val x = (lng + 180.0) / 360.0 * worldSize
                                 val latRad = Math.toRadians(lat)
-                                val y = (1.0 - ln(tan(latRad) + 1.0 / cos(latRad)) / Math.PI) / 2.0 * worldSize
+                                val y = (1.0 - ln(
+                                    tan(latRad) + 1.0 / cos(latRad)
+                                ) / Math.PI) / 2.0 * worldSize
                                 return Pair(x, y)
                             }
 
@@ -120,7 +125,8 @@ object PdfGenerator {
                             points.forEachIndexed { index, pt ->
                                 val px = latLngToPixel(pt.lat, pt.lng)
                                 val screenX = (px.first - centerPixel.first + width / 2.0).toFloat()
-                                val screenY = (px.second - centerPixel.second + height / 2.0).toFloat()
+                                val screenY =
+                                    (px.second - centerPixel.second + height / 2.0).toFloat()
 
                                 if (index == 0) {
                                     path.moveTo(screenX, screenY)
@@ -128,7 +134,7 @@ object PdfGenerator {
                                     path.lineTo(screenX, screenY)
                                 }
                             }
-                            
+
                             if (points.size >= 3) {
                                 path.close()
                                 canvas.drawPath(path, fillPaint)
@@ -139,7 +145,8 @@ object PdfGenerator {
                             points.forEach { pt ->
                                 val px = latLngToPixel(pt.lat, pt.lng)
                                 val screenX = (px.first - centerPixel.first + width / 2.0).toFloat()
-                                val screenY = (px.second - centerPixel.second + height / 2.0).toFloat()
+                                val screenY =
+                                    (px.second - centerPixel.second + height / 2.0).toFloat()
                                 canvas.drawCircle(screenX, screenY, 8f, dotPaint)
                                 canvas.drawCircle(screenX, screenY, 8f, dotStrokePaint)
                             }
@@ -149,7 +156,7 @@ object PdfGenerator {
                             continuation.resume(snapshot)
                         }
                     }
-                    
+
                     continuation.invokeOnCancellation {
                         snapshotter.cancel()
                     }
@@ -161,13 +168,14 @@ object PdfGenerator {
 
         // 2. Generate PDF
         val document = PdfDocument()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 size
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1)
+            .create() // A4 size
         var currentPage = document.startPage(pageInfo)
         var canvas: Canvas = currentPage.canvas
         val paint = Paint()
 
         var currentY = 50f
-        
+
         fun checkPageBreak(requiredHeight: Float) {
             if (currentY + requiredHeight > 800f) {
                 document.finishPage(currentPage)
@@ -191,7 +199,7 @@ object PdfGenerator {
         val dateString = dateFormat.format(Date())
         canvas.drawText("Date: $dateString", 50f, currentY, paint)
         currentY += 55f
-        
+
         // Draw Summary Stats
         paint.textSize = 14f
 
@@ -206,21 +214,32 @@ object PdfGenerator {
             val feet = perimeterMeters * 3.28084
             val miles = perimeterMeters * 0.000621371
 
-            canvas.drawText(String.format(Locale.getDefault(), "Meters: %.2f m", perimeterMeters), 50f, currentY, paint)
+            canvas.drawText(
+                String.format(Locale.getDefault(), "Meters: %.2f m", perimeterMeters), 50f,
+                currentY, paint
+            )
             currentY += 20f
-            canvas.drawText(String.format(Locale.getDefault(), "Kilometers: %.4f km", km), 50f, currentY, paint)
+            canvas.drawText(
+                String.format(Locale.getDefault(), "Kilometers: %.4f km", km), 50f, currentY, paint
+            )
             currentY += 20f
-            canvas.drawText(String.format(Locale.getDefault(), "Feet: %.2f ft", feet), 50f, currentY, paint)
+            canvas.drawText(
+                String.format(Locale.getDefault(), "Feet: %.2f ft", feet), 50f, currentY, paint
+            )
             currentY += 20f
-            canvas.drawText(String.format(Locale.getDefault(), "Miles: %.4f mi", miles), 50f, currentY, paint)
+            canvas.drawText(
+                String.format(Locale.getDefault(), "Miles: %.4f mi", miles), 50f, currentY, paint
+            )
             currentY += 30f // Increased space after perimeter section
         }
 
         val areaSqFt = areaMeters * 10.7639
-        
-        val globalUnits = listOf(AreaUnit.SquareMeter, AreaUnit.SquareYard, AreaUnit.Acre, AreaUnit.Hectare)
+
+        val globalUnits =
+            listOf(AreaUnit.SquareMeter, AreaUnit.SquareYard, AreaUnit.Acre, AreaUnit.Hectare)
         val bighaUnits = MeasurementConverter.getAllBighaUnits()
-        val localUnits = MeasurementConverter.getOtherLocalUnits().map { it.second }
+        val localUnits = MeasurementConverter.getOtherLocalUnits()
+            .map { it.second }
 
         fun printCategory(title: String, units: List<AreaUnit>) {
             val selectedInCat = units.filter { options.selectedUnits.contains(it) }
@@ -228,18 +247,26 @@ object PdfGenerator {
                 val headerHeight = 30f
                 val itemsHeight = selectedInCat.size * 20f
                 checkPageBreak(headerHeight + itemsHeight)
-                
+
                 paint.isFakeBoldText = true
                 canvas.drawText("--- $title ---", 50f, currentY, paint)
                 paint.isFakeBoldText = false
                 currentY += 20f
 
                 for (unit in selectedInCat) {
-                    val displayName = when(unit) {
-                        is AreaUnit.Bigha -> "${context.getString(R.string.unit_bigha)} (${context.getString(unit.state.displayNameResId)})"
+                    val displayName = when (unit) {
+                        is AreaUnit.Bigha -> "${
+                            context.getString(
+                                R.string.unit_bigha
+                            )
+                        } (${context.getString(unit.state.displayNameResId)})"
+
                         else -> context.getString(unit.displayNameResId)
                     }
-                    val value = if (unit is AreaUnit.SquareMeter) areaMeters else MeasurementConverter.convertArea(areaSqFt, unit)
+                    val value =
+                        if (unit is AreaUnit.SquareMeter) areaMeters else MeasurementConverter.convertArea(
+                            areaSqFt, unit
+                        )
                     val str = String.format(Locale.getDefault(), "%s: %.4f", displayName, value)
                     canvas.drawText(str, 50f, currentY, paint)
                     currentY += 20f
@@ -251,17 +278,17 @@ object PdfGenerator {
         printCategory(context.getString(R.string.tab_global), globalUnits)
         printCategory(context.getString(R.string.tab_bigha), bighaUnits)
         printCategory(context.getString(R.string.tab_local_units), localUnits)
-        
+
         // Draw Map Snapshot
         if (snapshotBitmap != null) {
             val scale = 400f / snapshotBitmap.width
             val scaledWidth = (snapshotBitmap.width * scale).toInt()
             val scaledHeight = (snapshotBitmap.height * scale).toInt()
-            
+
             checkPageBreak(scaledHeight + 30f)
-            
+
             val scaledBitmap = snapshotBitmap.scale(scaledWidth, scaledHeight)
-            
+
             val xPos = (595f - scaledWidth) / 2f
             canvas.drawBitmap(scaledBitmap, xPos, currentY, paint)
             currentY += scaledHeight + 30f
@@ -276,23 +303,24 @@ object PdfGenerator {
             paint.isFakeBoldText = false
             paint.textSize = 12f
             currentY += 20f
-            
+
             points.forEachIndexed { i, pt ->
                 checkPageBreak(15f)
-                val coordinatesStr = String.format(Locale.getDefault(), "P%d: %.6f, %.6f", i+1, pt.lat, pt.lng)
+                val coordinatesStr =
+                    String.format(Locale.getDefault(), "P%d: %.6f, %.6f", i + 1, pt.lat, pt.lng)
                 canvas.drawText(coordinatesStr, 50f, currentY, paint)
                 currentY += 15f
             }
         }
 
         document.finishPage(currentPage)
-        
+
         val file = File(context.cacheDir, "${options.name.replace(' ', '_')}.pdf")
         withContext(Dispatchers.IO) {
             document.writeTo(FileOutputStream(file))
         }
         document.close()
-        
+
         return file
     }
 }

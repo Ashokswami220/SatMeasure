@@ -1,9 +1,17 @@
 package com.example.satmeasure.ui.screens
 
-import com.example.satmeasure.utils.HapticHelper
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,17 +22,26 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.example.satmeasure.R
+import com.example.satmeasure.utils.HapticHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +59,10 @@ fun HowToCoordinatesScreen(
                         onBackClick()
                     }) {
                         // iOS Style Back Arrow
-                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = stringResource(id = R.string.cd_back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBackIos,
+                            contentDescription = stringResource(id = R.string.cd_back)
+                        )
                     }
                 }
             )
@@ -98,10 +118,15 @@ fun HowToCoordinatesScreen(
                     HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                     onBackClick()
                 },
-                modifier = Modifier.fillMaxWidth().height(dimensionResource(id = R.dimen.button_height)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(dimensionResource(id = R.dimen.button_height)),
                 shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm))
             ) {
-                Text(stringResource(R.string.action_got_it_take_me_back), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.action_got_it_take_me_back),
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
     }
@@ -123,11 +148,17 @@ fun StepCard(stepNum: Int, icon: ImageVector, title: String, desc: String) {
                     .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                Icon(
+                    icon, contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
             Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_lg)))
             Column {
-                Text(stringResource(R.string.format_step_title, stepNum, title), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.format_step_title, stepNum, title),
+                    fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium
+                )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
                 Text(desc, style = MaterialTheme.typography.bodyMedium)
             }

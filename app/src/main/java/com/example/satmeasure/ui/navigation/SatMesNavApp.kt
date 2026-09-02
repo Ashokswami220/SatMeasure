@@ -1,4 +1,3 @@
-
 package com.example.satmeasure.ui.navigation
 
 import android.app.Activity
@@ -11,6 +10,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -18,26 +18,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.satmeasure.R
+import com.example.satmeasure.ui.auth.AuthViewModel
+import com.example.satmeasure.ui.map.MapAction
 import com.example.satmeasure.ui.map.MapViewModel
-import com.mapbox.geojson.Point
-import com.example.satmeasure.ui.screens.MainScreen
-import com.example.satmeasure.ui.screens.SavedScreen
 import com.example.satmeasure.ui.screens.AboutUsScreen
 import com.example.satmeasure.ui.screens.HowToCoordinatesScreen
+import com.example.satmeasure.ui.screens.MainScreen
+import com.example.satmeasure.ui.screens.SavedScreen
 import com.example.satmeasure.ui.screens.SearchScreen
 import com.example.satmeasure.ui.screens.SettingsScreen
 import com.example.satmeasure.ui.screens.TutorialScreen
-import com.example.satmeasure.ui.auth.AuthViewModel
-import com.example.satmeasure.ui.map.MapAction
-import com.example.satmeasure.R
+import com.mapbox.geojson.Point
 
 const val ANIM_DURATION = 400
 val ANIM_EASING = FastOutSlowInEasing
@@ -123,7 +122,8 @@ fun SatMesNavApp(initialPlotId: String? = null, initialOwnerId: String? = null) 
                         activity?.finish()
                     } else {
                         backPressedTime = currentTime
-                        Toast.makeText(context, exitMessage, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, exitMessage, Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
 
@@ -175,7 +175,9 @@ fun SatMesNavApp(initialPlotId: String? = null, initialOwnerId: String? = null) 
                     onBackClick = { navController.popBackStack() },
                     onHowToClick = { navController.navigate(SatMesRoutes.HOW_TO) },
                     onCoordinateSearch = { lat, lng ->
-                        mapViewModel.onAction(MapAction.SetCameraTargetBounds(listOf(Point.fromLngLat(lng, lat))))
+                        mapViewModel.onAction(
+                            MapAction.SetCameraTargetBounds(listOf(Point.fromLngLat(lng, lat)))
+                        )
                         navController.popBackStack()
                     },
                     currentUserLocation = mapUiState.currentUserLocation

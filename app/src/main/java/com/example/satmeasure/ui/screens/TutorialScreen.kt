@@ -1,24 +1,29 @@
 package com.example.satmeasure.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
-import androidx.compose.material3.*
-import androidx.compose.ui.res.stringResource
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.airbnb.lottie.RenderMode
-import com.example.satmeasure.R
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.satmeasure.R
 
 @Composable
 fun TutorialScreen(
@@ -44,13 +49,17 @@ fun TutorialScreen(
                 Icon(
                     Icons.AutoMirrored.Rounded.ArrowBackIos,
                     contentDescription = stringResource(id = R.string.cd_back),
-                    modifier = Modifier.padding(start = dimensionResource(id = R.dimen.spacing_sm_minus))
+                    modifier = Modifier.padding(
+                        start = dimensionResource(id = R.dimen.spacing_sm_minus)
+                    )
                 )
             }
 
             // Centered Lottie animation
-            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.site_under_construction))
-            
+            val composition by rememberLottieComposition(
+                LottieCompositionSpec.RawRes(R.raw.site_under_construction)
+            )
+
             LottieAnimation(
                 composition = composition,
                 iterations = LottieConstants.IterateForever,

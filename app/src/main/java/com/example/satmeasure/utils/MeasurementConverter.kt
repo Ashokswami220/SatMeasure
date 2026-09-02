@@ -22,30 +22,64 @@ sealed class AreaUnit {
     abstract val displayNameResId: Int
 
     // 1. Global Standard Units
-    data object SquareMeter : AreaUnit() { override val displayNameResId = R.string.unit_square_meter }
-    data object SquareYard : AreaUnit() { override val displayNameResId = R.string.unit_square_yard }
-    data object Acre : AreaUnit() { override val displayNameResId = R.string.unit_acre }
-    data object Hectare : AreaUnit() { override val displayNameResId = R.string.unit_hectare }
+    data object SquareMeter : AreaUnit() {
+        override val displayNameResId = R.string.unit_square_meter
+    }
+
+    data object SquareYard : AreaUnit() {
+        override val displayNameResId = R.string.unit_square_yard
+    }
+
+    data object Acre : AreaUnit() {
+        override val displayNameResId = R.string.unit_acre
+    }
+
+    data object Hectare : AreaUnit() {
+        override val displayNameResId = R.string.unit_hectare
+    }
 
     // 2. State-Specific "Bigha"
-    data class Bigha(val state: IndianState) : AreaUnit() { 
+    data class Bigha(val state: IndianState) : AreaUnit() {
         override val displayNameResId = R.string.unit_bigha
     }
 
     // 3. Regional North Indian Units
-    data object Kanal : AreaUnit() { override val displayNameResId = R.string.unit_kanal }
-    data object Marla : AreaUnit() { override val displayNameResId = R.string.unit_marla }
-    data class Biswa(val state: IndianState) : AreaUnit() { 
+    data object Kanal : AreaUnit() {
+        override val displayNameResId = R.string.unit_kanal
+    }
+
+    data object Marla : AreaUnit() {
+        override val displayNameResId = R.string.unit_marla
+    }
+
+    data class Biswa(val state: IndianState) : AreaUnit() {
         override val displayNameResId = R.string.unit_biswa
     }
 
     // 4. Regional East Indian Units
-    data object KathaAssam : AreaUnit() { override val displayNameResId = R.string.unit_katha_assam }
-    data object KathaBihar : AreaUnit() { override val displayNameResId = R.string.unit_katha_bihar }
-    data object KathaWestBengal : AreaUnit() { override val displayNameResId = R.string.unit_katha_wb }
-    data object Dhur : AreaUnit() { override val displayNameResId = R.string.unit_dhur }
-    data object Lecha : AreaUnit() { override val displayNameResId = R.string.unit_lecha }
-    data object Decimal : AreaUnit() { override val displayNameResId = R.string.unit_decimal }
+    data object KathaAssam : AreaUnit() {
+        override val displayNameResId = R.string.unit_katha_assam
+    }
+
+    data object KathaBihar : AreaUnit() {
+        override val displayNameResId = R.string.unit_katha_bihar
+    }
+
+    data object KathaWestBengal : AreaUnit() {
+        override val displayNameResId = R.string.unit_katha_wb
+    }
+
+    data object Dhur : AreaUnit() {
+        override val displayNameResId = R.string.unit_dhur
+    }
+
+    data object Lecha : AreaUnit() {
+        override val displayNameResId = R.string.unit_lecha
+    }
+
+    data object Decimal : AreaUnit() {
+        override val displayNameResId = R.string.unit_decimal
+    }
 }
 
 object MeasurementConverter {

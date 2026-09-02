@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    
+
     <dimen name="spacing_xxs">2dp</dimen>
     <dimen name="spacing_xs">4dp</dimen>
     <dimen name="spacing_sm_minus">6dp</dimen>
@@ -13,27 +13,27 @@
     <dimen name="spacing_xxxl">56dp</dimen>
     <dimen name="spacing_huge">64dp</dimen>
 
-    
+
     <dimen name="corner_sm">8dp</dimen>
     <dimen name="corner_md">12dp</dimen>
     <dimen name="corner_lg">16dp</dimen>
     <dimen name="corner_xl">24dp</dimen>
-    
-    
+
+
     <dimen name="icon_sm">18dp</dimen>
     <dimen name="icon_md">24dp</dimen>
     <dimen name="icon_lg">32dp</dimen>
     <dimen name="icon_xl">48dp</dimen>
     <dimen name="button_height">52dp</dimen>
-    
-    
+
+
     <dimen name="text_sm">12sp</dimen>
     <dimen name="text_md">14sp</dimen>
     <dimen name="text_lg">16sp</dimen>
     <dimen name="text_xl">18sp</dimen>
     <dimen name="text_xxl">20sp</dimen>
     <dimen name="text_xxxl">24sp</dimen>
-<dimen name="dimen_7">7dp</dimen>
+    <dimen name="dimen_7">7dp</dimen>
     <dimen name="dimen_245">245dp</dimen>
     <dimen name="dimen_95">95dp</dimen>
     <dimen name="dimen_0">0dp</dimen>
@@ -59,4 +59,4 @@
     <dimen name="dimen_22">22dp</dimen>
     <dimen name="dimen_100">100dp</dimen>
     <dimen name="dimen_50">50dp</dimen>
-    </resources>
+</resources>

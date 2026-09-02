@@ -1,17 +1,30 @@
 package com.example.satmeasure.ui.components.sheets
 
-import com.example.satmeasure.utils.HapticHelper
-
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,27 +32,39 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import android.widget.Toast
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import com.example.satmeasure.R
 import com.example.satmeasure.utils.AreaUnit
+import com.example.satmeasure.utils.HapticHelper
 import com.example.satmeasure.utils.MeasurementConverter
 import kotlinx.coroutines.launch
-import com.example.satmeasure.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,12 +91,20 @@ fun MainBottomSheet(
     Surface(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(topStart = dimensionResource(id = R.dimen.text_xl), topEnd = dimensionResource(id = R.dimen.text_xl))
+        shape = RoundedCornerShape(
+            topStart = dimensionResource(id = R.dimen.text_xl),
+            topEnd = dimensionResource(id = R.dimen.text_xl)
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = dimensionResource(id = R.dimen.text_lg), end = dimensionResource(id = R.dimen.text_lg), bottom = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.dimen_10))
+                .padding(
+                    start = dimensionResource(id = R.dimen.text_lg),
+                    end = dimensionResource(id = R.dimen.text_lg),
+                    bottom = dimensionResource(id = R.dimen.text_lg),
+                    top = dimensionResource(id = R.dimen.dimen_10)
+                )
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
             Box(
@@ -126,7 +159,9 @@ fun MainBottomSheet(
                             VerticalDivider(
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                                    .padding(
+                                        vertical = dimensionResource(id = R.dimen.spacing_sm_minus)
+                                    ),
                                 color = MaterialTheme.colorScheme.onSecondaryContainer.copy(
                                     alpha = 0.2f
                                 )
@@ -201,7 +236,9 @@ fun MainBottomSheet(
                 // --- 2x2 Grid Section ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_sm))
+                    horizontalArrangement = Arrangement.spacedBy(
+                        dimensionResource(id = R.dimen.text_sm)
+                    )
                 ) {
                     MeasurementCard(
                         modifier = Modifier.weight(1f),
@@ -235,7 +272,9 @@ fun MainBottomSheet(
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_sm))
+                    horizontalArrangement = Arrangement.spacedBy(
+                        dimensionResource(id = R.dimen.text_sm)
+                    )
                 ) {
                     MeasurementCard(
                         modifier = Modifier.weight(1f),
@@ -269,7 +308,8 @@ fun MainBottomSheet(
 
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.icon_lg)))
                 HorizontalDivider(
-                    thickness = dimensionResource(id = R.dimen.dimen_1), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    thickness = dimensionResource(id = R.dimen.dimen_1),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.2f
                     )
                 )
@@ -284,7 +324,11 @@ fun MainBottomSheet(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
                 val bighas = MeasurementConverter.getAllBighaUnits()
-                Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.corner_sm))) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(
+                        dimensionResource(id = R.dimen.corner_sm)
+                    )
+                ) {
                     bighas.forEach { bigha ->
                         val converted = MeasurementConverter.convertArea(areaSqFt, bigha)
                         ConversionRow3(
@@ -298,7 +342,8 @@ fun MainBottomSheet(
 
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
                 HorizontalDivider(
-                    thickness = dimensionResource(id = R.dimen.dimen_1), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                    thickness = dimensionResource(id = R.dimen.dimen_1),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                         alpha = 0.2f
                     )
                 )
@@ -313,7 +358,11 @@ fun MainBottomSheet(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm)))
                 val locals = MeasurementConverter.getOtherLocalUnits()
-                Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.corner_sm))) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(
+                        dimensionResource(id = R.dimen.corner_sm)
+                    )
+                ) {
                     locals.forEach { local ->
                         val converted = MeasurementConverter.convertArea(areaSqFt, local.second)
                         ConversionRow3(
@@ -334,11 +383,12 @@ fun MainBottomSheet(
         val currentAreaUnit = if (showAreaUnitSelectorFor.value == 1) areaUnit1 else areaUnit2
         AreaUnitSelectorSheet(
             currentSelection = currentAreaUnit,
-            onDismiss = { 
+            onDismiss = {
                 showAreaUnitSelectorFor.value = null
             },
             onUnitSelected = { selected ->
-                if (showAreaUnitSelectorFor.value == 1) areaUnit1 = selected else areaUnit2 = selected
+                if (showAreaUnitSelectorFor.value == 1) areaUnit1 = selected else areaUnit2 =
+                    selected
                 showAreaUnitSelectorFor.value = null
             }
         )
@@ -347,7 +397,7 @@ fun MainBottomSheet(
     if (showPerimeterUnitSelectorFor.value != null) {
         val currentPerimeterUnit =
             if (showPerimeterUnitSelectorFor.value == 1) perimeterUnit1 else perimeterUnit2
-        CustomAreaUnitSelectorSheet(onDismiss = { 
+        CustomAreaUnitSelectorSheet(onDismiss = {
             showPerimeterUnitSelectorFor.value = null
         }) {
             Column(
@@ -384,7 +434,10 @@ fun MainBottomSheet(
                                         symbol else perimeterUnit2 = symbol
                                     showPerimeterUnitSelectorFor.value = null
                                 }
-                                .padding(horizontal = dimensionResource(id = R.dimen.corner_sm), vertical = dimensionResource(id = R.dimen.text_lg)),
+                                .padding(
+                                    horizontal = dimensionResource(id = R.dimen.corner_sm),
+                                    vertical = dimensionResource(id = R.dimen.text_lg)
+                                ),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -477,7 +530,10 @@ fun MainCustomBottomSheet(
                 }
             ),
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(topStart = dimensionResource(id = R.dimen.text_xxl), topEnd = dimensionResource(id = R.dimen.text_xxl)),
+        shape = RoundedCornerShape(
+            topStart = dimensionResource(id = R.dimen.text_xxl),
+            topEnd = dimensionResource(id = R.dimen.text_xxl)
+        ),
         shadowElevation = dimensionResource(id = R.dimen.corner_sm)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -517,7 +573,12 @@ fun MeasurementCard(
         color = color.copy(alpha = 0.3f),
         shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm))
     ) {
-        Column(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.spacing_xs))) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = dimensionResource(id = R.dimen.text_sm),
+                vertical = dimensionResource(id = R.dimen.spacing_xs)
+            )
+        ) {
             Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -575,7 +636,10 @@ fun ConversionRow3(
                         .show()
                 }
             )
-            .padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.dimen_10)),
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.text_sm),
+                vertical = dimensionResource(id = R.dimen.dimen_10)
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

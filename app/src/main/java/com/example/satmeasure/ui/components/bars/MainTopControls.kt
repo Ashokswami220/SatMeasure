@@ -3,7 +3,6 @@ package com.example.satmeasure.ui.components.bars
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -106,7 +105,10 @@ fun MainTopControls(
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search_location))
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = stringResource(id = R.string.search_location)
+                            )
                         }
 
                         Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_sm)))
@@ -121,7 +123,10 @@ fun MainTopControls(
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Map, contentDescription = stringResource(id = R.string.toggle_style))
+                            Icon(
+                                Icons.Default.Map,
+                                contentDescription = stringResource(id = R.string.toggle_style)
+                            )
                         }
                     }
                 }
@@ -180,7 +185,10 @@ fun MainTopControls(
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search_location))
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = stringResource(id = R.string.search_location)
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_sm)))
@@ -195,7 +203,10 @@ fun MainTopControls(
                             containerColor = MaterialTheme.colorScheme.surface,
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
-                            Icon(Icons.Default.Map, contentDescription = stringResource(id = R.string.toggle_style))
+                            Icon(
+                                Icons.Default.Map,
+                                contentDescription = stringResource(id = R.string.toggle_style)
+                            )
                         }
                     }
                 }

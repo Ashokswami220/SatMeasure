@@ -47,17 +47,21 @@ import com.mapbox.maps.Style
 @Composable
 fun getAvailableMapStyles() = listOf(
     MapStyleOption(
-        "satellite_streets", stringResource(id = R.string.satellite_streets), Style.SATELLITE_STREETS,
+        "satellite_streets", stringResource(id = R.string.satellite_streets),
+        Style.SATELLITE_STREETS,
         Style.SATELLITE_STREETS, R.drawable.satellite_map
     ),
     MapStyleOption(
-        "standard", stringResource(id = R.string.standard_navigation), Style.STANDARD, Style.STANDARD, R.drawable.standard_map
+        "standard", stringResource(id = R.string.standard_navigation), Style.STANDARD,
+        Style.STANDARD, R.drawable.standard_map
     ),
     MapStyleOption(
-        "outdoors", stringResource(id = R.string.terrain_outdoors), Style.OUTDOORS, Style.OUTDOORS, R.drawable.terrain_map
+        "outdoors", stringResource(id = R.string.terrain_outdoors), Style.OUTDOORS, Style.OUTDOORS,
+        R.drawable.terrain_map
     ),
     MapStyleOption(
-        "satellite", stringResource(id = R.string.pure_satellite), Style.STANDARD_SATELLITE, Style.SATELLITE,
+        "satellite", stringResource(id = R.string.pure_satellite), Style.STANDARD_SATELLITE,
+        Style.SATELLITE,
         R.drawable.satellite_map
     )
 )
@@ -76,14 +80,22 @@ fun MapStyleBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = RoundedCornerShape(topStart = dimensionResource(id = R.dimen.text_lg), topEnd = dimensionResource(id = R.dimen.text_lg)),
+        shape = RoundedCornerShape(
+            topStart = dimensionResource(id = R.dimen.text_lg),
+            topEnd = dimensionResource(id = R.dimen.text_lg)
+        ),
         containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = null
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = dimensionResource(id = R.dimen.text_lg), end = dimensionResource(id = R.dimen.text_lg), bottom = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.corner_sm))
+                .padding(
+                    start = dimensionResource(id = R.dimen.text_lg),
+                    end = dimensionResource(id = R.dimen.text_lg),
+                    bottom = dimensionResource(id = R.dimen.text_lg),
+                    top = dimensionResource(id = R.dimen.corner_sm)
+                )
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
@@ -118,11 +130,15 @@ fun MapStyleBottomSheet(
 
             // Grid
             val chunkedStyles = getAvailableMapStyles().chunked(chunkCount)
-            Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_lg))) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.text_lg))
+            ) {
                 chunkedStyles.forEach { rowStyles ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.icon_lg))
+                        horizontalArrangement = Arrangement.spacedBy(
+                            dimensionResource(id = R.dimen.icon_lg)
+                        )
                     ) {
                         rowStyles.forEach { styleOpt ->
                             val isSelected = currentStyleId == styleOpt.id
@@ -132,10 +148,13 @@ fun MapStyleBottomSheet(
                             ) {
                                 Surface(
                                     onClick = { onStyleSelected(styleOpt.id) },
-                                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
+                                    shape = RoundedCornerShape(
+                                        dimensionResource(id = R.dimen.text_sm)
+                                    ),
                                     color = Color.Transparent,
                                     border = if (isSelected) BorderStroke(
-                                        dimensionResource(id = R.dimen.spacing_xxs), MaterialTheme.colorScheme.primary
+                                        dimensionResource(id = R.dimen.spacing_xxs),
+                                        MaterialTheme.colorScheme.primary
                                     ) else null,
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -148,7 +167,11 @@ fun MapStyleBottomSheet(
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.corner_sm)))
+                                Spacer(
+                                    modifier = Modifier.height(
+                                        dimensionResource(id = R.dimen.corner_sm)
+                                    )
+                                )
                                 Text(
                                     text = styleOpt.name,
                                     style = MaterialTheme.typography.labelLarge,
@@ -164,7 +187,13 @@ fun MapStyleBottomSheet(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.text_xxxl)))
+            Spacer(
+                modifier = Modifier.height(
+                    if (isLandscape) dimensionResource(
+                        id = R.dimen.spacing_xs
+                    ) else dimensionResource(id = R.dimen.text_xxxl)
+                )
+            )
         }
     }
 }

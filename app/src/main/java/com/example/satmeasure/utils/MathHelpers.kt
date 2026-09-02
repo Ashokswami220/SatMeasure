@@ -1,7 +1,12 @@
 package com.example.satmeasure.utils
 
 import com.mapbox.geojson.Point
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 object MathHelpers {
 

@@ -1,61 +1,93 @@
 package com.example.satmeasure.ui.screens
 
-import android.widget.Toast
-
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.PersonRemove
 import androidx.compose.material.icons.outlined.Vibration
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.os.LocaleListCompat.forLanguageTags
 import com.example.satmeasure.R
 import com.example.satmeasure.data.SettingsManager
 import com.example.satmeasure.data.ThemeMode
 import com.example.satmeasure.ui.auth.AuthViewModel
-import com.example.satmeasure.ui.map.MapViewModel
-import com.example.satmeasure.ui.components.dialogs.DeleteDataWarningDialog
 import com.example.satmeasure.ui.components.dialogs.DeleteAccountWarningDialog
+import com.example.satmeasure.ui.components.dialogs.DeleteDataWarningDialog
+import com.example.satmeasure.ui.map.MapViewModel
 import com.example.satmeasure.utils.HapticHelper
 import kotlinx.coroutines.launch
 
@@ -134,11 +166,15 @@ fun SettingsScreen(
                     )
                 ) {
 
-                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm_minus)))
-                    
+                    Spacer(
+                        modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_sm_minus))
+                    )
+
                     AppLanguageCard(
                         isDarkTheme = isDarkTheme,
-                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus))
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(id = R.dimen.spacing_sm_minus)
+                        )
                     )
 
                     HapticFeedbackCard(
@@ -149,11 +185,17 @@ fun SettingsScreen(
                                 settingsManager.setHaptics(it)
                             }
                         },
-                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus))
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(id = R.dimen.spacing_sm_minus)
+                        )
                     )
 
                     // Remove Ads
-                    RemoveAdsCard(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.text_sm)), isDarkTheme = isDarkTheme)
+                    RemoveAdsCard(
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(id = R.dimen.text_sm)
+                        ), isDarkTheme = isDarkTheme
+                    )
 
                     AppearanceCard(
                         dynamicColor = dynamicColor,
@@ -173,16 +215,19 @@ fun SettingsScreen(
                                 )
                             }
                         },
-                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus))
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(id = R.dimen.spacing_sm_minus)
+                        )
                     )
-
 
 
                     // --- ACCOUNT CATEGORY ---
                     AccountCard(
                         onDeleteDataClick = { setShowDeleteDataDialog(true) },
                         onDeleteAccountClick = { setShowDeleteAccountDialog(true) },
-                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.spacing_xs))
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(id = R.dimen.spacing_xs)
+                        )
                     )
                 }
             }
@@ -198,7 +243,10 @@ fun SettingsScreen(
             if (isLandscape) {
                 Row(
                     modifier = Modifier
-                        .padding(horizontal = dimensionResource(id = R.dimen.spacing_xs), vertical = dimensionResource(id = R.dimen.corner_sm))
+                        .padding(
+                            horizontal = dimensionResource(id = R.dimen.spacing_xs),
+                            vertical = dimensionResource(id = R.dimen.corner_sm)
+                        )
                         .align(Alignment.TopStart),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -282,13 +330,23 @@ fun AppearanceCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.text_sm), bottom = dimensionResource(id = R.dimen.corner_sm))
+                modifier = Modifier.padding(
+                    start = dimensionResource(id = R.dimen.text_lg),
+                    top = dimensionResource(id = R.dimen.text_sm),
+                    bottom = dimensionResource(id = R.dimen.corner_sm)
+                )
             )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = dimensionResource(id = R.dimen.spacing_sm_minus), end = dimensionResource(id = R.dimen.spacing_sm_minus), bottom = dimensionResource(id = R.dimen.spacing_sm_minus)),
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.corner_sm))
+                    .padding(
+                        start = dimensionResource(id = R.dimen.spacing_sm_minus),
+                        end = dimensionResource(id = R.dimen.spacing_sm_minus),
+                        bottom = dimensionResource(id = R.dimen.spacing_sm_minus)
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(
+                    dimensionResource(id = R.dimen.corner_sm)
+                )
             ) {
                 SettingsToggleCard(
                     title = stringResource(id = R.string.theme_mode),
@@ -307,7 +365,10 @@ fun AppearanceCard(
 
                         Box(
                             modifier = Modifier
-                                .padding(end = dimensionResource(id = R.dimen.dimen_7), bottom = dimensionResource(id = R.dimen.dimen_7))
+                                .padding(
+                                    end = dimensionResource(id = R.dimen.dimen_7),
+                                    bottom = dimensionResource(id = R.dimen.dimen_7)
+                                )
                                 .onGloballyPositioned { pillSize = it.size }
                         ) {
                             if (!themeMenuExpanded) {
@@ -315,18 +376,31 @@ fun AppearanceCard(
                                     modifier = Modifier
                                         .clip(CircleShape)
                                         .background(MaterialTheme.colorScheme.primary)
-                                        .clickable { 
+                                        .clickable {
                                             HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                                            themeMenuExpanded = true 
+                                            themeMenuExpanded = true
                                         }
-                                        .padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                                        .padding(
+                                            horizontal = dimensionResource(id = R.dimen.text_lg),
+                                            vertical = dimensionResource(
+                                                id = R.dimen.spacing_sm_minus
+                                            )
+                                        ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = when (themeMode) {
-                                            ThemeMode.DARK -> stringResource(id = R.string.theme_dark)
-                                            ThemeMode.LIGHT -> stringResource(id = R.string.theme_light)
-                                            ThemeMode.SYSTEM -> stringResource(id = R.string.theme_system)
+                                            ThemeMode.DARK -> stringResource(
+                                                id = R.string.theme_dark
+                                            )
+
+                                            ThemeMode.LIGHT -> stringResource(
+                                                id = R.string.theme_light
+                                            )
+
+                                            ThemeMode.SYSTEM -> stringResource(
+                                                id = R.string.theme_system
+                                            )
                                         },
                                         style = MaterialTheme.typography.labelMedium,
                                         color = MaterialTheme.colorScheme.onPrimary
@@ -354,20 +428,33 @@ fun AppearanceCard(
                                                     LocalDensity.current
                                                 ) { pillSize.width.toDp() })
                                             .border(
-                                                dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.onSurfaceVariant,
-                                                RoundedCornerShape(dimensionResource(id = R.dimen.text_lg))
+                                                dimensionResource(id = R.dimen.dimen_1),
+                                                MaterialTheme.colorScheme.onSurfaceVariant,
+                                                RoundedCornerShape(
+                                                    dimensionResource(id = R.dimen.text_lg)
+                                                )
                                             )
-                                            .clip(RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)))
+                                            .clip(
+                                                RoundedCornerShape(
+                                                    dimensionResource(id = R.dimen.text_lg)
+                                                )
+                                            )
                                             .background(
                                                 MaterialTheme.colorScheme.surfaceContainerHigh
                                             )
                                             .padding(dimensionResource(id = R.dimen.spacing_xs)),
-                                        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_xs))
+                                        verticalArrangement = Arrangement.spacedBy(
+                                            dimensionResource(id = R.dimen.spacing_xs)
+                                        )
                                     ) {
                                         val options = listOf(
                                             ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.SYSTEM
                                         )
-                                        val labels = listOf(stringResource(id = R.string.theme_light), stringResource(id = R.string.theme_dark), stringResource(id = R.string.theme_system))
+                                        val labels = listOf(
+                                            stringResource(id = R.string.theme_light),
+                                            stringResource(id = R.string.theme_dark),
+                                            stringResource(id = R.string.theme_system)
+                                        )
                                         options.forEachIndexed { index, mode ->
                                             val isSelected = themeMode == mode
                                             Box(
@@ -388,7 +475,11 @@ fun AppearanceCard(
                                                         )
                                                         else Modifier
                                                     )
-                                                    .padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                                                    .padding(
+                                                        vertical = dimensionResource(
+                                                            id = R.dimen.spacing_sm_minus
+                                                        )
+                                                    ),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
@@ -466,7 +557,10 @@ fun SettingsToggleCard(
             Column {
                 Box(
                     modifier = Modifier
-                        .padding(start = dimensionResource(id = R.dimen.spacing_sm_minus), top = dimensionResource(id = R.dimen.spacing_sm_minus))
+                        .padding(
+                            start = dimensionResource(id = R.dimen.spacing_sm_minus),
+                            top = dimensionResource(id = R.dimen.spacing_sm_minus)
+                        )
                         .size(dimensionResource(id = R.dimen.dimen_60))
                         .clip(CircleShape)
                         .background(iconBgColor),
@@ -487,7 +581,9 @@ fun SettingsToggleCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_sm))
+                    modifier = Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.text_sm)
+                    )
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xxs)))
                 Text(
@@ -496,14 +592,20 @@ fun SettingsToggleCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_sm))
+                    modifier = Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.text_sm)
+                    )
                 )
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = dimensionResource(id = R.dimen.spacing_sm_minus), end = dimensionResource(id = R.dimen.spacing_sm_minus), bottom = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                    .padding(
+                        start = dimensionResource(id = R.dimen.spacing_sm_minus),
+                        end = dimensionResource(id = R.dimen.spacing_sm_minus),
+                        bottom = dimensionResource(id = R.dimen.spacing_sm_minus)
+                    ),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -537,7 +639,10 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.corner_sm)),
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.text_sm),
+                    vertical = dimensionResource(id = R.dimen.corner_sm)
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -587,12 +692,18 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .border(dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.outline, CircleShape)
-                            .clickable { 
+                            .border(
+                                dimensionResource(id = R.dimen.dimen_1),
+                                MaterialTheme.colorScheme.outline, CircleShape
+                            )
+                            .clickable {
                                 HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                                languageMenuExpanded = true 
+                                languageMenuExpanded = true
                             }
-                            .padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                            .padding(
+                                horizontal = dimensionResource(id = R.dimen.text_lg),
+                                vertical = dimensionResource(id = R.dimen.spacing_sm_minus)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -620,15 +731,23 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
                                 .width(
                                     with(
                                         LocalDensity.current
-                                    ) { languagePillSize.width.toDp() }.let { if (it < dimensionResource(id = R.dimen.dimen_100)) dimensionResource(id = R.dimen.dimen_100) else it })
+                                    ) { languagePillSize.width.toDp() }.let {
+                                        if (it < dimensionResource(
+                                                id = R.dimen.dimen_100
+                                            )
+                                        ) dimensionResource(id = R.dimen.dimen_100) else it
+                                    })
                                 .border(
-                                    dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.onSurfaceVariant,
+                                    dimensionResource(id = R.dimen.dimen_1),
+                                    MaterialTheme.colorScheme.onSurfaceVariant,
                                     RoundedCornerShape(dimensionResource(id = R.dimen.text_lg))
                                 )
                                 .clip(RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)))
                                 .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                                 .padding(dimensionResource(id = R.dimen.spacing_xs)),
-                            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_xs))
+                            verticalArrangement = Arrangement.spacedBy(
+                                dimensionResource(id = R.dimen.spacing_xs)
+                            )
                         ) {
                             val options = listOf("en", "hi")
                             val labels = listOf(
@@ -658,7 +777,11 @@ fun AppLanguageCard(isDarkTheme: Boolean, modifier: Modifier = Modifier) {
                                             )
                                             else Modifier
                                         )
-                                        .padding(vertical = dimensionResource(id = R.dimen.spacing_sm_minus)),
+                                        .padding(
+                                            vertical = dimensionResource(
+                                                id = R.dimen.spacing_sm_minus
+                                            )
+                                        ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -697,7 +820,10 @@ fun HapticFeedbackCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimensionResource(id = R.dimen.text_sm), vertical = dimensionResource(id = R.dimen.corner_sm)),
+                .padding(
+                    horizontal = dimensionResource(id = R.dimen.text_sm),
+                    vertical = dimensionResource(id = R.dimen.corner_sm)
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -754,6 +880,7 @@ fun HapticFeedbackCard(
         }
     }
 }
+
 data class WavyShape(
     private val periodDp: Float = 80f,
     private val amplitudeDp: Float = 2.5f,
@@ -769,82 +896,104 @@ data class WavyShape(
         val amplitude = amplitudeDp * density.density
         val r = cornerRadiusDp * density.density
         val path = Path()
-        
+
         val w = size.width
         val h = size.height
-        
+
         val actualR = kotlin.math.min(r, kotlin.math.min(w / 2, h / 2))
-        
+
         path.arcTo(
             rect = androidx.compose.ui.geometry.Rect(0f, 0f, 2 * actualR, 2 * actualR),
             startAngleDegrees = 180f,
             sweepAngleDegrees = 90f,
             forceMoveTo = false
         )
-        
+
         val steps = 40
-        
+
         val topLen = w - 2 * actualR
-        val wavesX = kotlin.math.max(1, kotlin.math.round(topLen / period).toInt())
+        val wavesX = kotlin.math.max(
+            1, kotlin.math.round(topLen / period)
+                .toInt()
+        )
         for (i in 1..(wavesX * steps)) {
             val frac = i / (wavesX * steps).toFloat()
             val x = actualR + frac * topLen
-            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val env = kotlin.math.sin(frac * kotlin.math.PI)
+                .toFloat()
             val currentAmp = env * amplitude
-            val y = currentAmp - currentAmp * kotlin.math.cos((frac * wavesX - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            val y = currentAmp - currentAmp * kotlin.math.cos(
+                (frac * wavesX - phaseOffset) * 2 * kotlin.math.PI
+            )
+                .toFloat()
             path.lineTo(x, y)
         }
-        
+
         path.arcTo(
             rect = androidx.compose.ui.geometry.Rect(w - 2 * actualR, 0f, w, 2 * actualR),
             startAngleDegrees = 270f,
             sweepAngleDegrees = 90f,
             forceMoveTo = false
         )
-        
+
         val rightLen = h - 2 * actualR
-        val wavesY = kotlin.math.max(1, kotlin.math.round(rightLen / period).toInt())
+        val wavesY = kotlin.math.max(
+            1, kotlin.math.round(rightLen / period)
+                .toInt()
+        )
         for (i in 1..(wavesY * steps)) {
             val frac = i / (wavesY * steps).toFloat()
             val y = actualR + frac * rightLen
-            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val env = kotlin.math.sin(frac * kotlin.math.PI)
+                .toFloat()
             val currentAmp = env * amplitude
-            val x = w - currentAmp + currentAmp * kotlin.math.cos((frac * wavesY - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            val x = w - currentAmp + currentAmp * kotlin.math.cos(
+                (frac * wavesY - phaseOffset) * 2 * kotlin.math.PI
+            )
+                .toFloat()
             path.lineTo(x, y)
         }
-        
+
         path.arcTo(
             rect = androidx.compose.ui.geometry.Rect(w - 2 * actualR, h - 2 * actualR, w, h),
             startAngleDegrees = 0f,
             sweepAngleDegrees = 90f,
             forceMoveTo = false
         )
-        
+
         for (i in 1..(wavesX * steps)) {
             val frac = i / (wavesX * steps).toFloat()
             val x = w - actualR - frac * topLen
-            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val env = kotlin.math.sin(frac * kotlin.math.PI)
+                .toFloat()
             val currentAmp = env * amplitude
-            val y = h - currentAmp + currentAmp * kotlin.math.cos((frac * wavesX - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            val y = h - currentAmp + currentAmp * kotlin.math.cos(
+                (frac * wavesX - phaseOffset) * 2 * kotlin.math.PI
+            )
+                .toFloat()
             path.lineTo(x, y)
         }
-        
+
         path.arcTo(
             rect = androidx.compose.ui.geometry.Rect(0f, h - 2 * actualR, 2 * actualR, h),
             startAngleDegrees = 90f,
             sweepAngleDegrees = 90f,
             forceMoveTo = false
         )
-        
+
         for (i in 1..(wavesY * steps)) {
             val frac = i / (wavesY * steps).toFloat()
             val y = h - actualR - frac * rightLen
-            val env = kotlin.math.sin(frac * kotlin.math.PI).toFloat()
+            val env = kotlin.math.sin(frac * kotlin.math.PI)
+                .toFloat()
             val currentAmp = env * amplitude
-            val x = currentAmp - currentAmp * kotlin.math.cos((frac * wavesY - phaseOffset) * 2 * kotlin.math.PI).toFloat()
+            val x = currentAmp - currentAmp * kotlin.math.cos(
+                (frac * wavesY - phaseOffset) * 2 * kotlin.math.PI
+            )
+                .toFloat()
             path.lineTo(x, y)
         }
-        
+
         path.close()
         return Outline.Generic(path)
     }
@@ -872,7 +1021,10 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
         ),
-        border = BorderStroke(dimensionResource(id = R.dimen.spacing_xs), MaterialTheme.colorScheme.surfaceContainerHigh)
+        border = BorderStroke(
+            dimensionResource(id = R.dimen.spacing_xs),
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        )
     ) {
         Row(
             modifier = Modifier
@@ -890,9 +1042,11 @@ fun RemoveAdsCard(modifier: Modifier = Modifier, isDarkTheme: Boolean) {
                     modifier = Modifier
                         .size(dimensionResource(id = R.dimen.icon_xl))
                         .clip(CircleShape)
-                        .background(if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
-                            alpha = 0.9f
-                        )),
+                        .background(
+                            if (isDarkTheme) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.inverseSurface.copy(
+                                alpha = 0.9f
+                            )
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -953,7 +1107,11 @@ fun AccountCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_lg), top = dimensionResource(id = R.dimen.text_sm), bottom = dimensionResource(id = R.dimen.corner_sm))
+                modifier = Modifier.padding(
+                    start = dimensionResource(id = R.dimen.text_lg),
+                    top = dimensionResource(id = R.dimen.text_sm),
+                    bottom = dimensionResource(id = R.dimen.corner_sm)
+                )
             )
 
             Card(

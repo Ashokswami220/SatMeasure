@@ -3,20 +3,32 @@ package com.example.satmeasure.ui.screens
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.BlurMaskFilter
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material3.*
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +47,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -131,8 +145,12 @@ fun AboutUsScreen(
                     modifier = Modifier
                         .fillMaxWidth(if (isLandscape) 0.5f else 1f)
                         .padding(
-                            top = paddingValues.calculateTopPadding() + dimensionResource(id = R.dimen.text_lg),
-                            bottom = paddingValues.calculateBottomPadding() + dimensionResource(id = R.dimen.icon_lg),
+                            top = paddingValues.calculateTopPadding() + dimensionResource(
+                                id = R.dimen.text_lg
+                            ),
+                            bottom = paddingValues.calculateBottomPadding() + dimensionResource(
+                                id = R.dimen.icon_lg
+                            ),
                             start = dimensionResource(id = R.dimen.text_lg),
                             end = dimensionResource(id = R.dimen.text_lg)
                         )
@@ -157,7 +175,12 @@ fun AboutUsScreen(
                                 )
                             }
                         }
-                        .padding(start = dimensionResource(id = R.dimen.text_xxxl), end = dimensionResource(id = R.dimen.text_xxxl), bottom = dimensionResource(id = R.dimen.text_xxxl), top = dimensionResource(id = R.dimen.text_xxxl)),
+                        .padding(
+                            start = dimensionResource(id = R.dimen.text_xxxl),
+                            end = dimensionResource(id = R.dimen.text_xxxl),
+                            bottom = dimensionResource(id = R.dimen.text_xxxl),
+                            top = dimensionResource(id = R.dimen.text_xxxl)
+                        ),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
@@ -179,21 +202,27 @@ fun AboutUsScreen(
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.dimen_40))
+                                    modifier = Modifier.padding(
+                                        end = dimensionResource(id = R.dimen.dimen_40)
+                                    )
                                 )
                                 Text(
                                     text = stringResource(id = R.string.designed_by),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.dimen_120))
+                                    modifier = Modifier.padding(
+                                        end = dimensionResource(id = R.dimen.dimen_120)
+                                    )
                                 )
                                 Text(
                                     text = stringResource(id = R.string.ashok_swami),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(end = dimensionResource(id = R.dimen.dimen_40))
+                                    modifier = Modifier.padding(
+                                        end = dimensionResource(id = R.dimen.dimen_40)
+                                    )
                                 )
                             }
 
@@ -205,12 +234,17 @@ fun AboutUsScreen(
                                         MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                                         CircleShape
                                     )
-                                    .border(dimensionResource(id = R.dimen.spacing_xxs), MaterialTheme.colorScheme.primary, CircleShape),
+                                    .border(
+                                        dimensionResource(id = R.dimen.spacing_xxs),
+                                        MaterialTheme.colorScheme.primary, CircleShape
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.profile),
-                                    contentDescription = stringResource(id = R.string.profile_photo),
+                                    contentDescription = stringResource(
+                                        id = R.string.profile_photo
+                                    ),
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .fillMaxSize()

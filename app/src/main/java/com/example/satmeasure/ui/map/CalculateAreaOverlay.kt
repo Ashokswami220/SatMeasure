@@ -9,12 +9,24 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Undo
-import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.Architecture
 import androidx.compose.material.icons.filled.ChangeHistory
@@ -30,11 +42,27 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -42,13 +70,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.satmeasure.R
+import com.example.satmeasure.ui.components.dialogs.WipeWarningDialog
 import com.example.satmeasure.ui.map.models.CalcMode
 import com.example.satmeasure.ui.map.models.ShapeType
-import com.example.satmeasure.ui.components.dialogs.WipeWarningDialog
 import com.example.satmeasure.utils.HapticHelper
-import androidx.compose.ui.platform.LocalContext
 
 enum class OverlayState {
     COLLAPSED,
@@ -136,7 +162,10 @@ fun CalculateAreaOverlay(
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                     shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_md)),
-                    modifier = Modifier.size(width = dimensionResource(id = R.dimen.dimen_170), height = dimensionResource(id = R.dimen.spacing_xxxl))
+                    modifier = Modifier.size(
+                        width = dimensionResource(id = R.dimen.dimen_170),
+                        height = dimensionResource(id = R.dimen.spacing_xxxl)
+                    )
                 )
             }
 
@@ -161,7 +190,12 @@ fun CalculateAreaOverlay(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_md)),
-                        modifier = Modifier.size(width = dimensionResource(id = R.dimen.dimen_170), height = dimensionResource(id = R.dimen.spacing_xxxl))
+                        modifier = Modifier.size(
+                            width = dimensionResource(id = R.dimen.dimen_170),
+                            height = dimensionResource(
+                                id = R.dimen.spacing_xxxl
+                            )
+                        )
                     )
                 } else {
                     Surface(
@@ -169,7 +203,12 @@ fun CalculateAreaOverlay(
                         color = MaterialTheme.colorScheme.surface,
                         contentColor = MaterialTheme.colorScheme.onSurface,
                         shadowElevation = dimensionResource(id = R.dimen.spacing_sm_minus),
-                        modifier = Modifier.size(width = dimensionResource(id = R.dimen.dimen_170), height = dimensionResource(id = R.dimen.spacing_xxxl))
+                        modifier = Modifier.size(
+                            width = dimensionResource(id = R.dimen.dimen_170),
+                            height = dimensionResource(
+                                id = R.dimen.spacing_xxxl
+                            )
+                        )
                     ) {
                         Row(
                             modifier = Modifier
@@ -243,7 +282,9 @@ fun CalculateAreaOverlay(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(id = R.dimen.spacing_sm_minus))
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = dimensionResource(id = R.dimen.spacing_sm_minus)
+                    )
                 ) {
                     Row(
                         modifier = Modifier.padding(dimensionResource(id = R.dimen.corner_sm)),
@@ -290,9 +331,13 @@ fun CalculateAreaOverlay(
                                                     )
                                                     onActiveModeChange(m)
                                                 },
-                                                shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
+                                                shape = RoundedCornerShape(
+                                                    dimensionResource(id = R.dimen.text_sm)
+                                                ),
                                                 color = MaterialTheme.colorScheme.surface,
-                                                modifier = Modifier.size(dimensionResource(id = R.dimen.spacing_huge))
+                                                modifier = Modifier.size(
+                                                    dimensionResource(id = R.dimen.spacing_huge)
+                                                )
                                             ) {
                                                 Column(
                                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -302,7 +347,13 @@ fun CalculateAreaOverlay(
                                                         icon, contentDescription = label,
                                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
-                                                    Spacer(Modifier.height(dimensionResource(id = R.dimen.spacing_xs)))
+                                                    Spacer(
+                                                        Modifier.height(
+                                                            dimensionResource(
+                                                                id = R.dimen.spacing_xs
+                                                            )
+                                                        )
+                                                    )
                                                     Text(
                                                         label,
                                                         style = MaterialTheme.typography.labelSmall,
@@ -314,14 +365,23 @@ fun CalculateAreaOverlay(
                                         }
                                     }
 
-                                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_lg)))
+                                    Spacer(
+                                        modifier = Modifier.width(
+                                            dimensionResource(id = R.dimen.text_lg)
+                                        )
+                                    )
                                     VerticalDivider(
-                                        Modifier.height(dimensionResource(id = R.dimen.icon_xl)), DividerDefaults.Thickness,
+                                        Modifier.height(dimensionResource(id = R.dimen.icon_xl)),
+                                        DividerDefaults.Thickness,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                             alpha = 0.2f
                                         )
                                     )
-                                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm)))
+                                    Spacer(
+                                        modifier = Modifier.width(
+                                            dimensionResource(id = R.dimen.corner_sm)
+                                        )
+                                    )
 
                                     // CLOSE BUTTON AT RIGHT
                                     IconButton(
@@ -358,15 +418,27 @@ fun CalculateAreaOverlay(
                                                         },
                                                         enabled = connectTargetIndex != null,
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .widthIn(min = dimensionResource(id = R.dimen.icon_xl)),
-                                                        shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .widthIn(
+                                                                min = dimensionResource(
+                                                                    id = R.dimen.icon_xl
+                                                                )
+                                                            ),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(id = R.dimen.text_sm)
+                                                        ),
                                                         colors = ButtonDefaults.buttonColors(
                                                             containerColor = MaterialTheme.colorScheme.tertiary,
                                                             disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                                                         ),
                                                         contentPadding = PaddingValues(
-                                                            horizontal = dimensionResource(id = R.dimen.spacing_xs)
+                                                            horizontal = dimensionResource(
+                                                                id = R.dimen.spacing_xs
+                                                            )
                                                         ),
                                                         border = BorderStroke(
                                                             dimensionResource(id = R.dimen.dimen_1),
@@ -433,10 +505,22 @@ fun CalculateAreaOverlay(
                                                             onDropPin()
                                                         },
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .width(dimensionResource(id = R.dimen.dimen_54)),
-                                                        shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
-                                                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .width(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_54
+                                                                )
+                                                            ),
+                                                        shape = RoundedCornerShape(
+                                                            dimensionResource(id = R.dimen.text_sm)
+                                                        ),
+                                                        contentPadding = PaddingValues(
+                                                            dimensionResource(id = R.dimen.dimen_0)
+                                                        )
                                                     ) {
                                                         Column(
                                                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -461,7 +545,9 @@ fun CalculateAreaOverlay(
                                                     }
 
                                                     VerticalDivider(
-                                                        Modifier.height(dimensionResource(id = R.dimen.icon_xl)),
+                                                        Modifier.height(
+                                                            dimensionResource(id = R.dimen.icon_xl)
+                                                        ),
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                                             alpha = 0.2f
                                                         )
@@ -483,14 +569,26 @@ fun CalculateAreaOverlay(
                                                                 onUndoPin()
                                                             },
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -522,14 +620,26 @@ fun CalculateAreaOverlay(
                                                                 onRedoPin()
                                                             },
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -563,14 +673,26 @@ fun CalculateAreaOverlay(
                                                             },
                                                             enabled = hasPins,
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -606,14 +728,26 @@ fun CalculateAreaOverlay(
                                                             },
                                                             enabled = hasPins,
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -652,9 +786,15 @@ fun CalculateAreaOverlay(
                                                             selectedShape == ShapeType.HEXAGON,
                                                             modifier = Modifier
                                                                 .height(
-                                                                    dimensionResource(id = R.dimen.spacing_huge)
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
                                                                 )
-                                                                .width(dimensionResource(id = R.dimen.dimen_45))
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                )
                                                         ) {
                                                             HapticHelper.trigger(
                                                                 context, HapticHelper.Type.LIGHT
@@ -667,9 +807,15 @@ fun CalculateAreaOverlay(
                                                             selectedShape == ShapeType.SQUARE,
                                                             modifier = Modifier
                                                                 .height(
-                                                                    dimensionResource(id = R.dimen.spacing_huge)
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
                                                                 )
-                                                                .width(dimensionResource(id = R.dimen.dimen_45))
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                )
                                                         ) {
                                                             HapticHelper.trigger(
                                                                 context, HapticHelper.Type.LIGHT
@@ -682,9 +828,15 @@ fun CalculateAreaOverlay(
                                                             selectedShape == ShapeType.CIRCLE,
                                                             modifier = Modifier
                                                                 .height(
-                                                                    dimensionResource(id = R.dimen.spacing_huge)
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
                                                                 )
-                                                                .width(dimensionResource(id = R.dimen.dimen_45))
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                )
                                                         ) {
                                                             HapticHelper.trigger(
                                                                 context, HapticHelper.Type.LIGHT
@@ -697,9 +849,15 @@ fun CalculateAreaOverlay(
                                                             selectedShape == ShapeType.TRIANGLE,
                                                             modifier = Modifier
                                                                 .height(
-                                                                    dimensionResource(id = R.dimen.spacing_huge)
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
                                                                 )
-                                                                .width(dimensionResource(id = R.dimen.dimen_45))
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                )
                                                         ) {
                                                             HapticHelper.trigger(
                                                                 context, HapticHelper.Type.LIGHT
@@ -709,7 +867,11 @@ fun CalculateAreaOverlay(
                                                         }
 
                                                         VerticalDivider(
-                                                            Modifier.height(dimensionResource(id = R.dimen.icon_xl)),
+                                                            Modifier.height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.icon_xl
+                                                                )
+                                                            ),
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                                                 alpha = 0.2f
                                                             )
@@ -724,14 +886,26 @@ fun CalculateAreaOverlay(
                                                                 onDropShape()
                                                             },
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.spacing_xxxl)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_xxxl
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -765,14 +939,26 @@ fun CalculateAreaOverlay(
                                                             },
                                                             enabled = canUndoShape,
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -805,14 +991,26 @@ fun CalculateAreaOverlay(
                                                             },
                                                             enabled = canRedoShape,
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.dimen_45
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -844,14 +1042,26 @@ fun CalculateAreaOverlay(
                                                                 setShowWipeDialog(true)
                                                             },
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.button_height)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.button_height
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -885,14 +1095,26 @@ fun CalculateAreaOverlay(
                                                                 onActiveModeChange(null)
                                                             },
                                                             modifier = Modifier
-                                                                .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                                .width(dimensionResource(id = R.dimen.button_height)),
+                                                                .height(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.spacing_huge
+                                                                    )
+                                                                )
+                                                                .width(
+                                                                    dimensionResource(
+                                                                        id = R.dimen.button_height
+                                                                    )
+                                                                ),
                                                             shape = RoundedCornerShape(
                                                                 dimensionResource(
                                                                     id = R.dimen.corner_md
                                                                 )
                                                             ),
-                                                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                            contentPadding = PaddingValues(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_0
+                                                                )
+                                                            )
                                                         ) {
                                                             Column(
                                                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -932,8 +1154,16 @@ fun CalculateAreaOverlay(
                                                             onToggleDrawing()
                                                         },
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .width(dimensionResource(id = R.dimen.dimen_75)),
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .width(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_75
+                                                                )
+                                                            ),
                                                         shape = RoundedCornerShape(
                                                             dimensionResource(
                                                                 id = R.dimen.corner_md
@@ -943,7 +1173,9 @@ fun CalculateAreaOverlay(
                                                             containerColor = if (isDrawing) MaterialTheme.colorScheme.errorContainer else ButtonDefaults.buttonColors().containerColor,
                                                             contentColor = if (isDrawing) MaterialTheme.colorScheme.onErrorContainer else ButtonDefaults.buttonColors().contentColor
                                                         ),
-                                                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                        contentPadding = PaddingValues(
+                                                            dimensionResource(id = R.dimen.dimen_0)
+                                                        )
                                                     ) {
                                                         Column(
                                                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -977,14 +1209,24 @@ fun CalculateAreaOverlay(
                                                         },
                                                         enabled = canUndoDraw,
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .width(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_45
+                                                                )
+                                                            ),
                                                         shape = RoundedCornerShape(
                                                             dimensionResource(
                                                                 id = R.dimen.corner_md
                                                             )
                                                         ),
-                                                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                        contentPadding = PaddingValues(
+                                                            dimensionResource(id = R.dimen.dimen_0)
+                                                        )
                                                     ) {
                                                         Column(
                                                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1016,14 +1258,24 @@ fun CalculateAreaOverlay(
                                                         },
                                                         enabled = canRedoDraw,
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .width(dimensionResource(id = R.dimen.dimen_45)),
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .width(
+                                                                dimensionResource(
+                                                                    id = R.dimen.dimen_45
+                                                                )
+                                                            ),
                                                         shape = RoundedCornerShape(
                                                             dimensionResource(
                                                                 id = R.dimen.corner_md
                                                             )
                                                         ),
-                                                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                        contentPadding = PaddingValues(
+                                                            dimensionResource(id = R.dimen.dimen_0)
+                                                        )
                                                     ) {
                                                         Column(
                                                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1056,14 +1308,24 @@ fun CalculateAreaOverlay(
                                                         },
                                                         enabled = hasDrawing,
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .width(dimensionResource(id = R.dimen.button_height)),
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .width(
+                                                                dimensionResource(
+                                                                    id = R.dimen.button_height
+                                                                )
+                                                            ),
                                                         shape = RoundedCornerShape(
                                                             dimensionResource(
                                                                 id = R.dimen.corner_md
                                                             )
                                                         ),
-                                                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                        contentPadding = PaddingValues(
+                                                            dimensionResource(id = R.dimen.dimen_0)
+                                                        )
                                                     ) {
                                                         Column(
                                                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1099,14 +1361,24 @@ fun CalculateAreaOverlay(
                                                         },
                                                         enabled = hasDrawing,
                                                         modifier = Modifier
-                                                            .height(dimensionResource(id = R.dimen.spacing_huge))
-                                                            .width(dimensionResource(id = R.dimen.button_height)),
+                                                            .height(
+                                                                dimensionResource(
+                                                                    id = R.dimen.spacing_huge
+                                                                )
+                                                            )
+                                                            .width(
+                                                                dimensionResource(
+                                                                    id = R.dimen.button_height
+                                                                )
+                                                            ),
                                                         shape = RoundedCornerShape(
                                                             dimensionResource(
                                                                 id = R.dimen.corner_md
                                                             )
                                                         ),
-                                                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0))
+                                                        contentPadding = PaddingValues(
+                                                            dimensionResource(id = R.dimen.dimen_0)
+                                                        )
                                                     ) {
                                                         Column(
                                                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -1132,14 +1404,24 @@ fun CalculateAreaOverlay(
                                             }
                                         }
 
-                                        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm)))
+                                        Spacer(
+                                            modifier = Modifier.width(
+                                                dimensionResource(id = R.dimen.corner_sm)
+                                            )
+                                        )
                                         VerticalDivider(
-                                            Modifier.height(dimensionResource(id = R.dimen.icon_xl)),
+                                            Modifier.height(
+                                                dimensionResource(id = R.dimen.icon_xl)
+                                            ),
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                                 alpha = 0.2f
                                             )
                                         )
-                                        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_xs)))
+                                        Spacer(
+                                            modifier = Modifier.width(
+                                                dimensionResource(id = R.dimen.spacing_xs)
+                                            )
+                                        )
 
                                         IconButton(
                                             onClick = onBackRequest,

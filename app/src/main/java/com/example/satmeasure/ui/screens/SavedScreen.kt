@@ -2,34 +2,61 @@ package com.example.satmeasure.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.example.satmeasure.data.model.MeasurementRecord
-import com.example.satmeasure.ui.map.MapUiState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.satmeasure.ui.map.MapViewModel
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.satmeasure.R
+import com.example.satmeasure.data.model.MeasurementRecord
 import com.example.satmeasure.ui.auth.AuthViewModel
+import com.example.satmeasure.ui.map.MapViewModel
 import com.example.satmeasure.utils.HapticHelper
-import androidx.compose.ui.platform.LocalContext
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +68,7 @@ fun SavedScreen(
 ) {
     val authState by authViewModel.uiState.collectAsState()
     val savedMeasurements by mapViewModel.savedMeasurements.collectAsState()
-    
+
     LaunchedEffect(authState.currentUser) {
         authState.currentUser?.uid?.let { uid ->
             mapViewModel.loadMeasurements(uid)
@@ -55,33 +82,53 @@ fun SavedScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(stringResource(id = R.string.title_saved_measurements), fontWeight = FontWeight.Bold) },
+                    title = {
+                        Text(
+                            stringResource(id = R.string.title_saved_measurements),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
                             onNavigateBack()
                         }) {
-                            Icon(Icons.Default.ArrowBackIosNew, contentDescription = stringResource(id = R.string.cd_back))
+                            Icon(
+                                Icons.Default.ArrowBackIosNew,
+                                contentDescription = stringResource(id = R.string.cd_back)
+                            )
                         }
                     },
                     actions = {
                         Box {
-                            IconButton(onClick = { 
+                            IconButton(onClick = {
                                 HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                                topMenuExpanded = true 
+                                topMenuExpanded = true
                             }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = stringResource(id = R.string.cd_menu))
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = stringResource(id = R.string.cd_menu)
+                                )
                             }
                             DropdownMenu(
                                 expanded = topMenuExpanded,
                                 onDismissRequest = { topMenuExpanded = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(id = R.string.action_remove_all), color = MaterialTheme.colorScheme.error) },
+                                    text = {
+                                        Text(
+                                            stringResource(id = R.string.action_remove_all),
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    },
                                     onClick = {
                                         HapticHelper.trigger(context, HapticHelper.Type.HEAVY)
                                         topMenuExpanded = false
-                                        authState.currentUser?.uid?.let { mapViewModel.deleteAllMeasurements(it) }
+                                        authState.currentUser?.uid?.let {
+                                            mapViewModel.deleteAllMeasurements(
+                                                it
+                                            )
+                                        }
                                     }
                                 )
                             }
@@ -113,7 +160,9 @@ fun SavedScreen(
                 val shareMessageTemplate = stringResource(id = R.string.share_message)
                 LazyColumn(
                     contentPadding = PaddingValues(dimensionResource(id = R.dimen.spacing_md)),
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_md_minus))
+                    verticalArrangement = Arrangement.spacedBy(
+                        dimensionResource(id = R.dimen.spacing_md_minus)
+                    )
                 ) {
                     items(savedMeasurements.reversed()) { record ->
                         MeasurementCard(
@@ -128,10 +177,13 @@ fun SavedScreen(
                             },
                             onShare = {
                                 authState.currentUser?.uid?.let { uid ->
-                                    val shareUrl = "https://satmeasure.web.app/share?plotId=${record.id}&ownerId=$uid"
+                                    val shareUrl =
+                                        "https://satmeasure.web.app/share?plotId=${record.id}&ownerId=$uid"
                                     val sendIntent: Intent = Intent().apply {
                                         action = Intent.ACTION_SEND
-                                        putExtra(Intent.EXTRA_TEXT, shareMessageTemplate.format(shareUrl))
+                                        putExtra(
+                                            Intent.EXTRA_TEXT, shareMessageTemplate.format(shareUrl)
+                                        )
                                         type = "text/plain"
                                     }
                                     val shareIntent = Intent.createChooser(sendIntent, null)
@@ -139,7 +191,7 @@ fun SavedScreen(
                                 }
                             },
                             onDelete = {
-                                authState.currentUser?.uid?.let { 
+                                authState.currentUser?.uid?.let {
                                     mapViewModel.deleteMeasurement(it, record.id)
                                 }
                             }
@@ -168,7 +220,9 @@ fun MeasurementCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = dimensionResource(id = R.dimen.spacing_xxs))
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(id = R.dimen.spacing_xxs)
+        )
     ) {
         Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_md_minus))) {
             Row(
@@ -183,28 +237,41 @@ fun MeasurementCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 Row {
-                    IconButton(onClick = { 
+                    IconButton(onClick = {
                         HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                        onShare() 
+                        onShare()
                     }, modifier = Modifier.size(dimensionResource(id = R.dimen.spacing_xl))) {
-                        Icon(Icons.Default.Share, contentDescription = stringResource(id = R.string.menu_share), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = stringResource(id = R.string.menu_share),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    
+
                     Box {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             HapticHelper.trigger(context, HapticHelper.Type.LIGHT)
-                            cardMenuExpanded = true 
+                            cardMenuExpanded = true
                         }, modifier = Modifier.size(dimensionResource(id = R.dimen.spacing_xl))) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(id = R.string.cd_menu), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = stringResource(id = R.string.cd_menu),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                         DropdownMenu(
                             expanded = cardMenuExpanded,
                             onDismissRequest = { cardMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.action_delete), color = MaterialTheme.colorScheme.error) },
+                                text = {
+                                    Text(
+                                        stringResource(id = R.string.action_delete),
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                },
                                 onClick = {
                                     HapticHelper.trigger(context, HapticHelper.Type.HEAVY)
                                     cardMenuExpanded = false
@@ -223,7 +290,9 @@ fun MeasurementCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
-                val dateStr = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(Date(record.timestamp))
+                val dateStr = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(
+                    Date(record.timestamp)
+                )
                 Text(
                     text = dateStr,
                     fontSize = 12.sp,
@@ -232,14 +301,20 @@ fun MeasurementCard(
                 )
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.spacing_xs)),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        dimensionResource(id = R.dimen.spacing_xs)
+                    ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = {
                         HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                         onEdit()
                     }) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(id = R.string.cd_edit), tint = MaterialTheme.colorScheme.primary)
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(id = R.string.cd_edit),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                     Button(
                         onClick = {
@@ -247,7 +322,10 @@ fun MeasurementCard(
                             onOpen()
                         },
                         shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_sm)),
-                        contentPadding = PaddingValues(horizontal = dimensionResource(id = R.dimen.spacing_md), vertical = dimensionResource(id = R.dimen.spacing_sm))
+                        contentPadding = PaddingValues(
+                            horizontal = dimensionResource(id = R.dimen.spacing_md),
+                            vertical = dimensionResource(id = R.dimen.spacing_sm)
+                        )
                     ) {
                         Text(stringResource(id = R.string.action_open))
                     }

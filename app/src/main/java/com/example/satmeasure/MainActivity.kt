@@ -1,19 +1,19 @@
 package com.example.satmeasure
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.satmeasure.ui.navigation.SatMesNavApp
-import com.example.satmeasure.ui.theme.SatMeasureTheme
-import com.mapbox.common.MapboxOptions
-import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.example.satmeasure.data.SettingsManager
 import com.example.satmeasure.data.ThemeMode
+import com.example.satmeasure.ui.navigation.SatMesNavApp
+import com.example.satmeasure.ui.theme.SatMeasureTheme
+import com.mapbox.common.MapboxOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainActivity : AppCompatActivity() {
@@ -31,7 +31,9 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val settingsManager = remember { SettingsManager(applicationContext) }
-            val themeMode by settingsManager.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
+            val themeMode by settingsManager.themeModeFlow.collectAsState(
+                initial = ThemeMode.SYSTEM
+            )
             val dynamicColor by settingsManager.dynamicColorFlow.collectAsState(initial = false)
 
             val isSystemDark = isSystemInDarkTheme()

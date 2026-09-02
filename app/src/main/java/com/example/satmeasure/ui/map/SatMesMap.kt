@@ -6,29 +6,48 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color.BLACK
+import android.graphics.Color.WHITE
+import android.graphics.Paint
+import android.graphics.Typeface
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.*
-import kotlin.math.*
-import androidx.lifecycle.viewmodel.compose.viewModel
-
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.activity.compose.BackHandler
-import com.example.satmeasure.utils.MathHelpers
-import com.example.satmeasure.ui.components.dialogs.DiscardWarningDialog
-import com.example.satmeasure.ui.components.dialogs.ClearWarningDialog
-import com.example.satmeasure.utils.HapticHelper
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -41,41 +60,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils.setAlphaComponent
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.satmeasure.R
-import com.mapbox.maps.CameraOptions
-import com.mapbox.maps.CameraBoundsOptions
+import com.example.satmeasure.ui.components.dialogs.ClearWarningDialog
+import com.example.satmeasure.ui.components.dialogs.DiscardWarningDialog
+import com.example.satmeasure.ui.map.models.CalcMode
+import com.example.satmeasure.ui.map.models.ShapeType
+import com.example.satmeasure.utils.HapticHelper
+import com.example.satmeasure.utils.MathHelpers
+import com.mapbox.bindgen.Value
 import com.mapbox.geojson.Point
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color.BLACK
-import android.graphics.Color.WHITE
-import android.graphics.Paint
-import android.graphics.Typeface
+import com.mapbox.maps.CameraBoundsOptions
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
-import com.mapbox.maps.Style
-import com.mapbox.bindgen.Value
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.unit.sp
-import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
-import com.mapbox.maps.plugin.locationcomponent.location
-import com.example.satmeasure.ui.map.models.CalcMode
-import com.example.satmeasure.ui.map.models.ShapeType
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotationGroup
 import com.mapbox.maps.extension.compose.annotation.generated.PolygonAnnotationGroup
 import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotationGroup
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PolygonAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
-import androidx.compose.ui.graphics.toArgb
-import androidx.core.graphics.ColorUtils.setAlphaComponent
-import androidx.core.graphics.toColorInt
-import androidx.core.graphics.createBitmap
-
+import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
+import com.mapbox.maps.plugin.locationcomponent.location
+import kotlin.math.abs
+import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.milliseconds
 
 fun createNumberedPinBitmap(context: Context, number: Int): Bitmap {
@@ -983,7 +998,9 @@ fun SatMapComponent(
         }
 
         val controlsBottomPadding =
-            if (isLandscape) dimensionResource(id = R.dimen.spacing_md) else bottomPadding + dimensionResource(id = R.dimen.text_lg)
+            if (isLandscape) dimensionResource(
+                id = R.dimen.spacing_md
+            ) else bottomPadding + dimensionResource(id = R.dimen.text_lg)
         val controlModifier = Modifier
             .align(Alignment.BottomEnd)
             .padding(

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">SatMeasure</string>
 
-    
+
     <string name="dialog_title_are_you_sure">Are You Sure?</string>
     <string name="dialog_text_discard_warning">Going back will Wipe all the Data or Architecture</string>
     <string name="dialog_button_go_back">Go, Back</string>
@@ -40,7 +40,7 @@
     <string name="action_deselect_all">Deselect All</string>
     <string name="action_select_all">Select All</string>
     <string name="action_take_me_back">Take Me Back</string>
-    
+
     <string name="title_select_area_unit">Select Area Unit</string>
     <string name="cd_selected">Selected</string>
 
@@ -70,7 +70,7 @@
     <string name="cd_target">Target</string>
     <string name="cd_reset_north">Reset North</string>
     <string name="cd_my_location">My Location</string>
-    
+
     <string name="action_calculate_area">Calculate Area</string>
     <string name="action_done">Done</string>
     <string name="action_edit">Edit</string>
@@ -163,7 +163,7 @@
     <string name="unit_dhur">Dhur (Bihar/Jharkhand)</string>
     <string name="unit_lecha">Lecha (Assam)</string>
     <string name="unit_decimal">Decimal (West Bengal)</string>
-<string name="developed_and">Developed and</string>
+    <string name="developed_and">Developed and</string>
     <string name="designed_by">designed by</string>
     <string name="ashok_swami">Ashok Swami</string>
     <string name="github">GitHub</string>
@@ -198,4 +198,4 @@
     <string name="terrain_outdoors">Terrain &amp; Outdoors</string>
     <string name="pure_satellite">Pure Satellite</string>
     <string name="desc_enjoy_ad_free">Enjoy an ad-free premium experience</string>
-    </resources>
+</resources>

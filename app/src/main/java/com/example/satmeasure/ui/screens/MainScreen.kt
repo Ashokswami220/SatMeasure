@@ -1,66 +1,63 @@
 package com.example.satmeasure.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import com.example.satmeasure.data.model.MeasurementRecord
-import com.example.satmeasure.data.model.PointData
-import com.example.satmeasure.ui.map.MapUiState
-import androidx.compose.ui.Modifier
-import com.example.satmeasure.ui.map.MapViewModel
-import com.example.satmeasure.ui.map.MapAction
-import androidx.compose.ui.platform.LocalConfiguration
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.background
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.platform.LocalContext
-import com.example.satmeasure.ui.map.SatMapComponent
-import com.example.satmeasure.ui.navigation.SatMesRoutes
-import com.example.satmeasure.ui.components.sheets.AppSidebar
-import com.example.satmeasure.ui.components.bars.MainTopControls
-import com.example.satmeasure.ui.components.sheets.MainCustomBottomSheet
-import com.example.satmeasure.ui.components.sheets.MapStyleBottomSheet
-import com.example.satmeasure.ui.components.sheets.MainBottomSheet
-import com.example.satmeasure.ui.components.dialogs.ExportPdfDialog
-import com.example.satmeasure.ui.components.sheets.getAvailableMapStyles
-import com.example.satmeasure.ui.auth.AuthViewModel
-import com.example.satmeasure.ui.map.models.CalcMode
-import androidx.compose.runtime.collectAsState
-import com.example.satmeasure.ui.components.dialogs.SaveMeasurementDialog
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import com.example.satmeasure.R
+import com.example.satmeasure.data.model.PointData
+import com.example.satmeasure.ui.auth.AuthViewModel
+import com.example.satmeasure.ui.components.bars.MainTopControls
+import com.example.satmeasure.ui.components.dialogs.ExportPdfDialog
+import com.example.satmeasure.ui.components.dialogs.SaveMeasurementDialog
+import com.example.satmeasure.ui.components.sheets.AppSidebar
+import com.example.satmeasure.ui.components.sheets.MainBottomSheet
+import com.example.satmeasure.ui.components.sheets.MainCustomBottomSheet
+import com.example.satmeasure.ui.components.sheets.MapStyleBottomSheet
+import com.example.satmeasure.ui.components.sheets.getAvailableMapStyles
+import com.example.satmeasure.ui.map.MapAction
+import com.example.satmeasure.ui.map.MapViewModel
+import com.example.satmeasure.ui.map.SatMapComponent
+import com.example.satmeasure.ui.map.models.CalcMode
+import com.example.satmeasure.ui.navigation.SatMesRoutes
 import com.example.satmeasure.utils.PdfGenerator
-import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.example.satmeasure.R
+import kotlinx.coroutines.withContext
+import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,11 +106,13 @@ fun MainScreen(
                                 }
                         }
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, msgPdfExportedSuccessfully, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, msgPdfExportedSuccessfully, Toast.LENGTH_SHORT)
+                            .show()
                     }
                 } catch (_: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, msgFailedToSavePdf, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, msgFailedToSavePdf, Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
             }
@@ -125,7 +124,8 @@ fun MainScreen(
 
     val isDarkTheme = isSystemInDarkTheme()
     val currentStyleOption =
-        getAvailableMapStyles().find { it.id == currentMapStyleId } ?: getAvailableMapStyles().first()
+        getAvailableMapStyles().find { it.id == currentMapStyleId }
+            ?: getAvailableMapStyles().first()
     val currentStyleUri =
         if (isDarkTheme) currentStyleOption.darkStyleUri else currentStyleOption.lightStyleUri
 
@@ -187,7 +187,8 @@ fun MainScreen(
                 mapViewModel.onAction(MapAction.SetPdfExportOptions(options))
                 setShowExportDialog(false)
                 exportName = options.name
-                Toast.makeText(context, msgGeneratingPdf, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, msgGeneratingPdf, Toast.LENGTH_SHORT)
+                    .show()
                 scope.launch(Dispatchers.IO) {
                     val pointsToMeasure = when (mapUiState.completedMode ?: mapUiState.activeMode) {
                         CalcMode.PINS -> mapUiState.pinPoints
@@ -308,7 +309,8 @@ fun MainScreen(
                                 isAtPeekHeight = isAtPeekHeight,
                                 onSaveClick = {
                                     if (authState.currentUser == null) {
-                                        Toast.makeText(context, msgSignInToSave, Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, msgSignInToSave, Toast.LENGTH_SHORT)
+                                            .show()
                                     } else {
                                         setShowSaveDialog(true)
                                     }
@@ -360,7 +362,8 @@ fun MainScreen(
                                 isAtPeekHeight = isAtPeekHeight,
                                 onSaveClick = {
                                     if (authState.currentUser == null) {
-                                        Toast.makeText(context, msgSignInToSave, Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, msgSignInToSave, Toast.LENGTH_SHORT)
+                                            .show()
                                     } else {
                                         setShowSaveDialog(true)
                                     }

@@ -3,6 +3,7 @@ package com.example.satmeasure.ui.components.sheets
 import android.content.Intent
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +53,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.BorderStroke
 import coil.compose.AsyncImage
 import com.example.satmeasure.R
 import com.example.satmeasure.ui.auth.AuthViewModel
@@ -99,12 +99,28 @@ fun AppSidebar(
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.text_lg)))
+                Spacer(
+                    modifier = Modifier.height(
+                        if (isLandscape) dimensionResource(
+                            id = R.dimen.spacing_xs
+                        ) else dimensionResource(id = R.dimen.text_lg)
+                    )
+                )
 
                 val titlePadding = if (isLandscape) {
-                    Modifier.padding(start = dimensionResource(id = R.dimen.dimen_22), end = dimensionResource(id = R.dimen.dimen_22), top = dimensionResource(id = R.dimen.dimen_10), bottom = dimensionResource(id = R.dimen.dimen_10))
+                    Modifier.padding(
+                        start = dimensionResource(id = R.dimen.dimen_22),
+                        end = dimensionResource(id = R.dimen.dimen_22),
+                        top = dimensionResource(id = R.dimen.dimen_10),
+                        bottom = dimensionResource(id = R.dimen.dimen_10)
+                    )
                 } else {
-                    Modifier.padding(start = dimensionResource(id = R.dimen.dimen_22), end = dimensionResource(id = R.dimen.dimen_22), top = dimensionResource(id = R.dimen.dimen_0), bottom = dimensionResource(id = R.dimen.text_lg))
+                    Modifier.padding(
+                        start = dimensionResource(id = R.dimen.dimen_22),
+                        end = dimensionResource(id = R.dimen.dimen_22),
+                        top = dimensionResource(id = R.dimen.dimen_0),
+                        bottom = dimensionResource(id = R.dimen.text_lg)
+                    )
                 }
 
                 Text(
@@ -119,9 +135,15 @@ fun AppSidebar(
 
                 // Profile Section (Alive and Premium)
                 val profilePadding = if (isLandscape) {
-                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.corner_sm))
+                    Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.text_lg),
+                        vertical = dimensionResource(id = R.dimen.corner_sm)
+                    )
                 } else {
-                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.text_lg))
+                    Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.text_lg),
+                        vertical = dimensionResource(id = R.dimen.text_lg)
+                    )
                 }
 
                 Surface(
@@ -135,7 +157,10 @@ fun AppSidebar(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = dimensionResource(id = R.dimen.text_lg), vertical = dimensionResource(id = R.dimen.text_sm))
+                            .padding(
+                                horizontal = dimensionResource(id = R.dimen.text_lg),
+                                vertical = dimensionResource(id = R.dimen.text_sm)
+                            )
                     ) {
                         // Sleek Row Layout
                         Row(
@@ -152,7 +177,9 @@ fun AppSidebar(
                                 if (authState.currentUser?.photoUrl != null) {
                                     AsyncImage(
                                         model = authState.currentUser?.photoUrl,
-                                        contentDescription = stringResource(id = R.string.profile_picture),
+                                        contentDescription = stringResource(
+                                            id = R.string.profile_picture
+                                        ),
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 } else if (authState.currentUser != null) {
@@ -169,13 +196,19 @@ fun AppSidebar(
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Person,
-                                        contentDescription = stringResource(id = R.string.profile_picture),
-                                        modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxxl)),
+                                        contentDescription = stringResource(
+                                            id = R.string.profile_picture
+                                        ),
+                                        modifier = Modifier.size(
+                                            dimensionResource(id = R.dimen.text_xxxl)
+                                        ),
                                         tint = MaterialTheme.colorScheme.onTertiary
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.text_lg)))
+                            Spacer(
+                                modifier = Modifier.width(dimensionResource(id = R.dimen.text_lg))
+                            )
                             Column(modifier = Modifier.weight(1f)) {
                                 if (authState.currentUser != null) {
                                     Text(
@@ -185,7 +218,11 @@ fun AppSidebar(
                                         color = MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1
                                     )
-                                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_xxs)))
+                                    Spacer(
+                                        modifier = Modifier.height(
+                                            dimensionResource(id = R.dimen.spacing_xxs)
+                                        )
+                                    )
                                     Text(
                                         text = authState.currentUser?.email ?: "",
                                         style = MaterialTheme.typography.bodySmall,
@@ -220,7 +257,10 @@ fun AppSidebar(
                                 .fillMaxWidth()
                                 .height(dimensionResource(id = R.dimen.dimen_40)),
                             shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
-                            border = BorderStroke(dimensionResource(id = R.dimen.dimen_1), MaterialTheme.colorScheme.tertiary),
+                            border = BorderStroke(
+                                dimensionResource(id = R.dimen.dimen_1),
+                                MaterialTheme.colorScheme.tertiary
+                            ),
                             contentPadding = PaddingValues(dimensionResource(id = R.dimen.dimen_0)),
                             colors = outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.tertiary
@@ -228,7 +268,9 @@ fun AppSidebar(
                         ) {
                             if (authState.isLoading) {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xxl)),
+                                    modifier = Modifier.size(
+                                        dimensionResource(id = R.dimen.text_xxl)
+                                    ),
                                     color = MaterialTheme.colorScheme.tertiary,
                                     strokeWidth = dimensionResource(id = R.dimen.spacing_xxs)
                                 )
@@ -249,19 +291,33 @@ fun AppSidebar(
                 }
 
                 HorizontalDivider()
-                Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.corner_sm)))
+                Spacer(
+                    modifier = Modifier.height(
+                        if (isLandscape) dimensionResource(
+                            id = R.dimen.spacing_xs
+                        ) else dimensionResource(id = R.dimen.corner_sm)
+                    )
+                )
 
                 val itemPadding = if (isLandscape) {
-                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.corner_sm), vertical = dimensionResource(id = R.dimen.dimen_0))
+                    Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.corner_sm),
+                        vertical = dimensionResource(id = R.dimen.dimen_0)
+                    )
                 } else {
-                    Modifier.padding(horizontal = dimensionResource(id = R.dimen.corner_sm), vertical = dimensionResource(id = R.dimen.spacing_xxs))
+                    Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.corner_sm),
+                        vertical = dimensionResource(id = R.dimen.spacing_xxs)
+                    )
                 }
 
                 NavigationDrawerItem(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_saved_areas),
-                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
+                            modifier = Modifier.padding(
+                                start = dimensionResource(id = R.dimen.text_sm)
+                            )
                         )
                     },
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
@@ -275,7 +331,9 @@ fun AppSidebar(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_tutorial),
-                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
+                            modifier = Modifier.padding(
+                                start = dimensionResource(id = R.dimen.text_sm)
+                            )
                         )
                     },
                     icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
@@ -289,7 +347,9 @@ fun AppSidebar(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_about_us),
-                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
+                            modifier = Modifier.padding(
+                                start = dimensionResource(id = R.dimen.text_sm)
+                            )
                         )
                     },
                     icon = { Icon(Icons.Default.Info, contentDescription = null) },
@@ -305,7 +365,9 @@ fun AppSidebar(
                     label = {
                         Text(
                             stringResource(id = R.string.menu_share),
-                            modifier = Modifier.padding(start = dimensionResource(id = R.dimen.text_sm))
+                            modifier = Modifier.padding(
+                                start = dimensionResource(id = R.dimen.text_sm)
+                            )
                         )
                     },
                     icon = { Icon(Icons.Default.Share, contentDescription = null) },
@@ -325,7 +387,13 @@ fun AppSidebar(
             }
 
             HorizontalDivider()
-            Spacer(modifier = Modifier.height(if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.corner_sm)))
+            Spacer(
+                modifier = Modifier.height(
+                    if (isLandscape) dimensionResource(
+                        id = R.dimen.spacing_xs
+                    ) else dimensionResource(id = R.dimen.corner_sm)
+                )
+            )
 
             NavigationDrawerItem(
                 label = {
@@ -344,8 +412,12 @@ fun AppSidebar(
                 modifier = Modifier.padding(
                     start = dimensionResource(id = R.dimen.corner_sm),
                     end = dimensionResource(id = R.dimen.corner_sm),
-                    bottom = if (isLandscape) dimensionResource(id = R.dimen.spacing_xs) else dimensionResource(id = R.dimen.text_lg),
-                    top = if (isLandscape) dimensionResource(id = R.dimen.dimen_0) else dimensionResource(id = R.dimen.spacing_xs)
+                    bottom = if (isLandscape) dimensionResource(
+                        id = R.dimen.spacing_xs
+                    ) else dimensionResource(id = R.dimen.text_lg),
+                    top = if (isLandscape) dimensionResource(
+                        id = R.dimen.dimen_0
+                    ) else dimensionResource(id = R.dimen.spacing_xs)
                 )
             )
         }

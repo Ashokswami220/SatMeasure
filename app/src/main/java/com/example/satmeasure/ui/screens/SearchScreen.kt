@@ -1,7 +1,5 @@
 package com.example.satmeasure.ui.screens
 
-import com.example.satmeasure.utils.HapticHelper
-
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -10,7 +8,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -23,20 +32,41 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.example.satmeasure.BuildConfig
 import com.example.satmeasure.R
+import com.example.satmeasure.utils.HapticHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -44,6 +74,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import kotlin.time.Duration.Companion.milliseconds
 
 data class PlaceSuggestion(val name: String, val lat: Double, val lng: Double)
 
@@ -104,7 +135,7 @@ fun SearchScreen(
 
     LaunchedEffect(searchQuery) {
         if (searchQuery.trim().length > 2) {
-            delay(500) // debounce
+            delay(500.milliseconds) // debounce
             val results = searchPlaces(
                 searchQuery.trim(), BuildConfig.MAPBOX_ACCESS_TOKEN, currentUserLocation
             )
@@ -140,7 +171,10 @@ fun SearchScreen(
                             onBackClick()
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = stringResource(id = R.string.cd_back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBackIos,
+                            contentDescription = stringResource(id = R.string.cd_back)
+                        )
                     }
                 },
                 trailingIcon = {
@@ -149,7 +183,10 @@ fun SearchScreen(
                             Icon(Icons.Default.Clear, stringResource(id = R.string.clear))
                         }
                     } else {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search))
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = stringResource(id = R.string.search)
+                        )
                     }
                 },
                 shape = CircleShape,
@@ -179,7 +216,11 @@ fun SearchScreen(
                     // Also applying the native color to the dropdown for consistency
                     color = nativeSearchBarColor
                 ) {
-                    LazyColumn(modifier = Modifier.heightIn(max = dimensionResource(id = R.dimen.dimen_300))) {
+                    LazyColumn(
+                        modifier = Modifier.heightIn(
+                            max = dimensionResource(id = R.dimen.dimen_300)
+                        )
+                    ) {
                         items(suggestions) { suggestion ->
                             Box(
                                 modifier = Modifier
@@ -196,7 +237,11 @@ fun SearchScreen(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_lg)))
+                            HorizontalDivider(
+                                modifier = Modifier.padding(
+                                    horizontal = dimensionResource(id = R.dimen.text_lg)
+                                )
+                            )
                         }
                     }
                 }
@@ -242,7 +287,9 @@ fun SearchScreen(
                             trailingIcon = {
                                 if (coordinateInput.isNotEmpty()) {
                                     IconButton(onClick = { coordinateInput = "" }) {
-                                        Icon(Icons.Default.Clear, stringResource(id = R.string.clear))
+                                        Icon(
+                                            Icons.Default.Clear, stringResource(id = R.string.clear)
+                                        )
                                     }
                                 }
                             }
@@ -258,15 +305,21 @@ fun SearchScreen(
                                 HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
                                 val parts = coordinateInput.split(",")
                                 if (parts.size == 2) {
-                                    val lat = parts[0].trim().toDoubleOrNull()
-                                    val lng = parts[1].trim().toDoubleOrNull()
+                                    val lat = parts[0].trim()
+                                        .toDoubleOrNull()
+                                    val lng = parts[1].trim()
+                                        .toDoubleOrNull()
                                     if (lat != null && lng != null) {
                                         onCoordinateSearch(lat, lng)
                                     } else {
-                                        Toast.makeText(context, msgInvalidNumbers, Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context, msgInvalidNumbers, Toast.LENGTH_SHORT
+                                        )
+                                            .show()
                                     }
                                 } else {
-                                    Toast.makeText(context, msgUseComma, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, msgUseComma, Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             },
                             modifier = Modifier
@@ -276,15 +329,23 @@ fun SearchScreen(
                             enabled = coordinateInput.contains(",")
                         ) {
                             Icon(Icons.Default.LocationOn, contentDescription = null)
-                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm)))
+                            Spacer(
+                                modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm))
+                            )
                             Text(
                                 stringResource(R.string.action_go_to_coordinates),
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.text_xxxl)))
+                        Spacer(
+                            modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl))
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(
+                                horizontal = dimensionResource(id = R.dimen.text_xxxl)
+                            )
+                        )
                         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxl)))
 
                         // Helper Buttons Row
@@ -310,9 +371,15 @@ fun SearchScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Map, contentDescription = null,
-                                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xl))
+                                    modifier = Modifier.size(
+                                        dimensionResource(id = R.dimen.text_xl)
+                                    )
                                 )
-                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_sm_minus)))
+                                Spacer(
+                                    modifier = Modifier.width(
+                                        dimensionResource(id = R.dimen.spacing_sm_minus)
+                                    )
+                                )
                                 Text(stringResource(R.string.action_open_gmaps))
                             }
 
@@ -325,9 +392,15 @@ fun SearchScreen(
                             ) {
                                 Icon(
                                     Icons.Default.TouchApp, contentDescription = null,
-                                    modifier = Modifier.size(dimensionResource(id = R.dimen.text_xl))
+                                    modifier = Modifier.size(
+                                        dimensionResource(id = R.dimen.text_xl)
+                                    )
                                 )
-                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_sm_minus)))
+                                Spacer(
+                                    modifier = Modifier.width(
+                                        dimensionResource(id = R.dimen.spacing_sm_minus)
+                                    )
+                                )
                                 Text(stringResource(R.string.action_how_to_find))
                             }
                         }
