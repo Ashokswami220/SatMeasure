@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.otherScreens
+package com.example.satmeasure.ui.screens
 
 import android.widget.Toast
 
@@ -52,10 +52,10 @@ import androidx.core.os.LocaleListCompat.forLanguageTags
 import com.example.satmeasure.R
 import com.example.satmeasure.data.SettingsManager
 import com.example.satmeasure.data.ThemeMode
-import com.example.satmeasure.ui.viewmodel.AuthViewModel
-import com.example.satmeasure.ui.viewmodel.MapViewModel
-import com.example.satmeasure.ui.components.DeleteDataWarningDialog
-import com.example.satmeasure.ui.components.DeleteAccountWarningDialog
+import com.example.satmeasure.ui.auth.AuthViewModel
+import com.example.satmeasure.ui.map.MapViewModel
+import com.example.satmeasure.ui.components.dialogs.DeleteDataWarningDialog
+import com.example.satmeasure.ui.components.dialogs.DeleteAccountWarningDialog
 import com.example.satmeasure.utils.HapticHelper
 import kotlinx.coroutines.launch
 

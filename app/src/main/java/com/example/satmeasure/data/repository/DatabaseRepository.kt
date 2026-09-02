@@ -1,6 +1,6 @@
-package com.example.satmeasure.repo
+package com.example.satmeasure.data.repository
 
-import com.example.satmeasure.model.MeasurementRecord
+import com.example.satmeasure.data.model.MeasurementRecord
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 

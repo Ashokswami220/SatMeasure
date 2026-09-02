@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.main
+package com.example.satmeasure.ui.map
 
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -20,9 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.satmeasure.R
-import com.example.satmeasure.model.MeasurementRecord
-import com.example.satmeasure.ui.viewmodel.AuthViewModel
-import com.example.satmeasure.ui.viewmodel.MapViewModel
+import com.example.satmeasure.data.model.MeasurementRecord
+import com.example.satmeasure.ui.auth.AuthViewModel
 import com.example.satmeasure.utils.HapticHelper
 import androidx.compose.ui.platform.LocalContext
 import java.text.SimpleDateFormat

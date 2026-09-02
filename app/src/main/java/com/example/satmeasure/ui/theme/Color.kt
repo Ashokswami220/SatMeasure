@@ -1,5 +1,6 @@
 package com.example.satmeasure.ui.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFF324F61)
@@ -218,9 +219,11 @@ val surfaceContainerDarkHighContrast = Color(0xFF303031)
 val surfaceContainerHighDarkHighContrast = Color(0xFF3B3B3C)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF464748)
 
-
-
-
-
-
+@Immutable
+data class ColorFamily(
+    val color: Color,
+    val onColor: Color,
+    val colorContainer: Color,
+    val onColorContainer: Color
+)
 

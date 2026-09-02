@@ -1,10 +1,10 @@
-package com.example.satmeasure.ui.viewmodel
+package com.example.satmeasure.ui.map
 
 import androidx.lifecycle.ViewModel
 import com.example.satmeasure.ui.map.models.CalcMode
-import com.example.satmeasure.model.MeasurementRecord
-import com.example.satmeasure.model.PointData
-import com.example.satmeasure.repo.DatabaseRepository
+import com.example.satmeasure.data.model.MeasurementRecord
+import com.example.satmeasure.data.model.PointData
+import com.example.satmeasure.data.repository.DatabaseRepository
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +39,7 @@ data class MapUiState(
     val loadedMeasurementName: String? = null,
     val loadedMeasurementId: String? = null,
     val isReadOnly: Boolean = false,
-    val pdfExportOptions: com.example.satmeasure.ui.components.PdfExportOptions = com.example.satmeasure.ui.components.PdfExportOptions()
+    val pdfExportOptions: com.example.satmeasure.ui.components.dialogs.PdfExportOptions = com.example.satmeasure.ui.components.dialogs.PdfExportOptions()
 )
 
 sealed class MapAction {
@@ -52,7 +52,7 @@ sealed class MapAction {
     data class SetShapeDropped(val isDropped: Boolean) : MapAction()
     data class SetShowDiscardDialog(val show: Boolean) : MapAction()
     data class SetShowClearDialog(val show: Boolean) : MapAction()
-    data class SetPdfExportOptions(val options: com.example.satmeasure.ui.components.PdfExportOptions) : MapAction()
+    data class SetPdfExportOptions(val options: com.example.satmeasure.ui.components.dialogs.PdfExportOptions) : MapAction()
 
     // Pin Actions
     data class AddPinPoint(val point: Point) : MapAction()

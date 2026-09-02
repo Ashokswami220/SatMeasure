@@ -6,7 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
-import com.example.satmeasure.model.PointData
+import com.example.satmeasure.data.model.PointData
 import com.example.satmeasure.ui.map.AreaUnit
 import com.example.satmeasure.ui.map.MeasurementConverter
 import com.example.satmeasure.R
@@ -17,7 +17,7 @@ import com.mapbox.maps.MapSnapshotOptions
 import com.mapbox.maps.Size
 import com.mapbox.maps.EdgeInsets
 import com.mapbox.geojson.Point
-import com.example.satmeasure.ui.components.PdfExportOptions
+import com.example.satmeasure.ui.components.dialogs.PdfExportOptions
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.io.FileOutputStream

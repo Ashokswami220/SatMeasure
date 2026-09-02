@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.components
+package com.example.satmeasure.ui.components.dialogs
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize

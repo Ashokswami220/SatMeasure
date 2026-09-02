@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.satmeasure.R
 import com.example.satmeasure.ui.map.models.CalcMode
 import com.example.satmeasure.ui.map.models.ShapeType
-import com.example.satmeasure.ui.components.WipeWarningDialog
+import com.example.satmeasure.ui.components.dialogs.WipeWarningDialog
 import com.example.satmeasure.utils.HapticHelper
 import androidx.compose.ui.platform.LocalContext
 

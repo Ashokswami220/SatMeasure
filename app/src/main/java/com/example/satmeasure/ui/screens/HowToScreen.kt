@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.otherScreens
+package com.example.satmeasure.ui.screens
 
 import com.example.satmeasure.utils.HapticHelper
 

@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.otherScreens
+package com.example.satmeasure.ui.screens
 
 import android.content.Intent
 import android.content.res.Configuration

@@ -1,4 +1,4 @@
-package com.example.satmeasure.model
+package com.example.satmeasure.data.model
 
 import com.google.firebase.database.IgnoreExtraProperties
 

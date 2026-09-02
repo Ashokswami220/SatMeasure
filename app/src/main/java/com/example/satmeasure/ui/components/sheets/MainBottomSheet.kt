@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.components
+package com.example.satmeasure.ui.components.sheets
 
 import com.example.satmeasure.utils.HapticHelper
 

@@ -26,17 +26,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.satmeasure.ui.viewmodel.MapViewModel
+import com.example.satmeasure.ui.map.MapViewModel
 import com.mapbox.geojson.Point
-import com.example.satmeasure.ui.main.MainScreen
-import com.example.satmeasure.ui.main.SavedScreen
-import com.example.satmeasure.ui.otherScreens.AboutUsScreen
-import com.example.satmeasure.ui.otherScreens.HowToCoordinatesScreen
-import com.example.satmeasure.ui.otherScreens.SearchScreen
-import com.example.satmeasure.ui.otherScreens.SettingsScreen
-import com.example.satmeasure.ui.otherScreens.TutorialScreen
-import com.example.satmeasure.ui.viewmodel.AuthViewModel
-import com.example.satmeasure.ui.viewmodel.MapAction
+import com.example.satmeasure.ui.map.MainScreen
+import com.example.satmeasure.ui.map.SavedScreen
+import com.example.satmeasure.ui.screens.AboutUsScreen
+import com.example.satmeasure.ui.screens.HowToCoordinatesScreen
+import com.example.satmeasure.ui.screens.SearchScreen
+import com.example.satmeasure.ui.screens.SettingsScreen
+import com.example.satmeasure.ui.screens.TutorialScreen
+import com.example.satmeasure.ui.auth.AuthViewModel
+import com.example.satmeasure.ui.map.MapAction
 import com.example.satmeasure.R
 
 const val ANIM_DURATION = 400

@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.viewmodel
+package com.example.satmeasure.ui.auth
 
 import android.content.Context
 import androidx.credentials.CredentialManager

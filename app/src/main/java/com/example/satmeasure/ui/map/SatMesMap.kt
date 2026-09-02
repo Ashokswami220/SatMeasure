@@ -25,8 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
-import com.example.satmeasure.ui.components.DiscardWarningDialog
-import com.example.satmeasure.ui.components.ClearWarningDialog
+import com.example.satmeasure.ui.components.dialogs.DiscardWarningDialog
+import com.example.satmeasure.ui.components.dialogs.ClearWarningDialog
 import com.example.satmeasure.utils.HapticHelper
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -74,8 +74,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils.setAlphaComponent
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.createBitmap
-import com.example.satmeasure.ui.viewmodel.MapAction
-import com.example.satmeasure.ui.viewmodel.MapViewModel
+
 import kotlin.time.Duration.Companion.milliseconds
 
 fun createNumberedPinBitmap(context: Context, number: Int): Bitmap {

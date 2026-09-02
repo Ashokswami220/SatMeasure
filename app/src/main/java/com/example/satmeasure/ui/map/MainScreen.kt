@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.main
+package com.example.satmeasure.ui.map
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,20 +34,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalContext
 import com.example.satmeasure.ui.map.SatMapComponent
 import com.example.satmeasure.ui.navigation.SatMesRoutes
-import com.example.satmeasure.ui.navigation.AppSidebar
-import com.example.satmeasure.ui.navigation.MainTopControls
-import com.example.satmeasure.ui.components.MainCustomBottomSheet
-import com.example.satmeasure.ui.navigation.MapStyleBottomSheet
-import com.example.satmeasure.ui.components.MainBottomSheet
-import com.example.satmeasure.ui.components.ExportPdfDialog
-import com.example.satmeasure.ui.navigation.getAvailableMapStyles
-import com.example.satmeasure.ui.viewmodel.AuthViewModel
-import com.example.satmeasure.ui.viewmodel.MapViewModel
-import com.example.satmeasure.ui.viewmodel.MapAction
+import com.example.satmeasure.ui.components.sheets.AppSidebar
+import com.example.satmeasure.ui.components.bars.MainTopControls
+import com.example.satmeasure.ui.components.sheets.MainCustomBottomSheet
+import com.example.satmeasure.ui.components.sheets.MapStyleBottomSheet
+import com.example.satmeasure.ui.components.sheets.MainBottomSheet
+import com.example.satmeasure.ui.components.dialogs.ExportPdfDialog
+import com.example.satmeasure.ui.components.sheets.getAvailableMapStyles
+import com.example.satmeasure.ui.auth.AuthViewModel
 import com.example.satmeasure.ui.map.models.CalcMode
-import com.example.satmeasure.model.PointData
+import com.example.satmeasure.data.model.PointData
 import androidx.compose.runtime.collectAsState
-import com.example.satmeasure.ui.components.SaveMeasurementDialog
+import com.example.satmeasure.ui.components.dialogs.SaveMeasurementDialog
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
