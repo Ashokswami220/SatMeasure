@@ -14,3 +14,11 @@
 .cxx
 local.properties
 app/google-services.json
+
+# Build artifacts
+*.apk
+app/release/
+
+# Android Studio / IDEA specific
+/.idea/deploymentTargetSelector.xml
+/.idea/inspectionProfiles/

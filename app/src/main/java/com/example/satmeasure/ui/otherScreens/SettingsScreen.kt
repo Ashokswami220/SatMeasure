@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,7 +75,7 @@ fun SettingsScreen(
     val hapticsEnabled by settingsManager.hapticsFlow.collectAsState(initial = true)
     val currentUser by authViewModel.uiState.collectAsState()
 
-    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val isSystemDark = isSystemInDarkTheme()
     val isDarkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
