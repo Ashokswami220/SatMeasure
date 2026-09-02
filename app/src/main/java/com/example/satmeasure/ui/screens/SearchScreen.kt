@@ -1,5 +1,6 @@
 package com.example.satmeasure.ui.screens
 
+import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -145,7 +146,6 @@ fun SearchScreen(
         }
     }
 
-    // THE FIX: We dynamically grab the EXACT color your phone uses for native SearchBars
     val nativeSearchBarColor = SearchBarDefaults.colors().containerColor
 
     Scaffold { innerPadding ->
@@ -157,253 +157,304 @@ fun SearchScreen(
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
 
-            // --- 1. THE CUSTOM SEARCH PILL ---
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text(stringResource(R.string.hint_search_city)) },
-                leadingIcon = {
-                    IconButton(onClick = {
-                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                        if (searchQuery.isNotEmpty()) {
-                            searchQuery = ""
-                        } else {
-                            onBackClick()
-                        }
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBackIos,
-                            contentDescription = stringResource(id = R.string.cd_back)
-                        )
-                    }
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, stringResource(id = R.string.clear))
-                        }
-                    } else {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = stringResource(id = R.string.search)
-                        )
-                    }
-                },
-                shape = CircleShape,
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    // Applied the exact native color here!
-                    unfocusedContainerColor = nativeSearchBarColor,
-                    focusedContainerColor = nativeSearchBarColor
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+            SearchPill(
+                searchQuery = searchQuery,
+                onQueryChange = { searchQuery = it },
+                onBackClick = onBackClick,
+                nativeSearchBarColor = nativeSearchBarColor,
+                context = context
             )
 
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl)))
 
-            // --- 2. THE SUGGESTIONS LIST (Appears when typing) ---
-            AnimatedVisibility(
-                visible = searchQuery.isNotEmpty(),
-                enter = fadeIn() + slideInVertically { it / 4 },
-                exit = fadeOut() + slideOutVertically { it / 4 }
-            ) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)),
-                    // Also applying the native color to the dropdown for consistency
-                    color = nativeSearchBarColor
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.heightIn(
-                            max = dimensionResource(id = R.dimen.dimen_300)
-                        )
-                    ) {
-                        items(suggestions) { suggestion ->
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                        searchQuery = suggestion.name
-                                        onCoordinateSearch(suggestion.lat, suggestion.lng)
-                                    }
-                                    .padding(dimensionResource(id = R.dimen.text_lg))
-                            ) {
-                                Text(
-                                    text = suggestion.name,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                            HorizontalDivider(
-                                modifier = Modifier.padding(
-                                    horizontal = dimensionResource(id = R.dimen.text_lg)
-                                )
-                            )
-                        }
-                    }
+            SuggestionsList(
+                searchQuery = searchQuery,
+                suggestions = suggestions,
+                nativeSearchBarColor = nativeSearchBarColor,
+                context = context,
+                onSuggestionClick = { suggestion ->
+                    searchQuery = suggestion.name
+                    onCoordinateSearch(suggestion.lat, suggestion.lng)
                 }
-            }
+            )
 
-            // --- 3. THE COORDINATES CARD (Hides when typing) ---
-            AnimatedVisibility(
-                visible = searchQuery.isEmpty(),
-                enter = fadeIn() + slideInVertically { it / 4 },
-                exit = fadeOut() + slideOutVertically { it / 4 }
+            CoordinateSearchCard(
+                searchQuery = searchQuery,
+                coordinateInput = coordinateInput,
+                onCoordinateInputChange = { coordinateInput = it },
+                nativeSearchBarColor = nativeSearchBarColor,
+                context = context,
+                onHowToClick = onHowToClick,
+                onCoordinateSearch = onCoordinateSearch
+            )
+        }
+    }
+}
+
+@Composable
+fun SearchPill(
+    searchQuery: String,
+    onQueryChange: (String) -> Unit,
+    onBackClick: () -> Unit,
+    nativeSearchBarColor: Color,
+    context: Context
+) {
+    TextField(
+        value = searchQuery,
+        onValueChange = onQueryChange,
+        placeholder = { Text(stringResource(R.string.hint_search_city)) },
+        leadingIcon = {
+            IconButton(onClick = {
+                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                if (searchQuery.isNotEmpty()) {
+                    onQueryChange("")
+                } else {
+                    onBackClick()
+                }
+            }) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBackIos,
+                    contentDescription = stringResource(id = R.string.cd_back)
+                )
+            }
+        },
+        trailingIcon = {
+            if (searchQuery.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Clear, stringResource(id = R.string.clear))
+                }
+            } else {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = stringResource(id = R.string.search)
+                )
+            }
+        },
+        shape = CircleShape,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            unfocusedContainerColor = nativeSearchBarColor,
+            focusedContainerColor = nativeSearchBarColor
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true
+    )
+}
+
+@Composable
+fun SuggestionsList(
+    searchQuery: String,
+    suggestions: List<PlaceSuggestion>,
+    nativeSearchBarColor: Color,
+    context: Context,
+    onSuggestionClick: (PlaceSuggestion) -> Unit
+) {
+    AnimatedVisibility(
+        visible = searchQuery.isNotEmpty(),
+        enter = fadeIn() + slideInVertically { it / 4 },
+        exit = fadeOut() + slideOutVertically { it / 4 }
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)),
+            color = nativeSearchBarColor
+        ) {
+            LazyColumn(
+                modifier = Modifier.heightIn(
+                    max = dimensionResource(id = R.dimen.dimen_300)
+                )
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_xxxl)),
-                    // Applied the exact native SearchBar color to the Card!
-                    colors = CardDefaults.cardColors(
-                        containerColor = nativeSearchBarColor
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(dimensionResource(id = R.dimen.text_xxl)),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                items(suggestions) { suggestion ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                                onSuggestionClick(suggestion)
+                            }
+                            .padding(dimensionResource(id = R.dimen.text_lg))
                     ) {
                         Text(
-                            text = stringResource(R.string.title_search_by_coordinates),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.align(Alignment.Start)
+                            text = suggestion.name,
+                            style = MaterialTheme.typography.bodyLarge
                         )
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(
+                            horizontal = dimensionResource(id = R.dimen.text_lg)
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
 
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
+@Composable
+fun CoordinateSearchCard(
+    searchQuery: String,
+    coordinateInput: String,
+    onCoordinateInputChange: (String) -> Unit,
+    nativeSearchBarColor: Color,
+    context: Context,
+    onHowToClick: () -> Unit,
+    onCoordinateSearch: (Double, Double) -> Unit
+) {
+    AnimatedVisibility(
+        visible = searchQuery.isEmpty(),
+        enter = fadeIn() + slideInVertically { it / 4 },
+        exit = fadeOut() + slideOutVertically { it / 4 }
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_xxxl)),
+            colors = CardDefaults.cardColors(
+                containerColor = nativeSearchBarColor
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.text_xxl)),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.title_search_by_coordinates),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Start)
+                )
 
-                        OutlinedTextField(
-                            value = coordinateInput,
-                            onValueChange = { coordinateInput = it },
-                            label = { Text(stringResource(R.string.label_lat_lng)) },
-                            placeholder = { Text(stringResource(R.string.hint_lat_lng_example)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
-                            singleLine = true,
-                            trailingIcon = {
-                                if (coordinateInput.isNotEmpty()) {
-                                    IconButton(onClick = { coordinateInput = "" }) {
-                                        Icon(
-                                            Icons.Default.Clear, stringResource(id = R.string.clear)
-                                        )
-                                    }
-                                }
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
+
+                OutlinedTextField(
+                    value = coordinateInput,
+                    onValueChange = onCoordinateInputChange,
+                    label = { Text(stringResource(R.string.label_lat_lng)) },
+                    placeholder = { Text(stringResource(R.string.hint_lat_lng_example)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_sm)),
+                    singleLine = true,
+                    trailingIcon = {
+                        if (coordinateInput.isNotEmpty()) {
+                            IconButton(onClick = { onCoordinateInputChange("") }) {
+                                Icon(
+                                    Icons.Default.Clear, stringResource(id = R.string.clear)
+                                )
                             }
-                        )
-
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
-
-                        val msgInvalidNumbers = stringResource(id = R.string.msg_invalid_numbers)
-                        val msgUseComma = stringResource(id = R.string.msg_use_comma_to_separate)
-
-                        Button(
-                            onClick = {
-                                HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                val parts = coordinateInput.split(",")
-                                if (parts.size == 2) {
-                                    val lat = parts[0].trim()
-                                        .toDoubleOrNull()
-                                    val lng = parts[1].trim()
-                                        .toDoubleOrNull()
-                                    if (lat != null && lng != null) {
-                                        onCoordinateSearch(lat, lng)
-                                    } else {
-                                        Toast.makeText(
-                                            context, msgInvalidNumbers, Toast.LENGTH_SHORT
-                                        )
-                                            .show()
-                                    }
-                                } else {
-                                    Toast.makeText(context, msgUseComma, Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(dimensionResource(id = R.dimen.button_height)),
-                            shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)),
-                            enabled = coordinateInput.contains(",")
-                        ) {
-                            Icon(Icons.Default.LocationOn, contentDescription = null)
-                            Spacer(
-                                modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm))
-                            )
-                            Text(
-                                stringResource(R.string.action_go_to_coordinates),
-                                style = MaterialTheme.typography.titleMedium
-                            )
                         }
+                    }
+                )
 
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_lg)))
+
+                val msgInvalidNumbers = stringResource(id = R.string.msg_invalid_numbers)
+                val msgUseComma = stringResource(id = R.string.msg_use_comma_to_separate)
+
+                Button(
+                    onClick = {
+                        HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                        val parts = coordinateInput.split(",")
+                        if (parts.size == 2) {
+                            val lat = parts[0].trim()
+                                .toDoubleOrNull()
+                            val lng = parts[1].trim()
+                                .toDoubleOrNull()
+                            if (lat != null && lng != null) {
+                                onCoordinateSearch(lat, lng)
+                            } else {
+                                Toast.makeText(
+                                    context, msgInvalidNumbers, Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
+                        } else {
+                            Toast.makeText(context, msgUseComma, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dimensionResource(id = R.dimen.button_height)),
+                    shape = RoundedCornerShape(dimensionResource(id = R.dimen.text_lg)),
+                    enabled = coordinateInput.contains(",")
+                ) {
+                    Icon(Icons.Default.LocationOn, contentDescription = null)
+                    Spacer(
+                        modifier = Modifier.width(dimensionResource(id = R.dimen.corner_sm))
+                    )
+                    Text(
+                        stringResource(R.string.action_go_to_coordinates),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl))
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(
+                        horizontal = dimensionResource(id = R.dimen.text_xxxl)
+                    )
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxl)))
+
+                // Helper Buttons Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    FilledTonalButton(
+                        onClick = {
+                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                            val gmmIntentUri = "https://maps.google.com/".toUri()
+                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                            mapIntent.setPackage("com.google.android.apps.maps")
+                            if (mapIntent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(mapIntent)
+                            } else {
+                                context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                                )
+                            }
+                        },
+                        shape = CircleShape
+                    ) {
+                        Icon(
+                            Icons.Default.Map, contentDescription = null,
+                            modifier = Modifier.size(
+                                dimensionResource(id = R.dimen.text_xl)
+                            )
+                        )
                         Spacer(
-                            modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxxl))
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(
-                                horizontal = dimensionResource(id = R.dimen.text_xxxl)
+                            modifier = Modifier.width(
+                                dimensionResource(id = R.dimen.spacing_sm_minus)
                             )
                         )
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.text_xxl)))
+                        Text(stringResource(R.string.action_open_gmaps))
+                    }
 
-                        // Helper Buttons Row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            FilledTonalButton(
-                                onClick = {
-                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                    val gmmIntentUri = "https://maps.google.com/".toUri()
-                                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                                    mapIntent.setPackage("com.google.android.apps.maps")
-                                    if (mapIntent.resolveActivity(context.packageManager) != null) {
-                                        context.startActivity(mapIntent)
-                                    } else {
-                                        context.startActivity(
-                                            Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                                        )
-                                    }
-                                },
-                                shape = CircleShape
-                            ) {
-                                Icon(
-                                    Icons.Default.Map, contentDescription = null,
-                                    modifier = Modifier.size(
-                                        dimensionResource(id = R.dimen.text_xl)
-                                    )
-                                )
-                                Spacer(
-                                    modifier = Modifier.width(
-                                        dimensionResource(id = R.dimen.spacing_sm_minus)
-                                    )
-                                )
-                                Text(stringResource(R.string.action_open_gmaps))
-                            }
-
-                            OutlinedButton(
-                                onClick = {
-                                    HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
-                                    onHowToClick()
-                                },
-                                shape = CircleShape
-                            ) {
-                                Icon(
-                                    Icons.Default.TouchApp, contentDescription = null,
-                                    modifier = Modifier.size(
-                                        dimensionResource(id = R.dimen.text_xl)
-                                    )
-                                )
-                                Spacer(
-                                    modifier = Modifier.width(
-                                        dimensionResource(id = R.dimen.spacing_sm_minus)
-                                    )
-                                )
-                                Text(stringResource(R.string.action_how_to_find))
-                            }
-                        }
+                    OutlinedButton(
+                        onClick = {
+                            HapticHelper.trigger(context, HapticHelper.Type.MEDIUM)
+                            onHowToClick()
+                        },
+                        shape = CircleShape
+                    ) {
+                        Icon(
+                            Icons.Default.TouchApp, contentDescription = null,
+                            modifier = Modifier.size(
+                                dimensionResource(id = R.dimen.text_xl)
+                            )
+                        )
+                        Spacer(
+                            modifier = Modifier.width(
+                                dimensionResource(id = R.dimen.spacing_sm_minus)
+                            )
+                        )
+                        Text(stringResource(R.string.action_how_to_find))
                     }
                 }
             }
