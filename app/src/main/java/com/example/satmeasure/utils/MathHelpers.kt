@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.map
+package com.example.satmeasure.utils
 
 import com.mapbox.geojson.Point
 import kotlin.math.*

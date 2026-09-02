@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.map
+package com.example.satmeasure.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -13,14 +13,18 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import com.example.satmeasure.data.model.MeasurementRecord
+import com.example.satmeasure.ui.map.MapUiState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.satmeasure.ui.map.MapViewModel
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.satmeasure.R
-import com.example.satmeasure.data.model.MeasurementRecord
 import com.example.satmeasure.ui.auth.AuthViewModel
 import com.example.satmeasure.utils.HapticHelper
 import androidx.compose.ui.platform.LocalContext

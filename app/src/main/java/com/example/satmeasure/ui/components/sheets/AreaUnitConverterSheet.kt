@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.satmeasure.R
 import androidx.compose.ui.window.DialogProperties
-import com.example.satmeasure.ui.map.AreaUnit
-import com.example.satmeasure.ui.map.MeasurementConverter
+import com.example.satmeasure.utils.AreaUnit
+import com.example.satmeasure.utils.MeasurementConverter
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)

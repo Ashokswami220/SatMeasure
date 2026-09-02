@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.satmeasure.R
-import com.example.satmeasure.ui.map.AreaUnit
-import com.example.satmeasure.ui.map.MeasurementConverter
+import com.example.satmeasure.utils.AreaUnit
+import com.example.satmeasure.utils.MeasurementConverter
 import kotlinx.coroutines.launch
 
 data class PdfExportOptions(

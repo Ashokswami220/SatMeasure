@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.activity.compose.BackHandler
+import com.example.satmeasure.utils.MathHelpers
 import com.example.satmeasure.ui.components.dialogs.DiscardWarningDialog
 import com.example.satmeasure.ui.components.dialogs.ClearWarningDialog
 import com.example.satmeasure.utils.HapticHelper

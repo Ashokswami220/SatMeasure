@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.map
+package com.example.satmeasure.ui.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import com.example.satmeasure.data.model.MeasurementRecord
+import com.example.satmeasure.data.model.PointData
+import com.example.satmeasure.ui.map.MapUiState
 import androidx.compose.ui.Modifier
+import com.example.satmeasure.ui.map.MapViewModel
+import com.example.satmeasure.ui.map.MapAction
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.WindowInsets
@@ -43,7 +48,6 @@ import com.example.satmeasure.ui.components.dialogs.ExportPdfDialog
 import com.example.satmeasure.ui.components.sheets.getAvailableMapStyles
 import com.example.satmeasure.ui.auth.AuthViewModel
 import com.example.satmeasure.ui.map.models.CalcMode
-import com.example.satmeasure.data.model.PointData
 import androidx.compose.runtime.collectAsState
 import com.example.satmeasure.ui.components.dialogs.SaveMeasurementDialog
 import android.widget.Toast

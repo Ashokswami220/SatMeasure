@@ -28,8 +28,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.satmeasure.ui.map.MapViewModel
 import com.mapbox.geojson.Point
-import com.example.satmeasure.ui.map.MainScreen
-import com.example.satmeasure.ui.map.SavedScreen
+import com.example.satmeasure.ui.screens.MainScreen
+import com.example.satmeasure.ui.screens.SavedScreen
 import com.example.satmeasure.ui.screens.AboutUsScreen
 import com.example.satmeasure.ui.screens.HowToCoordinatesScreen
 import com.example.satmeasure.ui.screens.SearchScreen

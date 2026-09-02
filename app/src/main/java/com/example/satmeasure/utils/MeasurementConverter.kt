@@ -1,4 +1,4 @@
-package com.example.satmeasure.ui.map
+package com.example.satmeasure.utils
 
 import androidx.annotation.StringRes
 import com.example.satmeasure.R

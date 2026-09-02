@@ -7,8 +7,8 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import com.example.satmeasure.data.model.PointData
-import com.example.satmeasure.ui.map.AreaUnit
-import com.example.satmeasure.ui.map.MeasurementConverter
+import com.example.satmeasure.utils.AreaUnit
+import com.example.satmeasure.utils.MeasurementConverter
 import com.example.satmeasure.R
 import com.mapbox.maps.Snapshotter
 
